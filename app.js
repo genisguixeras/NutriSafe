@@ -1,12 +1,3 @@
-// Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('Service Worker registered!', reg))
-      .catch(err => console.error('Service Worker failed:', err));
-  });
-}
-
 // 1. Expanded Database of 27 Unique Recipes (9 Breakfasts, 9 Lunches, 9 Dinners)
 const recipes = [
     // --- BREAKFASTS (9) ---
