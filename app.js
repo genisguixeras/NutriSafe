@@ -278,17 +278,18 @@ function shuffle(array) {
 // 2. Main function to filter recipes and build the menu (No repetitions in a 3-day window)
 function generateMenu() {
     calendarGrid.innerHTML = "";
-    let allIngredients = [];
+    
+    // This array will hold ONLY the ingredients of the actually selected meals
+    let activeMenuIngredients = [];
 
     // Tracks recently used recipe IDs for the last 3 days to avoid immediate repeats
-    // Index 0 = Breakfasts, Index 1 = Lunches, Index 2 = Dinners
     let recentMeals = {
         "Breakfast": [],
         "Lunch": [],
         "Dinner": []
     };
 
-    days.forEach((day, index) => {
+    days.forEach((day) => {
         // Create card for the day
         const dayCard = document.createElement("div");
         dayCard.className = "day-card";
@@ -301,35 +302,28 @@ function generateMenu() {
 
         // Helper to select a unique meal type
         const getUniqueMeal = (mealType) => {
-            // Find safe recipes for this specific meal type
             let filtered = safeRecipes.filter(r => r.mealType === mealType);
             
-            // If no recipes match the strict filters, fallback to general recipe database for this type
             if (filtered.length === 0) {
                 filtered = recipes.filter(r => r.mealType === mealType);
             }
 
-            // Shuffle available choices to keep it dynamic
             let choices = shuffle([...filtered]);
-
-            // Try to find a choice not used in the last 3 days
             let selected = choices.find(choice => !recentMeals[mealType].includes(choice.id));
 
-            // If absolutely everything was used (e.g. strict filters left only 1-2 recipes), fallback to any choice
             if (!selected) {
                 selected = choices[0];
             }
 
-            // Update the 3-day history tracker (FIFO queue of max length 3)
             recentMeals[mealType].push(selected.id);
             if (recentMeals[mealType].length > 3) {
-                recentMeals[mealType].shift(); // Remove the oldest item (4 days ago)
+                recentMeals[mealType].shift();
             }
 
             return selected;
         };
 
-        // Select one breakfast, lunch, and dinner for the day
+        // Select the meals for the current day
         const breakfast = getUniqueMeal("Breakfast");
         const lunch = getUniqueMeal("Lunch");
         const dinner = getUniqueMeal("Dinner");
@@ -340,7 +334,6 @@ function generateMenu() {
             const mealDiv = document.createElement("div");
             mealDiv.className = "meal-item";
             
-            // Build tags HTML
             const tagsHTML = meal.safeFrom.map(tag => `<span class="tag">${tag}-Free</span>`).join(" ");
 
             mealDiv.innerHTML = `
@@ -350,14 +343,15 @@ function generateMenu() {
             `;
             dayCard.appendChild(mealDiv);
 
-            // Collect ingredients for the shopping list
-            allIngredients.push(...meal.ingredients);
+            // STAGE INGREDIENTS ONLY FROM THESE SELECTED MEALS
+            activeMenuIngredients.push(...meal.ingredients);
         });
 
         calendarGrid.appendChild(dayCard);
     });
 
-    updateShoppingList(allIngredients);
+    // Send only the current active menu ingredients to the shopping list generator
+    updateShoppingList(activeMenuIngredients);
 }
 
 // 3. Update the shopping list view
@@ -372,7 +366,8 @@ function updateShoppingList(ingredients) {
         return;
     }
 
-    uniqueIngredients.forEach(item => {
+    // Sort alphabetically so the shopping list is neat
+    uniqueIngredients.sort().forEach(item => {
         const li = document.createElement("li");
         li.innerHTML = `
             <label class="shopping-item">
