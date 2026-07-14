@@ -1,3 +1,4 @@
+
 // 1. Expanded Database of 27 Unique Recipes (9 Breakfasts, 9 Lunches, 9 Dinners)
 const recipes = [
     // --- BREAKFASTS (9) ---
@@ -354,72 +355,69 @@ function generateMenu() {
 // 3. Update the shopping list view (with dynamic duplicates removed)
 // 3. Smart Shopping List (Cleans duplicates, unifies casing and plurals)
 function updateShoppingList(ingredients) {
-    // Forçar el buidat absolut de la llista visual a l'HTML
+    // 3. Smart Shopping List (Amb botó de control de bàsics)
+let showPantry = false; // Estat inicial: amagats
+
+function updateShoppingList(ingredients) {
     listContainer.innerHTML = "";
     
-    // Normalization dictionary to merge different names for the same thing
-    const normalizationMap = {
-        "egg": "Eggs",
-        "eggs": "Eggs",
-        "avocado": "Avocado",
-        "apple": "Apple",
-        "apples": "Apple",
-        "bell pepper": "Bell peppers",
-        "bell peppers": "Bell peppers",
-        "sweet potato cubes": "Sweet potato",
-        "sweet potato": "Sweet potato",
-        "tofu cubes": "Tofu",
-        "tofu": "Tofu",
-        "beef strips": "Beef steak",
-        "beef steak": "Beef steak",
-        "chicken breast": "Chicken breast",
-        "sourdough bread": "Sourdough bread",
-        "gluten-free bread": "Gluten-free bread",
-        "canned tomato": "Canned tomatoes",
-        "canned tomatoes": "Canned tomatoes",
-        "cherry tomato": "Cherry tomatoes",
-        "cherry tomatoes": "Cherry tomatoes",
-        "tomato slices": "Tomato",
-        "tomato": "Tomato",
-        "mayonnaise (dairy-free)": "Mayonnaise",
-        "mayonnaise": "Mayonnaise",
-        "brown lentils": "Lentils",
-        "lentils": "Lentils",
-        "jasmine rice": "Jasmine rice",
-        "cooked rice": "Jasmine rice",
-        "zucchini (zoodles)": "Zucchini",
-        "zucchini": "Zucchini",
-        "lemon slices": "Lemon",
+    const pantryStaples = [
+        "olive oil", "salt and pepper", "water", "garlic", "onion", "onions", 
+        "black pepper", "salt", "oregano", "paprika", "cumin", "cinnamon", 
+        "fresh mint", "fresh parsley", "italian herbs", "lime juice", "lemon juice",
+        "red pepper flakes", "yellow curry paste", "mustard"
+    ];
+
+    const normalizationMap = { /* (Mantén el mateix mapa de normalització que tenies) */
+        "egg": "Eggs", "eggs": "Eggs", "avocado": "Avocado", "apple": "Apple",
+        "apples": "Apple", "bell pepper": "Bell peppers", "bell peppers": "Bell peppers",
+        "sweet potato cubes": "Sweet potato", "sweet potato": "Sweet potato",
+        "tofu cubes": "Tofu", "tofu": "Tofu", "beef strips": "Beef steak",
+        "beef steak": "Beef steak", "chicken breast": "Chicken breast",
+        "sourdough bread": "Sourdough bread", "gluten-free bread": "Gluten-free bread",
+        "canned tomato": "Canned tomatoes", "canned tomatoes": "Canned tomatoes",
+        "cherry tomato": "Cherry tomatoes", "cherry tomatoes": "Cherry tomatoes",
+        "tomato slices": "Tomato", "tomato": "Tomato", "mayonnaise (dairy-free)": "Mayonnaise",
+        "mayonnaise": "Mayonnaise", "brown lentils": "Lentils", "lentils": "Lentils",
+        "jasmine rice": "Jasmine rice", "cooked rice": "Jasmine rice",
+        "zucchini (zoodles)": "Zucchini", "zucchini": "Zucchini", "lemon slices": "Lemon",
         "lemon": "Lemon"
     };
 
-    const cleanIngredients = ingredients
-        .filter(item => item && typeof item === "string") // Filtrar només textos vàlids
+    // 1. Processar ingredients
+    let cleanIngredients = ingredients
+        .filter(item => item && typeof item === "string")
         .map(item => {
             const lower = item.trim().toLowerCase();
-            if (normalizationMap[lower]) {
-                return normalizationMap[lower];
-            }
-            return item.charAt(0).toUpperCase() + item.slice(1).trim();
+            return normalizationMap[lower] || item.charAt(0).toUpperCase() + item.slice(1).trim();
         });
 
-    // Eliminar completament duplicats de veritat
-    const uniqueIngredients = [...new Set(cleanIngredients)];
+    // 2. Aplicar filtre de rebost només si showPantry és fals
+    if (!showPantry) {
+        cleanIngredients = cleanIngredients.filter(item => !pantryStaples.includes(item.toLowerCase()));
+    }
 
+    const uniqueIngredients = [...new Set(cleanIngredients)].sort();
+
+    // 3. Crear botó d'alternança
+    const toggleBtn = document.createElement("button");
+    toggleBtn.textContent = showPantry ? "Amagar bàsics" : "Veure bàsics del rebost";
+    toggleBtn.style.marginBottom = "15px";
+    toggleBtn.onclick = () => {
+        showPantry = !showPantry;
+        updateShoppingList(ingredients); // Torna a dibuixar amb l'estat nou
+    };
+    listContainer.appendChild(toggleBtn);
+
+    // 4. Renderitzar la llista
     if (uniqueIngredients.length === 0) {
-        listContainer.innerHTML = "<li>No items in your shopping list yet.</li>";
+        listContainer.innerHTML += "<li>Tot net! No necessites res.</li>";
         return;
     }
 
-    // Ordenar i renderitzar
-    uniqueIngredients.sort().forEach(item => {
+    uniqueIngredients.forEach(item => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            <label class="shopping-item">
-                <input type="checkbox">
-                <span>${item}</span>
-            </label>
-        `;
+        li.innerHTML = `<label class="shopping-item"><input type="checkbox"> <span>${item}</span></label>`;
         listContainer.appendChild(li);
     });
 }
