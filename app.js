@@ -250,8 +250,8 @@ const recipes = [
     }
 ];
 
-// Days of the week
-const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+// Days of the week in Catalan for the UI
+const days = ["Dilluns", "Dimarts", "Dimecres", "Dijous", "Divendres", "Dissabte", "Diumenge"];
 
 // DOM Elements
 const calendarGrid = document.getElementById("calendar-grid");
@@ -261,65 +261,71 @@ const checkboxes = document.querySelectorAll("#settings input[type='checkbox']")
 // Store currently selected intolerances
 let selectedIntolerances = [];
 
-// Helper function to shuffle an array (for random selection)
+// Helper function to shuffle an array
 function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-// 2. Main function to filter recipes and build the menu (No repetitions in a 3-day window)
+// 2. Intelligent Menu Generation (Leftovers are rotated, never consecutive)
 function generateMenu() {
     calendarGrid.innerHTML = "";
-    
-    // This array will hold ONLY the ingredients of the actually selected meals
     let activeMenuIngredients = [];
 
-    // Tracks recently used recipe IDs for the last 3 days to avoid immediate repeats
-    let recentMeals = {
-        "Breakfast": [],
-        "Lunch": [],
-        "Dinner": []
+    // Filter recipes safe from checked intolerances
+    const safeRecipes = recipes.filter(recipe => {
+        return selectedIntolerances.every(intolerance => recipe.safeFrom.includes(intolerance));
+    });
+
+    // Helper to get unique, filtered options for each category
+    const getFilteredChoices = (mealType) => {
+        let filtered = safeRecipes.filter(r => r.mealType === mealType);
+        if (filtered.length === 0) {
+            filtered = recipes.filter(r => r.mealType === mealType);
+        }
+        return shuffle([...filtered]);
     };
 
-    days.forEach((day) => {
-        // Create card for the day
+    // --- STEP 1: PRE-SELECT THE UNIQUE MEALS TO BE ROTATED ---
+    const bChoices = getFilteredChoices("Breakfast");
+    const lChoices = getFilteredChoices("Lunch");
+    const dChoices = getFilteredChoices("Dinner");
+
+    // We only select 3 breakfast options
+    const b1 = bChoices[0];
+    const b2 = bChoices[1] || bChoices[0];
+    const b3 = bChoices[2] || bChoices[0];
+
+    // We only select 4 unique lunches (Lunch A, B, C, D)
+    const lA = lChoices[0];
+    const lB = lChoices[1] || lChoices[0];
+    const lC = lChoices[2] || lChoices[0];
+    const lD = lChoices[3] || lChoices[0];
+
+    // We only select 4 unique dinners (Dinner A, B, C, D)
+    const dA = dChoices[0];
+    const dB = dChoices[1] || dChoices[0];
+    const dC = dChoices[2] || dChoices[0];
+    const dD = dChoices[3] || dChoices[0];
+
+    // --- STEP 2: ASSIGN ROTATION TO PREVENT CONSECUTIVE REPETITIONS ---
+    // Dilluns -> A, Dimarts -> B, Dimecres -> C, Dijous -> A, Divendres -> B, Dissabte -> C, Diumenge -> D
+    const weeklyMenu = [
+        { day: "Dilluns", breakfast: b1, lunch: lA, dinner: dA },
+        { day: "Dimarts", breakfast: b2, lunch: lB, dinner: dB },
+        { day: "Dimecres", breakfast: b3, lunch: lC, dinner: dC },
+        { day: "Dijous", breakfast: b1, lunch: lA, dinner: dA },
+        { day: "Divendres", breakfast: b2, lunch: lB, dinner: dB },
+        { day: "Dissabte", breakfast: b3, lunch: lC, dinner: dC },
+        { day: "Diumenge", breakfast: b1, lunch: lD, dinner: dD }
+    ];
+
+    // --- STEP 3: RENDER THE MENU ---
+    weeklyMenu.forEach(dayPlan => {
         const dayCard = document.createElement("div");
         dayCard.className = "day-card";
-        dayCard.innerHTML = `<h3>${day}</h3>`;
+        dayCard.innerHTML = `<h3>${dayPlan.day}</h3>`;
 
-        // 1. Filter recipes safe from checked intolerances
-        const safeRecipes = recipes.filter(recipe => {
-            return selectedIntolerances.every(intolerance => recipe.safeFrom.includes(intolerance));
-        });
-
-        // Helper to select a unique meal type
-        const getUniqueMeal = (mealType) => {
-            let filtered = safeRecipes.filter(r => r.mealType === mealType);
-            
-            if (filtered.length === 0) {
-                filtered = recipes.filter(r => r.mealType === mealType);
-            }
-
-            let choices = shuffle([...filtered]);
-            let selected = choices.find(choice => !recentMeals[mealType].includes(choice.id));
-
-            if (!selected) {
-                selected = choices[0];
-            }
-
-            recentMeals[mealType].push(selected.id);
-            if (recentMeals[mealType].length > 3) {
-                recentMeals[mealType].shift();
-            }
-
-            return selected;
-        };
-
-        // Select the meals for the current day
-        const breakfast = getUniqueMeal("Breakfast");
-        const lunch = getUniqueMeal("Lunch");
-        const dinner = getUniqueMeal("Dinner");
-
-        const dayMeals = [breakfast, lunch, dinner];
+        const dayMeals = [dayPlan.breakfast, dayPlan.lunch, dayPlan.dinner];
 
         dayMeals.forEach(meal => {
             const mealDiv = document.createElement("div");
@@ -334,18 +340,18 @@ function generateMenu() {
             `;
             dayCard.appendChild(mealDiv);
 
-            // STAGE INGREDIENTS ONLY FROM THESE SELECTED MEALS
+            // Collect ingredients
             activeMenuIngredients.push(...meal.ingredients);
         });
 
         calendarGrid.appendChild(dayCard);
     });
 
-    // Send only the current active menu ingredients to the shopping list generator
+    // Update shopping list using only these selected ingredients
     updateShoppingList(activeMenuIngredients);
 }
 
-// 3. Update the shopping list view
+// 3. Update the shopping list view (with dynamic duplicates removed)
 function updateShoppingList(ingredients) {
     listContainer.innerHTML = "";
     
@@ -357,7 +363,7 @@ function updateShoppingList(ingredients) {
         return;
     }
 
-    // Sort alphabetically so the shopping list is neat
+    // Sort alphabetically and display
     uniqueIngredients.sort().forEach(item => {
         const li = document.createElement("li");
         li.innerHTML = `
