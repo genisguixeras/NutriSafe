@@ -1,0 +1,46 @@
+/* Color Palette: Sage Green & Warm Cream */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #FAF9F6; /* Warm Cream background */
+    color: #2C3531; /* Dark charcoal text */
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1 {
+    color: #4A7C59; /* Sage Green */
+    font-size: 2.5rem;
+}
+
+section {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+label {
+    background-color: #FAF9F6;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #E0DED7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+label:hover {
+    border-color: #4A7C59;
+    background-color: #F0EFEA;
+}
