@@ -49,21 +49,15 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         const b = getChoices("Breakfast"), l = getChoices("Lunch"), d = getChoices("Dinner");
-        const weeklyMenu = [
-            { day: "Dilluns", breakfast: b[0], lunch: l[0], dinner: d[0] },
-            { day: "Dimarts", breakfast: b[1]||b[0], lunch: l[1]||l[0], dinner: d[1]||d[0] },
-            { day: "Dimecres", breakfast: b[2]||b[0], lunch: l[2]||l[0], dinner: d[2]||d[0] },
-            { day: "Dijous", breakfast: b[0], lunch: l[0], dinner: d[0] },
-            { day: "Divendres", breakfast: b[1]||b[0], lunch: l[1]||l[0], dinner: d[1]||d[0] },
-            { day: "Dissabte", breakfast: b[2]||b[0], lunch: l[2]||l[0], dinner: d[2]||d[0] },
-            { day: "Diumenge", breakfast: b[0], lunch: l[3]||l[0], dinner: d[3]||d[0] }
-        ];
-
-        weeklyMenu.forEach(day => {
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        
+        days.forEach((dayName, index) => {
             const div = document.createElement("div");
-            div.innerHTML = `<h3>${day.day}</h3>`;
-            [day.breakfast, day.lunch, day.dinner].forEach(m => {
-                div.innerHTML += `<p>${m.mealType}: ${m.title}</p>`;
+            div.className = "day-card";
+            div.innerHTML = `<h3>${dayName}</h3>`;
+            const dailyMeals = [b[index % b.length], l[index % l.length], d[index % d.length]];
+            dailyMeals.forEach(m => {
+                div.innerHTML += `<div class="meal-item"><strong>${m.title}</strong><br>${m.prepTime}</div>`;
                 activeMenuIngredients.push(...m.ingredients);
             });
             calendarGrid.appendChild(div);
@@ -85,12 +79,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const unique = [...new Set(clean)].sort();
 
         const btn = document.createElement("button");
-        btn.textContent = showPantry ? "Amagar bàsics" : "Veure bàsics del rebost";
+        btn.className = "toggle-btn"; // Utilitzem una classe per a l'estil
+        btn.textContent = showPantry ? "Hide Pantry Staples" : "Show Pantry Staples";
         btn.onclick = () => { showPantry = !showPantry; generateMenu(); };
         listContainer.appendChild(btn);
 
         unique.forEach(item => {
-            listContainer.innerHTML += `<li><label><input type="checkbox"> ${item}</label></li>`;
+            const li = document.createElement("li");
+            li.innerHTML = `<label class="shopping-item"><input type="checkbox"> <span>${item}</span></label>`;
+            listContainer.appendChild(li);
         });
     }
 
