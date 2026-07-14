@@ -352,18 +352,66 @@ function generateMenu() {
 }
 
 // 3. Update the shopping list view (with dynamic duplicates removed)
+// 3. Smart Shopping List (Cleans duplicates, unifies casing and plurals)
 function updateShoppingList(ingredients) {
+    // Forçar el buidat absolut de la llista visual a l'HTML
     listContainer.innerHTML = "";
     
-    // Remove duplicates
-    const uniqueIngredients = [...new Set(ingredients)];
+    // Normalization dictionary to merge different names for the same thing
+    const normalizationMap = {
+        "egg": "Eggs",
+        "eggs": "Eggs",
+        "avocado": "Avocado",
+        "apple": "Apple",
+        "apples": "Apple",
+        "bell pepper": "Bell peppers",
+        "bell peppers": "Bell peppers",
+        "sweet potato cubes": "Sweet potato",
+        "sweet potato": "Sweet potato",
+        "tofu cubes": "Tofu",
+        "tofu": "Tofu",
+        "beef strips": "Beef steak",
+        "beef steak": "Beef steak",
+        "chicken breast": "Chicken breast",
+        "sourdough bread": "Sourdough bread",
+        "gluten-free bread": "Gluten-free bread",
+        "canned tomato": "Canned tomatoes",
+        "canned tomatoes": "Canned tomatoes",
+        "cherry tomato": "Cherry tomatoes",
+        "cherry tomatoes": "Cherry tomatoes",
+        "tomato slices": "Tomato",
+        "tomato": "Tomato",
+        "mayonnaise (dairy-free)": "Mayonnaise",
+        "mayonnaise": "Mayonnaise",
+        "brown lentils": "Lentils",
+        "lentils": "Lentils",
+        "jasmine rice": "Jasmine rice",
+        "cooked rice": "Jasmine rice",
+        "zucchini (zoodles)": "Zucchini",
+        "zucchini": "Zucchini",
+        "lemon slices": "Lemon",
+        "lemon": "Lemon"
+    };
+
+    const cleanIngredients = ingredients
+        .filter(item => item && typeof item === "string") // Filtrar només textos vàlids
+        .map(item => {
+            const lower = item.trim().toLowerCase();
+            if (normalizationMap[lower]) {
+                return normalizationMap[lower];
+            }
+            return item.charAt(0).toUpperCase() + item.slice(1).trim();
+        });
+
+    // Eliminar completament duplicats de veritat
+    const uniqueIngredients = [...new Set(cleanIngredients)];
 
     if (uniqueIngredients.length === 0) {
         listContainer.innerHTML = "<li>No items in your shopping list yet.</li>";
         return;
     }
 
-    // Sort alphabetically and display
+    // Ordenar i renderitzar
     uniqueIngredients.sort().forEach(item => {
         const li = document.createElement("li");
         li.innerHTML = `
@@ -375,7 +423,6 @@ function updateShoppingList(ingredients) {
         listContainer.appendChild(li);
     });
 }
-
 // 4. Listen to checkbox changes
 checkboxes.forEach(checkbox => {
     checkbox.addEventListener("change", (e) => {
