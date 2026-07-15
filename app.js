@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const unique = [...new Set(clean)].sort();
 
         const btn = document.createElement("button");
-        btn.className = "toggle-btn"; // Utilitzem una classe per a l'estil
+        btn.className = "toggle-btn";
         btn.textContent = showPantry ? "Hide Pantry Staples" : "Show Pantry Staples";
         btn.onclick = () => { showPantry = !showPantry; generateMenu(); };
         listContainer.appendChild(btn);
@@ -98,4 +98,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }));
 
     generateMenu();
+
+    // --- PWA Service Worker Registration ---
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("./sw.js")
+                .then(reg => console.log("Service Worker registered successfully:", reg.scope))
+                .catch(err => console.error("Service Worker registration failed:", err));
+        });
+    }
 });
