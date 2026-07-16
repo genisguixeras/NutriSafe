@@ -2,36 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriSafe</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Enllaços per convertir la web en App (PWA) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
-   <link rel="apple-touch-icon" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
 </head>
 <body>
 
-    <h1>NutriSafe</h1>
-    <p>Your personalized allergen-free meal planner</p>
-
-    <section id="settings">
-        <h2>1. Select Your Intolerances</h2>
-        <div class="checkbox-group">
-            <label><input type="checkbox" id="gluten" value="gluten"> Gluten-Free</label>
-            <label><input type="checkbox" id="lactose" value="lactose"> Lactose-Free</label>
-            <label><input type="checkbox" id="nuts" value="nuts"> Nut-Free</label>
+    <div id="onboarding-modal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to NutriSafe! 🥗</h2>
+            <p>To personalize your weekly meal plan, please select your diets and allergies:</p>
+            <div id="onboarding-checkboxes" class="checkbox-grid">
+                </div>
+            <button id="save-onboarding-btn" class="primary-btn">Save & Start Planning</button>
         </div>
-    </section>
+    </div>
 
-    <section id="planner">
-        <h2>2. Weekly Menu</h2>
-        <div id="calendar-grid"></div>
-    </section>
+    <header>
+        <div class="logo-container">
+            <img src="logo.png" alt="NutriSafe Logo" class="app-logo" onerror="this.style.display='none'">
+            <h1>NutriSafe</h1>
+        </div>
+    </header>
 
-    <section id="shopping-list">
-        <h2>3. Smart Shopping List</h2>
-        <ul id="list-container"></ul>
-    </section>
+    <nav class="top-nav">
+        <button class="nav-btn active" data-tab="tab-planner">📅 Weekly Plan</button>
+        <button class="nav-btn" data-tab="tab-shopping">🛒 Shopping List</button>
+        <button class="nav-btn" data-tab="tab-recipes">📖 Recipes</button>
+        <button class="nav-btn" data-tab="tab-settings">⚙️ Settings</button>
+    </nav>
+
+    <main>
+        <section id="tab-planner" class="tab-content active">
+            <h2>Your Weekly Meal Schedule</h2>
+            <p class="subtitle">Here is your organized week. Check the Recipes tab for cooking instructions.</p>
+            <div id="calendar-grid"></div>
+        </section>
+
+        <section id="tab-shopping" class="tab-content">
+            <h2>Smart Shopping List</h2>
+            <p class="subtitle">Ingredients needed for your weekly menu, organized for easy shopping.</p>
+            
+            <div class="shopping-section">
+                <h3>🍎 Main Groceries</h3>
+                <ul id="main-grocery-list" class="shopping-list"></ul>
+            </div>
+
+            <div class="shopping-section">
+                <h3>🧂 Pantry Staples (Check what you already have)</h3>
+                <ul id="pantry-list" class="shopping-list"></ul>
+            </div>
+        </section>
+
+        <section id="tab-recipes" class="tab-content">
+            <h2>Recipe Vault</h2>
+            <p class="subtitle">All safe recipes based on your current dietary settings.</p>
+            <div id="recipes-grid"></div>
+        </section>
+
+        <section id="tab-settings" class="tab-content">
+            <h2>App Settings & Preferences</h2>
+            
+            <div class="settings-card">
+                <h3>🌙 Appearance</h3>
+                <label class="switch-label">
+                    <span>Dark Mode</span>
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-card">
+                <h3>🥗 Dietary Restrictions & Allergies</h3>
+                <p>Select all that apply. Your weekly menu and recipe vault will update automatically.</p>
+                <div id="settings-checkboxes" class="checkbox-grid">
+                    </div>
+            </div>
+
+            <div class="settings-card">
+                <h3>🔄 Menu Management</h3>
+                <button id="regenerate-btn" class="secondary-btn">Generate New Weekly Menu</button>
+            </div>
+        </section>
+    </main>
 
     <script src="app.js"></script>
 </body>
