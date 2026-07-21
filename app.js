@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. LLISTA COMPLETA DE DIETES I AL·LÈRGIES (EN ANGLÈS)
+    // 1. LLISTA COMPLETA DE DIETES I AL·LÈRGIES
     const dietaryOptions = [
         { id: "none", label: "None (Eat Everything)" },
         { id: "vegan", label: "Vegan" },
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "fructose", label: "Fructose Intolerance" }
     ];
 
-    // 2. BASE DE DADES DE RECEPTES AMB PREPARACIÓ DETALLADA (INSTRUCTIONS)
+    // 2. BASE DE DADES DE RECEPTES AMB PREPARACIÓ DETALLADA
     const recipes = [
         { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["Gluten-free flour", "Almond milk", "Eggs", "Maple syrup"], instructions: "1. In a large bowl, whisk together the eggs and almond milk until fluffy.\n2. Gradually add the gluten-free flour while stirring constantly to avoid lumps.\n3. Heat a non-stick pan over medium heat with a drop of oil.\n4. Pour small portions of batter and cook for 2-3 minutes on each side until golden.\n5. Serve warm with a generous drizzle of maple syrup." },
         { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "10 min", safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Gluten-free oats", "Oat milk", "Banana", "Chia seeds"], instructions: "1. Combine the gluten-free oats and oat milk in a small saucepan over medium heat.\n2. Stir gently for 5 minutes until the oats absorb the liquid and become creamy.\n3. Slice the fresh banana into thin coins.\n4. Pour the oatmeal into a bowl, top with banana slices, and sprinkle chia seeds on top." },
@@ -52,78 +52,114 @@ document.addEventListener("DOMContentLoaded", () => {
     const calendarGrid = document.getElementById("calendar-grid");
     const mainGroceryList = document.getElementById("main-grocery-list");
     const pantryList = document.getElementById("pantry-list");
-    const recipesGrid = document.getElementById("recipes-grid");
-    const navButtons = document.querySelectorAll(".nav-btn");
-    const tabContents = document.querySelectorAll(".tab-content");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
-    const regenerateBtn = document.getElementById("regenerate-btn");
     
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
 
-    // 3. INICIALITZACIÓ
+    // 3. INICIALITZACIÓ I TRANSFORMACIÓ DEL DOM
     function init() {
         setupTheme();
+        transformDOMForFamily(); // Converteix la pestanya de Receptes en Pla Familiar i amaga botó
         renderCheckboxGrids();
         setupNavigation();
         checkOnboarding();
-        setupRecipeModal(); // Inicialitza el modal de receptes
-        generateMenu();
-        renderRecipes();
+        setupRecipeModal(); 
+        generateMenu(); // Genera menú individual per defecte al carregar
     }
 
-    // 4. CONFIGURACIÓ DE TABS DE NAVEGACIÓ
+    // TRANSFORMA L'HTML ANTIC AUTOMÀTICAMENT
+    function transformDOMForFamily() {
+        // Amagar botó de generar nou menú
+        const regenBtn = document.getElementById("regenerate-btn");
+        if (regenBtn) regenBtn.style.display = "none";
+
+        // Canviar el nom del botó de la pestanya
+        const recipeBtn = document.querySelector('button[data-tab="recipes-tab"]');
+        if (recipeBtn) {
+            recipeBtn.dataset.tab = "family-tab";
+            recipeBtn.innerHTML = "👨‍👩‍👧‍👦 Family Planner";
+        }
+
+        // Canviar el contingut i ID de la pestanya de receptes
+        const recipeTab = document.getElementById("recipes-tab");
+        if (recipeTab) {
+            recipeTab.id = "family-tab";
+            recipeTab.innerHTML = `
+                <h2>👨‍👩‍👧‍👦 Smart Family Meal Planner</h2>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">Configure your family members and their dietary needs. We automatically merge meals so you cook as few separate dishes as possible!</p>
+                <div class="card" style="padding: 15px; margin-bottom: 20px; background: rgba(0,0,0,0.02); border-radius: 8px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <label style="font-weight: bold;">How many people are in your family?</label>
+                    <input type="number" id="family-count-input" min="1" max="10" value="2" style="padding: 6px 10px; width: 60px; border-radius: 4px; border: 1px solid #ccc;">
+                    <button id="update-family-count-btn" class="btn-primary" style="padding: 6px 15px;">Set Members</button>
+                </div>
+                <div id="family-members-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;"></div>
+                <button id="generate-family-btn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1.1em; margin-bottom: 25px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">✨ Generate Family Menu & Update Shopping List</button>
+                <div id="family-calendar-grid" class="calendar-grid"></div>
+            `;
+            setupFamilyUI();
+        }
+    }
+
+    // 4. NAVEGACIÓ ENTRE PESTANYES
     function setupNavigation() {
+        const navButtons = document.querySelectorAll(".nav-btn");
+        const tabContents = document.querySelectorAll(".tab-content");
+
         navButtons.forEach(btn => {
             btn.addEventListener("click", () => {
                 navButtons.forEach(b => b.classList.remove("active"));
                 tabContents.forEach(t => t.classList.remove("active"));
                 
                 btn.classList.add("active");
-                document.getElementById(btn.dataset.tab).classList.add("active");
-            });
-        });
+                const targetTab = document.getElementById(btn.dataset.tab);
+                if (targetTab) targetTab.classList.add("active");
 
-        regenerateBtn.addEventListener("click", () => {
-            generateMenu();
-            alert("New weekly menu generated with fresh randomized meals!");
+                // Si tornes al planner individual, s'actualitza la llista de la compra amb ell
+                if (btn.dataset.tab === "planner-tab") {
+                    generateMenu();
+                }
+            });
         });
     }
 
-    // 5. GESTIÓ DEL MODE FOSC
+    // 5. MODE FOSC
     function setupTheme() {
         const isDark = localStorage.getItem("nutrisafe_dark_mode") === "true";
         if (isDark) {
             document.body.classList.add("dark-mode");
-            darkModeToggle.checked = true;
+            if (darkModeToggle) darkModeToggle.checked = true;
         }
-        darkModeToggle.addEventListener("change", () => {
-            document.body.classList.toggle("dark-mode");
-            localStorage.setItem("nutrisafe_dark_mode", darkModeToggle.checked);
-        });
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener("change", () => {
+                document.body.classList.toggle("dark-mode");
+                localStorage.setItem("nutrisafe_dark_mode", darkModeToggle.checked);
+            });
+        }
     }
 
-    // 6. GENERACIÓ DINÀMICA DELS CHECKBOXES (ONBOARDING I SETTINGS)
+    // 6. RENDER DE CHECKBOXES D'AL·LÈRGIES (INDIVIDUAL)
     function renderCheckboxGrids() {
         const onboardingGrid = document.getElementById("onboarding-checkboxes");
         const settingsGrid = document.getElementById("settings-checkboxes");
-        onboardingGrid.innerHTML = "";
-        settingsGrid.innerHTML = "";
+        if (onboardingGrid) onboardingGrid.innerHTML = "";
+        if (settingsGrid) settingsGrid.innerHTML = "";
 
         dietaryOptions.forEach(opt => {
             const isChecked = selectedRestrictions.includes(opt.id) ? "checked" : "";
-            const html = `<label><input type="checkbox" value="${opt.id}" ${isChecked}> ${opt.label}</label>`;
-            onboardingGrid.innerHTML += html;
-            settingsGrid.innerHTML += html;
+            const html = `<label style="display:block; margin: 5px 0;"><input type="checkbox" value="${opt.id}" ${isChecked}> ${opt.label}</label>`;
+            if (onboardingGrid) onboardingGrid.innerHTML += html;
+            if (settingsGrid) settingsGrid.innerHTML += html;
         });
 
-        settingsGrid.querySelectorAll("input").forEach(input => {
-            input.addEventListener("change", (e) => {
-                handleRestrictionChange(e.target.value, e.target.checked);
+        if (settingsGrid) {
+            settingsGrid.querySelectorAll("input").forEach(input => {
+                input.addEventListener("change", (e) => {
+                    handleRestrictionChange(e.target.value, e.target.checked);
+                });
             });
-        });
+        }
     }
 
-    // 7. GESTIÓ DE CANVIS EN LES DIETES
     function handleRestrictionChange(value, isChecked) {
         if (value === "none" && isChecked) {
             selectedRestrictions = ["none"];
@@ -142,48 +178,46 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
         generateMenu();
-        renderRecipes();
     }
 
-    // 8. PANTALLA DE BENVINGUDA (ONBOARDING)
     function checkOnboarding() {
         const hasVisited = localStorage.getItem("nutrisafe_visited");
         const modal = document.getElementById("onboarding-modal");
         
-        if (!hasVisited) {
+        if (!hasVisited && modal) {
             modal.style.display = "flex";
-            document.getElementById("save-onboarding-btn").addEventListener("click", () => {
-                const checked = Array.from(document.querySelectorAll("#onboarding-checkboxes input:checked")).map(i => i.value);
-                selectedRestrictions = checked.length ? checked : ["none"];
-                localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
-                localStorage.setItem("nutrisafe_visited", "true");
-                modal.style.display = "none";
-                renderCheckboxGrids();
-                generateMenu();
-                renderRecipes();
-            });
+            const saveBtn = document.getElementById("save-onboarding-btn");
+            if (saveBtn) {
+                saveBtn.addEventListener("click", () => {
+                    const checked = Array.from(document.querySelectorAll("#onboarding-checkboxes input:checked")).map(i => i.value);
+                    selectedRestrictions = checked.length ? checked : ["none"];
+                    localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
+                    localStorage.setItem("nutrisafe_visited", "true");
+                    modal.style.display = "none";
+                    renderCheckboxGrids();
+                    generateMenu();
+                });
+            }
         }
     }
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    // 9. GENERADOR DE MENÚS (ALEATORI REAL PER A CADA DIA)
+    // 7. GENERADOR DE MENÚ INDIVIDUAL (1 PERSONA)
     function generateMenu() {
+        if (!calendarGrid) return;
         calendarGrid.innerHTML = "";
         let activeMenuIngredients = [];
         
-        // Filtrar receptes segons restriccions
         const safeRecipes = recipes.filter(r => {
             if (selectedRestrictions.length === 0 || selectedRestrictions.includes("none")) return true;
             return selectedRestrictions.every(req => r.safeFor && r.safeFor.includes(req));
         });
 
-        // Funció per agafar una recepta aleatòria d'un tipus concret (amb fallback de seguretat)
         const getRandomMeal = (type) => {
             let f = safeRecipes.filter(r => r.mealType === type);
             if (f.length === 0) f = recipes.filter(r => r.mealType === type);
-            const shuffled = shuffle([...f]);
-            return shuffled[0]; // Agafa una diferent a l'atzar cada cop
+            return shuffle([...f])[0];
         };
 
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -193,12 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
             div.className = "day-card";
             div.innerHTML = `<h3>${dayName}</h3>`;
             
-            // Generem plats aleatoris nous per a cada dia
-            const dailyMeals = [
-                getRandomMeal("Breakfast"), 
-                getRandomMeal("Lunch"), 
-                getRandomMeal("Dinner")
-            ];
+            const dailyMeals = [getRandomMeal("Breakfast"), getRandomMeal("Lunch"), getRandomMeal("Dinner")];
 
             dailyMeals.forEach(m => {
                 const mealDiv = document.createElement("div");
@@ -206,8 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 mealDiv.style.cursor = "pointer";
                 mealDiv.title = "Click to view full recipe details";
                 mealDiv.innerHTML = `<strong>${m.mealType}: ${m.title}</strong><br><small>⏱️ ${m.prepTime} | 👁️ Click for details</small>`;
-                
-                // Clicar obre la recepta sencera!
                 mealDiv.addEventListener("click", () => openRecipeModal(m.id));
                 
                 div.appendChild(mealDiv);
@@ -219,8 +246,195 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList(activeMenuIngredients);
     }
 
-    // 10. LLISTA DE LA COMPRA SEPARADA (MAIN vs PANTRY)
+    // 8. LLOGICA DE LA FAMILIA SENCERA (FAMILY PLANNER)
+    function setupFamilyUI() {
+        let familyMembers = JSON.parse(localStorage.getItem("nutrisafe_family")) || [
+            { id: 1, name: "Person 1", restrictions: ["none"] },
+            { id: 2, name: "Person 2", restrictions: ["none"] }
+        ];
+
+        const countInput = document.getElementById("family-count-input");
+        if (countInput) countInput.value = familyMembers.length;
+
+        const renderMembers = () => {
+            const grid = document.getElementById("family-members-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
+            
+            familyMembers.forEach((m, idx) => {
+                let card = document.createElement("div");
+                card.className = "card";
+                card.style.padding = "15px";
+                card.style.border = "1px solid #e0e0e0";
+                card.style.borderRadius = "8px";
+                
+                let optionsHtml = dietaryOptions.map(opt => {
+                    let checked = m.restrictions.includes(opt.id) ? "checked" : "";
+                    return `<label style="display:block; font-size: 0.85em; margin: 3px 0;"><input type="checkbox" value="${opt.id}" class="fam-restriction" data-member="${idx}" ${checked}> ${opt.label}</label>`;
+                }).join("");
+
+                card.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>Member #${idx + 1} Name:</strong><br>
+                        <input type="text" value="${m.name}" class="fam-name-input" data-member="${idx}" style="width: 100%; padding: 6px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc;" placeholder="e.g. Mom, Leo...">
+                    </div>
+                    <strong style="font-size: 0.9em;">Dietary Needs:</strong>
+                    <div style="max-height: 140px; overflow-y: auto; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.02); border-radius: 4px;">
+                        ${optionsHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.querySelectorAll(".fam-name-input").forEach(inp => {
+                inp.addEventListener("input", (e) => {
+                    familyMembers[e.target.dataset.member].name = e.target.value || `Person ${parseInt(e.target.dataset.member)+1}`;
+                    saveFamily();
+                });
+            });
+
+            document.querySelectorAll(".fam-restriction").forEach(chk => {
+                chk.addEventListener("change", (e) => {
+                    let mIdx = e.target.dataset.member;
+                    let val = e.target.value;
+                    if (val === "none" && e.target.checked) {
+                        familyMembers[mIdx].restrictions = ["none"];
+                        e.target.closest("div").querySelectorAll("input").forEach(i => { if(i.value !== "none") i.checked = false; });
+                    } else {
+                        if (e.target.checked) {
+                            familyMembers[mIdx].restrictions.push(val);
+                            familyMembers[mIdx].restrictions = familyMembers[mIdx].restrictions.filter(r => r !== "none");
+                            let noneInp = e.target.closest("div").querySelector("input[value='none']");
+                            if (noneInp) noneInp.checked = false;
+                        } else {
+                            familyMembers[mIdx].restrictions = familyMembers[mIdx].restrictions.filter(r => r !== val);
+                            if (familyMembers[mIdx].restrictions.length === 0) familyMembers[mIdx].restrictions = ["none"];
+                        }
+                    }
+                    saveFamily();
+                });
+            });
+        };
+
+        const saveFamily = () => {
+            localStorage.setItem("nutrisafe_family", JSON.stringify(familyMembers));
+        };
+
+        document.getElementById("update-family-count-btn").addEventListener("click", () => {
+            let count = parseInt(countInput.value) || 1;
+            if (count < 1) count = 1; if (count > 10) count = 10;
+            while (familyMembers.length < count) {
+                familyMembers.push({ id: familyMembers.length + 1, name: `Person ${familyMembers.length + 1}`, restrictions: ["none"] });
+            }
+            while (familyMembers.length > count) {
+                familyMembers.pop();
+            }
+            saveFamily();
+            renderMembers();
+        });
+
+        document.getElementById("generate-family-btn").addEventListener("click", () => {
+            generateFamilyMenu(familyMembers);
+            alert("👨‍👩‍👧‍👦 Family menu generated! The shopping list has been updated for everyone.");
+        });
+
+        renderMembers();
+    }
+
+    // ALGORITME DE REPARTIMENT INTEL·LIGENT PER A LA FAMILIA
+    function getFamilyMealPlan(mealType, members) {
+        let unassigned = [...members];
+        let assignments = [];
+        let availableRecipes = shuffle([...recipes.filter(r => r.mealType === mealType)]);
+        if (availableRecipes.length === 0) availableRecipes = shuffle([...recipes]);
+
+        while (unassigned.length > 0) {
+            let bestRecipe = null;
+            let bestMatchMembers = [];
+
+            for (let recipe of availableRecipes) {
+                let compatibleMembers = unassigned.filter(member => {
+                    if (member.restrictions.length === 0 || member.restrictions.includes("none")) return true;
+                    return member.restrictions.every(req => recipe.safeFor && recipe.safeFor.includes(req));
+                });
+
+                if (compatibleMembers.length > bestMatchMembers.length) {
+                    bestMatchMembers = compatibleMembers;
+                    bestRecipe = recipe;
+                }
+            }
+
+            if (bestMatchMembers.length === 0) {
+                bestRecipe = availableRecipes[0];
+                bestMatchMembers = [unassigned[0]];
+            }
+
+            assignments.push({
+                recipe: bestRecipe,
+                members: bestMatchMembers.map(m => m.name || `Person ${m.id}`)
+            });
+
+            unassigned = unassigned.filter(m => !bestMatchMembers.includes(m));
+        }
+        return assignments;
+    }
+
+    // GENERADOR DIARI DEL MENÚ FAMILIAR
+    function generateFamilyMenu(members) {
+        const famGrid = document.getElementById("family-calendar-grid");
+        if (!famGrid) return;
+        famGrid.innerHTML = "";
+        let allFamilyIngredients = [];
+
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        
+        days.forEach(dayName => {
+            const div = document.createElement("div");
+            div.className = "day-card";
+            div.innerHTML = `<h3>${dayName}</h3>`;
+
+            ["Breakfast", "Lunch", "Dinner"].forEach(mealType => {
+                const assignments = getFamilyMealPlan(mealType, members);
+                
+                const mealDiv = document.createElement("div");
+                mealDiv.className = "meal-item";
+                mealDiv.style.marginBottom = "8px";
+                mealDiv.style.padding = "8px";
+                mealDiv.style.background = "rgba(0,0,0,0.03)";
+                mealDiv.style.borderRadius = "6px";
+
+                let headerHtml = `<strong style="color:#2c3e50;">${mealType}:</strong>`;
+                mealDiv.innerHTML = headerHtml;
+
+                assignments.forEach(assign => {
+                    let namesStr = assign.members.length === members.length ? "👨‍👩‍👧‍👦 <b>Everyone:</b>" : `👤 <b>${assign.members.join(", ")}:</b>`;
+                    
+                    let itemRow = document.createElement("div");
+                    itemRow.style.marginTop = "6px";
+                    itemRow.style.cursor = "pointer";
+                    itemRow.style.color = "#2ecc71";
+                    itemRow.className = "clickable-meal";
+                    itemRow.title = "Click to view full recipe details";
+                    itemRow.innerHTML = `${namesStr} ${assign.recipe.title} <br><small style="color:#7f8c8d;">(⏱️ ${assign.recipe.prepTime} | 👁️ Click for recipe)</small>`;
+                    
+                    itemRow.addEventListener("click", () => openRecipeModal(assign.recipe.id));
+                    mealDiv.appendChild(itemRow);
+                    allFamilyIngredients.push(...assign.recipe.ingredients);
+                });
+
+                div.appendChild(mealDiv);
+            });
+
+            famGrid.appendChild(div);
+        });
+
+        // Actualitza la llista de la compra amb TOTS els ingredients de la família
+        updateShoppingList(allFamilyIngredients);
+    }
+
+    // 9. LLISTA DE LA COMPRA SEPARADA
     function updateShoppingList(ingredients) {
+        if (!mainGroceryList || !pantryList) return;
         mainGroceryList.innerHTML = "";
         pantryList.innerHTML = "";
         
@@ -247,39 +461,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 11. MENÚ DE RECEPTES (RECIPE VAULT)
-    function renderRecipes() {
-        recipesGrid.innerHTML = "";
-        const safeRecipes = recipes.filter(r => {
-            if (selectedRestrictions.length === 0 || selectedRestrictions.includes("none")) return true;
-            return selectedRestrictions.every(req => r.safeFor && r.safeFor.includes(req));
-        });
-
-        safeRecipes.forEach(r => {
-            const card = document.createElement("div");
-            card.className = "recipe-card clickable-card";
-            card.style.cursor = "pointer";
-            card.title = "Click to view full recipe details";
-            card.innerHTML = `
-                <h3>${r.title}</h3>
-                <p><strong>Type:</strong> ${r.mealType} | <strong>Prep:</strong> ${r.prepTime}</p>
-                <div class="meal-item">
-                    <strong>Ingredients (${r.ingredients.length}):</strong>
-                    <ul style="margin: 5px 0; padding-left: 20px;">
-                        ${r.ingredients.map(ing => `<li>${ing}</li>`).join("")}
-                    </ul>
-                </div>
-                <button class="btn-primary" style="width: 100%; margin-top: 10px; padding: 8px;">📖 View Full Recipe & Instructions</button>
-            `;
-            
-            // Clicar la targeta també obre la recepta sencera
-            card.addEventListener("click", () => openRecipeModal(r.id));
-            
-            recipesGrid.appendChild(card);
-        });
-    }
-
-    // 12. GESTIÓ DEL MODAL SECUNDARI DE RECEPTES (NOU!)
+    // 10. GESTIÓ DEL MODAL DE RECEPTES
     function setupRecipeModal() {
         let modal = document.getElementById("recipe-detail-modal");
         if (!modal) {
@@ -336,14 +518,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("recipe-detail-modal").style.display = "flex";
     }
 
-    // Executar tot en iniciar
     init();
 
-    // --- PWA Service Worker Registration ---
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
             navigator.serviceWorker.register("./sw.js")
-                .then(reg => console.log("Service Worker registered successfully:", reg.scope))
                 .catch(err => console.error("Service Worker registration failed:", err));
         });
     }
