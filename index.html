@@ -10,7 +10,7 @@
     <header>
         <h1>🥑 NutriSafe</h1>
         <nav>
-            <button class="nav-btn active" data-tab="planner-tab">📅 Weekly Plan</button>
+            <button class="nav-btn active" data-tab="planner-tab">👤 Individual Plan</button>
             <button class="nav-btn" data-tab="shopping-tab">🛒 Shopping List</button>
             <button class="nav-btn" data-tab="family-tab">👨‍👩‍👧‍👦 Family Planner</button>
             <button class="nav-btn" data-tab="settings-tab">⚙️ Settings</button>
@@ -20,22 +20,15 @@
     <main>
         <!-- PESTANYA 1: MENÚ INDIVIDUAL -->
         <section id="planner-tab" class="tab-content active">
-            <h2>Weekly Meal Plan</h2>
+            <h2>Individual Meal Plan</h2>
             <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 2: LLISTA DE LA COMPRA -->
+        <!-- PESTANYA 2: LLISTA DE LA COMPRA (DISSENY D'ABANS) -->
         <section id="shopping-tab" class="tab-content">
             <h2>Shopping List</h2>
-            <div class="shopping-container">
-                <div class="card">
-                    <h3>🛒 Ingredients to Buy</h3>
-                    <ul id="main-grocery-list"></ul>
-                </div>
-                <div class="card">
-                    <h3>🧂 Pantry Staples (Check at home)</h3>
-                    <ul id="pantry-list"></ul>
-                </div>
+            <div class="card">
+                <ul id="shopping-list" style="padding-left: 0; margin: 0;"></ul>
             </div>
         </section>
 
