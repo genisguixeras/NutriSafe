@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    // MENÚ INDIVIDUAL (1 PERSONA)
+    // MENÚ INDIVIDUAL
     function generateMenu() {
         if (!calendarGrid) return;
         calendarGrid.innerHTML = "";
@@ -379,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList(allFamilyIngredients);
     }
 
-    // LLISTA DE LA COMPRA (AMB DUES SECCIONS SEPARADES I CHECKBOX)
+    // LLISTA DE LA COMPRA SEPARADA AUTOMÀTICAMENT
     function updateShoppingList(ingredients) {
         if (!mainGroceryList || !pantryList) return;
         mainGroceryList.innerHTML = "";
@@ -390,12 +390,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const pantryStaples = [
-            "olive oil", "salt and pepper", "water", "garlic", "onion", "onions", 
-            "black pepper", "salt", "oregano", "paprika", "cumin", "cinnamon", 
-            "fresh mint", "fresh parsley", "italian herbs", "lime juice", "lemon juice", 
-            "red pepper flakes", "yellow curry paste", "mustard", "vanilla extract", 
-            "sesame oil", "ginger"
+        // Paraules clau per detectar automàticament qualsevol bàsic del rebost/espècia/salsa
+        const stapleKeywords = [
+            "oil", "salt", "pepper", "garlic", "onion", "oregano", "paprika", "cumin", 
+            "cinnamon", "mint", "parsley", "herbs", "lime", "lemon", "curry paste", 
+            "mustard", "vanilla", "sesame", "ginger", "turmeric", "sauce", "spices", 
+            "powder", "water", "broth"
         ];
 
         const norm = { 
@@ -405,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "chicken breast":"Chicken breast", "sourdough bread":"Sourdough bread", 
             "canned tomatoes":"Canned tomatoes", "cherry tomatoes":"Cherry tomatoes", 
             "tomato":"Tomato", "mayonnaise":"Mayonnaise", "lentils":"Lentils", 
-            "jasmine rice":"Jasmine rice", "zucchini":"Zucchini", "lemon":"Lemon" 
+            "jasmine rice":"Jasmine rice", "zucchini":"Zucchini" 
         };
 
         let clean = ingredients.filter(i => i && typeof i === "string").map(i => {
@@ -442,7 +442,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            if (pantryStaples.includes(item.lower)) {
+            // Si l'ingredient conté qualsevol paraula del rebost, el posem a la segona llista
+            const isStaple = stapleKeywords.some(keyword => item.lower.includes(keyword));
+
+            if (isStaple) {
                 pantryList.appendChild(li);
             } else {
                 mainGroceryList.appendChild(li);
@@ -499,10 +502,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     init();
-
-    if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-            navigator.serviceWorker.register("./sw.js").catch(err => console.error(err));
-        });
-    }
 });
