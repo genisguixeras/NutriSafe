@@ -49,7 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     const calendarGrid = document.getElementById("calendar-grid");
-    const shoppingList = document.getElementById("shopping-list");
+    const mainGroceryList = document.getElementById("main-grocery-list");
+    const pantryList = document.getElementById("pantry-list");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
     
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
@@ -378,15 +379,24 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList(allFamilyIngredients);
     }
 
-    // LLISTA DE LA COMPRA (DISSENY D'ABANS)
+    // LLISTA DE LA COMPRA (AMB DUES SECCIONS SEPARADES I CHECKBOX)
     function updateShoppingList(ingredients) {
-        if (!shoppingList) return;
-        shoppingList.innerHTML = "";
+        if (!mainGroceryList || !pantryList) return;
+        mainGroceryList.innerHTML = "";
+        pantryList.innerHTML = "";
         
         if (!ingredients || ingredients.length === 0) {
-            shoppingList.innerHTML = "<li style='list-style:none; padding:10px;'>No ingredients needed.</li>";
+            mainGroceryList.innerHTML = "<li style='list-style:none; padding:10px;'>No ingredients needed.</li>";
             return;
         }
+
+        const pantryStaples = [
+            "olive oil", "salt and pepper", "water", "garlic", "onion", "onions", 
+            "black pepper", "salt", "oregano", "paprika", "cumin", "cinnamon", 
+            "fresh mint", "fresh parsley", "italian herbs", "lime juice", "lemon juice", 
+            "red pepper flakes", "yellow curry paste", "mustard", "vanilla extract", 
+            "sesame oil", "ginger"
+        ];
 
         const norm = { 
             "egg":"Eggs", "eggs":"Eggs", "avocado":"Avocado", "apple":"Apple", 
@@ -400,12 +410,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let clean = ingredients.filter(i => i && typeof i === "string").map(i => {
             let l = i.trim().toLowerCase();
-            return norm[l] || i.charAt(0).toUpperCase() + i.slice(1).trim();
+            return { original: norm[l] || i.charAt(0).toUpperCase() + i.slice(1).trim(), lower: l };
         });
 
-        const uniqueItems = Array.from(new Set(clean)).sort((a,b) => a.localeCompare(b));
+        const uniqueItems = Array.from(new Set(clean.map(a => a.original)))
+            .map(original => clean.find(a => a.original === original));
 
-        uniqueItems.forEach(item => {
+        uniqueItems.sort((a,b) => a.original.localeCompare(b.original)).forEach(item => {
             const li = document.createElement("li");
             li.style.listStyle = "none";
             li.style.padding = "10px 0";
@@ -414,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
             li.innerHTML = `
                 <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1.05em;">
                     <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                    <span>${item}</span>
+                    <span>${item.original}</span>
                 </label>
             `;
 
@@ -431,7 +442,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            shoppingList.appendChild(li);
+            if (pantryStaples.includes(item.lower)) {
+                pantryList.appendChild(li);
+            } else {
+                mainGroceryList.appendChild(li);
+            }
         });
     }
 
