@@ -17,35 +17,35 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "fructose", label: "Fructose Intolerance" }
     ];
 
-    // 2. BASE DE DADES DE RECEPTES (AMB CALORIES AFEGIDES)
+    // 2. BASE DE DADES AMB QUANTITATS REALS (Grams, Kg, ml, Unitats)
     const recipes = [
-        { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["Gluten-free flour", "Almond milk", "Eggs", "Maple syrup"], instructions: "1. Whisk eggs and almond milk.\n2. Add gluten-free flour while stirring.\n3. Cook on a hot pan 2-3 min per side.\n4. Serve with maple syrup." },
-        { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "10 min", calories: 310, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Gluten-free oats", "Oat milk", "Banana", "Chia seeds"], instructions: "1. Cook oats in oat milk for 5 min.\n2. Slice fresh banana.\n3. Top oatmeal with banana slices and chia seeds." },
-        { id: 3, title: "Avocado & Egg Toast", mealType: "Breakfast", prepTime: "5 min", calories: 340, safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["Sourdough bread", "Avocado", "Eggs", "Salt and pepper"], instructions: "1. Toast bread.\n2. Mash avocado with salt and spread on toast.\n3. Fry an egg and place on top." },
-        { id: 4, title: "Berry & Spinach Smoothie", mealType: "Breakfast", prepTime: "5 min", calories: 220, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Mixed berries", "Spinach", "Water", "Plant protein powder"], instructions: "1. Add berries, spinach, water, and protein powder to blender.\n2. Blend for 45s until smooth." },
-        { id: 5, title: "Chia Seed Pudding", mealType: "Breakfast", prepTime: "5 min", calories: 280, safeFor: ["vegan", "vegetarian", "keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Chia seeds", "Coconut milk", "Vanilla extract", "Strawberries"], instructions: "1. Mix chia seeds and coconut milk with vanilla.\n2. Refrigerate 2 hours.\n3. Top with fresh strawberries." },
-        { id: 6, title: "Scrambled Tofu Toast", mealType: "Breakfast", prepTime: "12 min", calories: 320, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "lactose"], ingredients: ["Sourdough bread", "Tofu", "Turmeric", "Spinach", "Olive oil"], instructions: "1. Crumble tofu into pan with olive oil and turmeric.\n2. Sauté with spinach for 4 minutes.\n3. Serve on toasted sourdough." },
-        { id: 7, title: "Banana & Almond Butter Toast", mealType: "Breakfast", prepTime: "5 min", calories: 360, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Gluten-free bread", "Almond butter", "Banana", "Cinnamon"], instructions: "1. Toast bread.\n2. Spread almond butter, top with banana slices and cinnamon." },
-        { id: 8, title: "Fruit Salad with Mint", mealType: "Breakfast", prepTime: "10 min", calories: 180, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Orange", "Apple", "Blueberries", "Fresh mint", "Lime juice"], instructions: "1. Dice orange and apple.\n2. Mix with blueberries, chopped mint, and lime juice." },
-        { id: 9, title: "Classic Shakshuka", mealType: "Breakfast", prepTime: "20 min", calories: 390, safeFor: ["vegetarian", "keto", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Eggs", "Canned tomatoes", "Bell peppers", "Onion", "Cumin"], instructions: "1. Sauté onion and peppers.\n2. Add tomatoes and spices, simmer 10 min.\n3. Make wells, crack eggs inside, cover and cook 5 min." },
-        { id: 10, title: "Chicken and Rice Stir-fry", mealType: "Lunch", prepTime: "20 min", calories: 520, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["Chicken breast", "Jasmine rice", "Gluten-free soy sauce", "Bell peppers", "Carrots"], instructions: "1. Cook rice.\n2. Stir-fry chicken strips and sliced veggies.\n3. Add soy sauce and combine with rice." },
-        { id: 11, title: "Quinoa Cucumber Salad", mealType: "Lunch", prepTime: "15 min", calories: 410, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Quinoa", "Cucumber", "Cherry tomatoes", "Olive oil", "Lemon"], instructions: "1. Boil quinoa and let cool.\n2. Mix with diced cucumber and cherry tomatoes.\n3. Dress with olive oil and lemon juice." },
-        { id: 12, title: "Lentil Vegetable Soup", mealType: "Lunch", prepTime: "35 min", calories: 380, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Lentils", "Carrots", "Celery", "Tomato paste", "Vegetable broth"], instructions: "1. Sauté carrots and celery.\n2. Add tomato paste, lentils, and broth.\n3. Simmer for 25 minutes until tender." },
-        { id: 13, title: "Beef and Broccoli Bowl", mealType: "Lunch", prepTime: "20 min", calories: 580, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["Beef steak", "Broccoli", "Garlic", "Ginger", "Tamari sauce"], instructions: "1. Slice beef thinly.\n2. Sear beef with garlic and ginger.\n3. Add steamed broccoli florets and tamari sauce." },
-        { id: 14, title: "Tuna Salad Wrap", mealType: "Lunch", prepTime: "10 min", calories: 450, safeFor: ["cows_milk", "peanuts", "tree_nuts", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["Canned tuna", "Gluten-free tortilla", "Cucumber", "Mayonnaise", "Lettuce"], instructions: "1. Mix tuna with mayonnaise and diced cucumber.\n2. Wrap in tortilla with lettuce leaves." },
-        { id: 15, title: "Greek Chickpea Salad", mealType: "Lunch", prepTime: "12 min", calories: 430, safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "fructose"], ingredients: ["Canned chickpeas", "Feta cheese", "Cucumber", "Onion", "Olive oil"], instructions: "1. Rinse chickpeas.\n2. Combine with chopped cucumber, onion, and feta.\n3. Drizzle with olive oil." },
-        { id: 16, title: "Turkey and Avocado Sandwich", mealType: "Lunch", prepTime: "8 min", calories: 470, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "lactose"], ingredients: ["Sourdough bread", "Turkey breast", "Avocado", "Tomato", "Mustard"], instructions: "1. Spread mustard on sourdough bread.\n2. Layer turkey breast, sliced avocado, and tomato." },
-        { id: 17, title: "Sweet Potato & Black Bean Bowl", mealType: "Lunch", prepTime: "25 min", calories: 490, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Sweet potato", "Black beans", "Coriander", "Lime", "Olive oil"], instructions: "1. Roast sweet potato cubes at 200°C for 20 min.\n2. Serve with warmed black beans, coriander, and lime juice." },
-        { id: 18, title: "Egg Fried Rice", mealType: "Lunch", prepTime: "15 min", calories: 510, safeFor: ["cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["Jasmine rice", "Eggs", "Green peas", "Onion", "Sesame oil"], instructions: "1. Sauté onion and peas in sesame oil.\n2. Scramble eggs in the pan, then toss in cooked rice." },
-        { id: 19, title: "Grilled Salmon with Broccoli", mealType: "Dinner", prepTime: "25 min", calories: 610, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Salmon fillet", "Broccoli", "Olive oil", "Lemon", "Garlic"], instructions: "1. Grill salmon 4-5 min per side.\n2. Roast broccoli with olive oil and garlic, serve with lemon." },
-        { id: 20, title: "Steak with Sweet Potato Fries", mealType: "Dinner", prepTime: "30 min", calories: 680, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Beef steak", "Sweet potato", "Olive oil", "Rosemary"], instructions: "1. Cut sweet potatoes into fries, toss with oil and bake 25 min at 210°C.\n2. Sear steak 3-4 min per side." },
-        { id: 21, title: "Lemon Herb Cod", mealType: "Dinner", prepTime: "20 min", calories: 420, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Cod fillet", "Fresh parsley", "Lemon", "Olive oil", "Asparagus"], instructions: "1. Place cod and asparagus on baking dish.\n2. Drizzle with oil, lemon, and parsley.\n3. Bake at 200°C for 12-15 min." },
-        { id: 22, title: "Pork Chops with Apples", mealType: "Dinner", prepTime: "25 min", calories: 590, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["Pork chops", "Apple", "Onion", "Cinnamon", "Olive oil"], instructions: "1. Sear pork chops 4 min per side.\n2. Sauté apple wedges and onions with cinnamon, serve together." },
-        { id: 23, title: "Baked Chicken Breasts", mealType: "Dinner", prepTime: "30 min", calories: 480, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Chicken breast", "Paprika", "Oregano", "Garlic", "Green beans"], instructions: "1. Rub chicken with spices and oil.\n2. Bake at 190°C with green beans for 22-25 min." },
-        { id: 24, title: "Shrimp Garlic Pasta", mealType: "Dinner", prepTime: "18 min", calories: 540, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "soy", "lactose", "fructose"], ingredients: ["Pasta", "Shrimp", "Garlic", "Olive oil", "Red pepper flakes"], instructions: "1. Boil pasta.\n2. Sauté garlic and shrimp in olive oil for 3 min.\n3. Toss pasta in garlic shrimp oil." },
-        { id: 25, title: "Beef Bolognese with Zoodles", mealType: "Dinner", prepTime: "25 min", calories: 460, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Beef steak", "Zucchini", "Canned tomatoes", "Italian herbs", "Onion"], instructions: "1. Brown beef and onions, add tomatoes and herbs, simmer 15 min.\n2. Serve over spiralized zucchini noodles." },
-        { id: 26, title: "Tofu & Vegetable Curry", mealType: "Dinner", prepTime: "25 min", calories: 430, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["Tofu", "Coconut milk", "Yellow curry paste", "Bell peppers", "Spinach"], instructions: "1. Sauté curry paste in coconut milk.\n2. Add peppers, tofu, simmer 12 min.\n3. Stir in spinach at the end." },
-        { id: 27, title: "Turkey Burgers with Salad", mealType: "Dinner", prepTime: "20 min", calories: 450, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["Turkey breast", "Mixed greens", "Tomato", "Cucumber", "Olive oil"], instructions: "1. Form turkey patties and cook 5 min per side.\n2. Serve over fresh mixed salad." }
+        { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk.\n2. Add gluten-free flour while stirring.\n3. Cook on a hot pan 2-3 min per side.\n4. Serve with maple syrup." },
+        { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "10 min", calories: 310, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["80g Gluten-free oats", "250ml Oat milk", "1 Banana", "1 tbsp Chia seeds"], instructions: "1. Cook oats in oat milk for 5 min.\n2. Slice fresh banana.\n3. Top oatmeal with banana slices and chia seeds." },
+        { id: 3, title: "Avocado & Egg Toast", mealType: "Breakfast", prepTime: "5 min", calories: 340, safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["2 slices Sourdough bread", "1 Avocado", "2 Eggs", "1 pinch Salt and pepper"], instructions: "1. Toast bread.\n2. Mash avocado with salt and spread on toast.\n3. Fry an egg and place on top." },
+        { id: 4, title: "Berry & Spinach Smoothie", mealType: "Breakfast", prepTime: "5 min", calories: 220, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["100g Mixed berries", "50g Spinach", "200ml Water", "30g Plant protein powder"], instructions: "1. Add berries, spinach, water, and protein powder to blender.\n2. Blend for 45s until smooth." },
+        { id: 5, title: "Chia Seed Pudding", mealType: "Breakfast", prepTime: "5 min", calories: 280, safeFor: ["vegan", "vegetarian", "keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["40g Chia seeds", "200ml Coconut milk", "1 tsp Vanilla extract", "100g Strawberries"], instructions: "1. Mix chia seeds and coconut milk with vanilla.\n2. Refrigerate 2 hours.\n3. Top with fresh strawberries." },
+        { id: 6, title: "Scrambled Tofu Toast", mealType: "Breakfast", prepTime: "12 min", calories: 320, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "lactose"], ingredients: ["2 slices Sourdough bread", "200g Tofu", "1/2 tsp Turmeric", "30g Spinach", "1 tbsp Olive oil"], instructions: "1. Crumble tofu into pan with olive oil and turmeric.\n2. Sauté with spinach for 4 minutes.\n3. Serve on toasted sourdough." },
+        { id: 7, title: "Banana & Almond Butter Toast", mealType: "Breakfast", prepTime: "5 min", calories: 360, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["2 slices Gluten-free bread", "2 tbsp Almond butter", "1 Banana", "1/2 tsp Cinnamon"], instructions: "1. Toast bread.\n2. Spread almond butter, top with banana slices and cinnamon." },
+        { id: 8, title: "Fruit Salad with Mint", mealType: "Breakfast", prepTime: "10 min", calories: 180, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["1 Orange", "1 Apple", "80g Blueberries", "4 leaves Fresh mint", "1 tbsp Lime juice"], instructions: "1. Dice orange and apple.\n2. Mix with blueberries, chopped mint, and lime juice." },
+        { id: 9, title: "Classic Shakshuka", mealType: "Breakfast", prepTime: "20 min", calories: 390, safeFor: ["vegetarian", "keto", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["2 Eggs", "200g Canned tomatoes", "1 Bell pepper", "1/2 Onion", "1 tsp Cumin"], instructions: "1. Sauté onion and peppers.\n2. Add tomatoes and spices, simmer 10 min.\n3. Make wells, crack eggs inside, cover and cook 5 min." },
+        { id: 10, title: "Chicken and Rice Stir-fry", mealType: "Lunch", prepTime: "20 min", calories: 520, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["200g Chicken breast", "150g Jasmine rice", "2 tbsp Soy sauce", "1 Bell pepper", "1 Carrot"], instructions: "1. Cook rice.\n2. Stir-fry chicken strips and sliced veggies.\n3. Add soy sauce and combine with rice." },
+        { id: 11, title: "Quinoa Cucumber Salad", mealType: "Lunch", prepTime: "15 min", calories: 410, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["100g Quinoa", "1 Cucumber", "100g Cherry tomatoes", "2 tbsp Olive oil", "1/2 Lemon"], instructions: "1. Boil quinoa and let cool.\n2. Mix with diced cucumber and cherry tomatoes.\n3. Dress with olive oil and lemon juice." },
+        { id: 12, title: "Lentil Vegetable Soup", mealType: "Lunch", prepTime: "35 min", calories: 380, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["120g Lentils", "2 Carrots", "2 stalks Celery", "1 tbsp Tomato paste", "400ml Vegetable broth"], instructions: "1. Sauté carrots and celery.\n2. Add tomato paste, lentils, and broth.\n3. Simmer for 25 minutes until tender." },
+        { id: 13, title: "Beef and Broccoli Bowl", mealType: "Lunch", prepTime: "20 min", calories: 580, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["200g Beef steak", "150g Broccoli", "2 cloves Garlic", "10g Ginger", "2 tbsp Tamari sauce"], instructions: "1. Slice beef thinly.\n2. Sear beef with garlic and ginger.\n3. Add steamed broccoli florets and tamari sauce." },
+        { id: 14, title: "Tuna Salad Wrap", mealType: "Lunch", prepTime: "10 min", calories: 450, safeFor: ["cows_milk", "peanuts", "tree_nuts", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["1 canned Tuna (120g)", "1 Gluten-free tortilla", "1/2 Cucumber", "1 tbsp Mayonnaise", "3 leaves Lettuce"], instructions: "1. Mix tuna with mayonnaise and diced cucumber.\n2. Wrap in tortilla with lettuce leaves." },
+        { id: 15, title: "Greek Chickpea Salad", mealType: "Lunch", prepTime: "12 min", calories: 430, safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "fructose"], ingredients: ["200g Canned chickpeas", "60g Feta cheese", "1 Cucumber", "1/2 Onion", "2 tbsp Olive oil"], instructions: "1. Rinse chickpeas.\n2. Combine with chopped cucumber, onion, and feta.\n3. Drizzle with olive oil." },
+        { id: 16, title: "Turkey and Avocado Sandwich", mealType: "Lunch", prepTime: "8 min", calories: 470, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "lactose"], ingredients: ["2 slices Sourdough bread", "100g Turkey breast", "1/2 Avocado", "1 Tomato", "1 tsp Mustard"], instructions: "1. Spread mustard on sourdough bread.\n2. Layer turkey breast, sliced avocado, and tomato." },
+        { id: 17, title: "Sweet Potato & Black Bean Bowl", mealType: "Lunch", prepTime: "25 min", calories: 490, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["1 Sweet potato (200g)", "150g Black beans", "5g Coriander", "1/2 Lime", "1 tbsp Olive oil"], instructions: "1. Roast sweet potato cubes at 200°C for 20 min.\n2. Serve with warmed black beans, coriander, and lime juice." },
+        { id: 18, title: "Egg Fried Rice", mealType: "Lunch", prepTime: "15 min", calories: 510, safeFor: ["cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose", "fructose"], ingredients: ["180g Jasmine rice", "2 Eggs", "50g Green peas", "1/2 Onion", "1 tbsp Sesame oil"], instructions: "1. Sauté onion and peas in sesame oil.\n2. Scramble eggs in the pan, then toss in cooked rice." },
+        { id: 19, title: "Grilled Salmon with Broccoli", mealType: "Dinner", prepTime: "25 min", calories: 610, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["200g Salmon fillet", "180g Broccoli", "2 tbsp Olive oil", "1/2 Lemon", "1 clove Garlic"], instructions: "1. Grill salmon 4-5 min per side.\n2. Roast broccoli with olive oil and garlic, serve with lemon." },
+        { id: 20, title: "Steak with Sweet Potato Fries", mealType: "Dinner", prepTime: "30 min", calories: 680, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["220g Beef steak", "200g Sweet potato", "2 tbsp Olive oil", "1 sprig Rosemary"], instructions: "1. Cut sweet potatoes into fries, toss with oil and bake 25 min at 210°C.\n2. Sear steak 3-4 min per side." },
+        { id: 21, title: "Lemon Herb Cod", mealType: "Dinner", prepTime: "20 min", calories: 420, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["200g Cod fillet", "10g Fresh parsley", "1/2 Lemon", "2 tbsp Olive oil", "150g Asparagus"], instructions: "1. Place cod and asparagus on baking dish.\n2. Drizzle with oil, lemon, and parsley.\n3. Bake at 200°C for 12-15 min." },
+        { id: 22, title: "Pork Chops with Apples", mealType: "Dinner", prepTime: "25 min", calories: 590, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["200g Pork chops", "1 Apple", "1/2 Onion", "1/2 tsp Cinnamon", "1 tbsp Olive oil"], instructions: "1. Sear pork chops 4 min per side.\n2. Sauté apple wedges and onions with cinnamon, serve together." },
+        { id: 23, title: "Baked Chicken Breasts", mealType: "Dinner", prepTime: "30 min", calories: 480, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["220g Chicken breast", "1 tsp Paprika", "1 tsp Oregano", "1 clove Garlic", "150g Green beans"], instructions: "1. Rub chicken with spices and oil.\n2. Bake at 190°C with green beans for 22-25 min." },
+        { id: 24, title: "Shrimp Garlic Pasta", mealType: "Dinner", prepTime: "18 min", calories: 540, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "soy", "lactose", "fructose"], ingredients: ["120g Pasta", "150g Shrimp", "2 cloves Garlic", "2 tbsp Olive oil", "1 pinch Red pepper flakes"], instructions: "1. Boil pasta.\n2. Sauté garlic and shrimp in olive oil for 3 min.\n3. Toss pasta in garlic shrimp oil." },
+        { id: 25, title: "Beef Bolognese with Zoodles", mealType: "Dinner", prepTime: "25 min", calories: 460, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["180g Minced beef", "2 Zucchinis", "200g Canned tomatoes", "1 tsp Italian herbs", "1/2 Onion"], instructions: "1. Brown beef and onions, add tomatoes and herbs, simmer 15 min.\n2. Serve over spiralized zucchini noodles." },
+        { id: 26, title: "Tofu & Vegetable Curry", mealType: "Dinner", prepTime: "25 min", calories: 430, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["180g Tofu", "200ml Coconut milk", "1 tbsp Yellow curry paste", "1 Bell pepper", "50g Spinach"], instructions: "1. Sauté curry paste in coconut milk.\n2. Add peppers, tofu, simmer 12 min.\n3. Stir in spinach at the end." },
+        { id: 27, title: "Turkey Burgers with Salad", mealType: "Dinner", prepTime: "20 min", calories: 450, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["180g Turkey breast", "80g Mixed greens", "1 Tomato", "1 Cucumber", "1 tbsp Olive oil"], instructions: "1. Form turkey patties and cook 5 min per side.\n2. Serve over fresh mixed salad." }
     ];
 
     const calendarGrid = document.getElementById("calendar-grid");
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const darkModeToggle = document.getElementById("dark-mode-toggle");
     
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
-    let currentWeeklyPlan = []; // Guarda el menú actul de la setmana
+    let currentWeeklyPlan = [];
     let isProUser = localStorage.getItem("nutrisafe_pro") === "true";
     let familyUsageCount = parseInt(localStorage.getItem("nutrisafe_family_count") || "0");
 
@@ -63,14 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
         renderCheckboxGrids();
         setupNavigation();
         checkOnboarding();
-        setupRecipeModal();
         setupFamilyUI();
-        setupExportAndServings();
-        setupRecipeBookModal();
+        setupExport();
+        setupRecipeModal();
         generateMenu();
     }
 
-    // NOTIFICACIONS FLOTANTS (TOASTS)
     function showToast(message, emoji = "✨") {
         const container = document.getElementById("toast-container");
         if (!container) return;
@@ -85,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 3000);
     }
 
-    // NAVEGACIÓ ENTRE PESTANYES
     function setupNavigation() {
         const navButtons = document.querySelectorAll(".nav-btn");
         const tabContents = document.querySelectorAll(".tab-content");
@@ -178,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    // MENÚ INDIVIDUAL AMB REGENERACIÓ D'ÀPAT ÚNIC I CÀLCUL DE CALORIES/TEMPS
     function generateMenu() {
         if (!calendarGrid) return;
         currentWeeklyPlan = [];
@@ -219,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const div = document.createElement("div");
             div.className = "day-card";
 
-            // Calculat temps i calories diàries
             let totalTime = 0;
             let totalCals = 0;
             Object.values(dayData.meals).forEach(m => {
@@ -275,7 +270,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(`Swapped ${mealType} for ${newMeal.title}!`, "🔄");
     }
 
-    // PLA FAMILIAR AMB BLOQUEIG PRO I MODAL PREMIUM
     function setupFamilyUI() {
         let familyMembers = JSON.parse(localStorage.getItem("nutrisafe_family")) || [
             { id: 1, name: "Person 1", restrictions: ["none"] },
@@ -364,7 +358,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (genFamBtn) {
             genFamBtn.addEventListener("click", () => {
-                // Comprovació de prova gratuïta / PRO
                 if (!isProUser && familyUsageCount >= 1) {
                     premModal.style.display = "flex";
                     return;
@@ -477,7 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList(allFamilyIngredients);
     }
 
-    // LLISTA DE LA COMPRA SEPARADA AMB RACIONS
+    // LLISTA DE LA COMPRA AMB SUPORT PER A QUANTITATS EXPLICITES
     function updateShoppingList(ingredients) {
         if (!mainGroceryList || !pantryList) return;
         mainGroceryList.innerHTML = "";
@@ -488,8 +481,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const servingsMultiplier = parseInt(document.getElementById("servings-select")?.value || "1");
-
         const stapleKeywords = [
             "oil", "salt", "pepper", "garlic", "onion", "oregano", "paprika", "cumin", 
             "cinnamon", "mint", "parsley", "herbs", "lime", "lemon", "curry paste", 
@@ -497,36 +488,17 @@ document.addEventListener("DOMContentLoaded", () => {
             "powder", "water", "broth"
         ];
 
-        const norm = { 
-            "egg":"Eggs", "eggs":"Eggs", "avocado":"Avocado", "apple":"Apple", 
-            "apples":"Apple", "bell pepper":"Bell peppers", "bell peppers":"Bell peppers", 
-            "sweet potato":"Sweet potato", "tofu":"Tofu", "beef steak":"Beef steak", 
-            "chicken breast":"Chicken breast", "sourdough bread":"Sourdough bread", 
-            "canned tomatoes":"Canned tomatoes", "cherry tomatoes":"Cherry tomatoes", 
-            "tomato":"Tomato", "mayonnaise":"Mayonnaise", "lentils":"Lentils", 
-            "jasmine rice":"Jasmine rice", "zucchini":"Zucchini" 
-        };
-
-        let clean = ingredients.filter(i => i && typeof i === "string").map(i => {
-            let l = i.trim().toLowerCase();
-            return { original: norm[l] || i.charAt(0).toUpperCase() + i.slice(1).trim(), lower: l };
-        });
-
-        const uniqueItems = Array.from(new Set(clean.map(a => a.original)))
-            .map(original => clean.find(a => a.original === original));
-
-        uniqueItems.sort((a,b) => a.original.localeCompare(b.original)).forEach(item => {
+        const uniqueItems = Array.from(new Set(ingredients.map(i => i.trim())));
+        uniqueItems.sort().forEach(item => {
             const li = document.createElement("li");
             li.style.listStyle = "none";
             li.style.padding = "10px 0";
             li.style.borderBottom = "1px solid rgba(0,0,0,0.06)";
-            
-            let displayQuantity = servingsMultiplier > 1 ? ` (x${servingsMultiplier})` : "";
 
             li.innerHTML = `
                 <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1.05em;">
                     <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                    <span>${item.original}${displayQuantity}</span>
+                    <span>${item}</span>
                 </label>
             `;
 
@@ -543,7 +515,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            const isStaple = stapleKeywords.some(keyword => item.lower.includes(keyword));
+            const lower = item.toLowerCase();
+            const isStaple = stapleKeywords.some(keyword => lower.includes(keyword));
 
             if (isStaple) {
                 pantryList.appendChild(li);
@@ -553,16 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // EXPORTACIÓ DE LA LLISTA (COPIAR, WHATSAPP, IMPRIMIR)
-    function setupExportAndServings() {
-        const servingsSelect = document.getElementById("servings-select");
-        if (servingsSelect) {
-            servingsSelect.addEventListener("change", () => {
-                renderIndividualCalendar();
-                showToast(`Quantities adjusted for ${servingsSelect.value} person(s).`, "🍽️");
-            });
-        }
-
+    function setupExport() {
         const regenBtn = document.getElementById("regen-individual-btn");
         if (regenBtn) {
             regenBtn.addEventListener("click", () => {
@@ -596,60 +560,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // RECIPE BOOK / CERCADOR
-    function setupRecipeBookModal() {
-        const modal = document.getElementById("recipe-book-modal");
-        const openBtn = document.getElementById("open-recipe-book-btn");
-        const closeBtn = document.getElementById("close-recipe-book");
-        const searchInput = document.getElementById("recipe-search-input");
-        const listContainer = document.getElementById("recipe-book-list");
-
-        if (!modal || !openBtn) return;
-
-        const renderRecipes = (filterText = "") => {
-            listContainer.innerHTML = "";
-            const filtered = recipes.filter(r => 
-                r.title.toLowerCase().includes(filterText.toLowerCase()) ||
-                r.ingredients.some(ing => ing.toLowerCase().includes(filterText.toLowerCase()))
-            );
-
-            if (filtered.length === 0) {
-                listContainer.innerHTML = "<p style='color:#888;'>No recipes found.</p>";
-                return;
-            }
-
-            filtered.forEach(r => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.style.padding = "12px";
-                card.style.cursor = "pointer";
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <strong style="color:#2ecc71; font-size:1.05em;">${r.title}</strong>
-                        <span style="font-size:0.8em; background:rgba(0,0,0,0.05); padding:2px 8px; border-radius:10px;">${r.mealType}</span>
-                    </div>
-                    <small style="color:#7f8c8d; display:block; margin-top:4px;">⏱️ ${r.prepTime} | 🔥 ${r.calories} kcal</small>
-                    <small style="color:#555; display:block; margin-top:4px;"><b>Ingredients:</b> ${r.ingredients.join(", ")}</small>
-                `;
-                card.addEventListener("click", () => {
-                    modal.style.display = "none";
-                    openRecipeModal(r.id);
-                });
-                listContainer.appendChild(card);
-            });
-        };
-
-        openBtn.addEventListener("click", () => {
-            modal.style.display = "flex";
-            renderRecipes();
-        });
-
-        closeBtn.addEventListener("click", () => modal.style.display = "none");
-        searchInput.addEventListener("input", (e) => renderRecipes(e.target.value));
-        modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
-    }
-
-    // MODAL DE RECEPTES DETALLADES
     function setupRecipeModal() {
         let modal = document.getElementById("recipe-detail-modal");
         if (!modal) {
@@ -657,18 +567,9 @@ document.addEventListener("DOMContentLoaded", () => {
             modal.id = "recipe-detail-modal";
             modal.className = "modal";
             modal.style.display = "none";
-            modal.style.position = "fixed";
-            modal.style.top = "0";
-            modal.style.left = "0";
-            modal.style.width = "100%";
-            modal.style.height = "100%";
-            modal.style.backgroundColor = "rgba(0,0,0,0.7)";
-            modal.style.zIndex = "1000";
-            modal.style.justifyContent = "center";
-            modal.style.alignItems = "center";
             
             modal.innerHTML = `
-                <div class="modal-content" style="background: var(--card-bg, #fff); padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; position: relative;">
+                <div class="modal-content">
                     <span id="close-recipe-modal" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
                     <h2 id="modal-recipe-title" style="margin-top: 0; color: #2ecc71;"></h2>
                     <p id="modal-recipe-meta" style="font-size: 0.9em; color: #7f8c8d; border-bottom: 1px solid #ccc; padding-bottom: 10px;"></p>
