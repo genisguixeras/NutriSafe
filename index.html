@@ -10,7 +10,6 @@
     <header>
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <h1 style="margin: 0;">🥑 NutriSafe</h1>
-            <button id="open-recipe-book-btn" class="btn-secondary" style="padding: 6px 12px; font-size: 0.9em; border-radius: 20px; border: 1px solid #2ecc71; background: transparent; color: #2ecc71; cursor: pointer; font-weight: bold;">🔍 Recipe Book</button>
         </div>
         <nav style="margin-top: 15px;">
             <button class="nav-btn active" data-tab="planner-tab">👤 Individual Plan</button>
@@ -25,22 +24,12 @@
         <section id="planner-tab" class="tab-content active">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
                 <h2>Individual Meal Plan</h2>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label for="servings-select" style="font-weight: bold; font-size: 0.9em;">🍽️ Servings:</label>
-                    <select id="servings-select" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #ccc; font-weight: bold;">
-                        <option value="1">1 Person</option>
-                        <option value="2">2 People</option>
-                        <option value="3">3 People</option>
-                        <option value="4">4 People</option>
-                        <option value="6">6 People</option>
-                    </select>
-                    <button id="regen-individual-btn" style="padding: 6px 12px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔄 Regenerate Week</button>
-                </div>
+                <button id="regen-individual-btn" style="padding: 8px 16px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">🔄 Regenerate Week</button>
             </div>
             <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 2: LLISTA DE LA COMPRA SEPARADA AMB EXPORTACIÓ -->
+        <!-- PESTANYA 2: LLISTA DE LA COMPRA AMB QUANTITATS REALS -->
         <section id="shopping-tab" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
                 <h2>Shopping List</h2>
@@ -102,7 +91,7 @@
         <div class="modal-content" style="text-align: center; max-width: 420px;">
             <div style="font-size: 3em; margin-bottom: 10px;">👑</div>
             <h2 style="margin-top: 0; color: #2ecc71;">Unlock Family Planner PRO</h2>
-            <p style="color: #666; font-size: 0.95em; line-height: 1.5;">You've used your free trial generation! Upgrade to <strong>NutriSafe PRO</strong> to enjoy unlimited smart family planning, custom recipes, and automatic list merging.</p>
+            <p style="color: #666; font-size: 0.95em; line-height: 1.5;">You've used your free trial generation! Upgrade to <strong>NutriSafe PRO</strong> to enjoy unlimited smart family planning and automatic list merging.</p>
             <ul style="text-align: left; background: rgba(46,204,113,0.1); padding: 15px 20px 15px 35px; border-radius: 8px; font-size: 0.9em; margin: 15px 0;">
                 <li>✨ Unlimited Family Members</li>
                 <li>⚡ Smart Ingredient Merging</li>
@@ -111,16 +100,6 @@
             </ul>
             <button id="start-free-trial-btn" class="btn-primary" style="width: 100%; padding: 12px; font-size: 1em; background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">🎁 Start 7-Day Free Trial (Then 4.99€/mo)</button>
             <button id="close-premium-modal" style="background: none; border: none; color: #888; cursor: pointer; text-decoration: underline; font-size: 0.85em;">Maybe later</button>
-        </div>
-    </div>
-
-    <!-- MODAL RECIPES BOOK / EXPLORADOR -->
-    <div id="recipe-book-modal" class="modal" style="display:none;">
-        <div class="modal-content" style="max-width: 650px; width: 90%; max-height: 85vh; overflow-y: auto;">
-            <span id="close-recipe-book" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-            <h2 style="margin-top: 0; color: #2ecc71;">🔍 Recipe Library</h2>
-            <input type="text" id="recipe-search-input" placeholder="Search by name or ingredient (e.g., Chicken, Avocado)..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; font-size: 1em;">
-            <div id="recipe-book-list" style="display: grid; gap: 10px;"></div>
         </div>
     </div>
 
@@ -134,9 +113,9 @@
         </div>
     </div>
 
-    <!-- CONTENIDOR DE TOASTS (NOTIFICACIONS FLOTANTS) -->
+    <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
