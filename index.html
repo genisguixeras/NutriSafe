@@ -24,11 +24,18 @@
             <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 2: LLISTA DE LA COMPRA (DISSENY D'ABANS) -->
+        <!-- PESTANYA 2: LLISTA DE LA COMPRA SEPARADA -->
         <section id="shopping-tab" class="tab-content">
             <h2>Shopping List</h2>
-            <div class="card">
-                <ul id="shopping-list" style="padding-left: 0; margin: 0;"></ul>
+            <div class="shopping-container">
+                <div class="card" style="margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; color: #2ecc71;">🛒 Ingredients to Buy</h3>
+                    <ul id="main-grocery-list" style="padding-left: 0; margin: 0;"></ul>
+                </div>
+                <div class="card">
+                    <h3 style="margin-top: 0; color: #e67e22;">🧂 Pantry Staples (Check at home)</h3>
+                    <ul id="pantry-list" style="padding-left: 0; margin: 0;"></ul>
+                </div>
             </div>
         </section>
 
