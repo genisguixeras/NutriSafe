@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
 
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 
     <style>
         header {
@@ -81,20 +81,21 @@
         }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
         
-        /* Mida del Badge PRO optimitzada */
+        /* Badge PRO estilitzat i visible */
         .badge-pro {
             background: #ff9800;
             color: #fff;
-            padding: 1px 4px;
-            border-radius: 3px;
-            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 9px;
             font-weight: bold;
-            margin-left: 3px;
+            margin-left: 4px;
             vertical-align: middle;
             text-transform: uppercase;
+            display: inline-block;
         }
 
-        /* Macro Nutrients Styling */
+        /* Macros Grid Styling */
         .macros-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -119,11 +120,20 @@
             display: inline-block;
             background: #e8f5e9;
             color: #2e7d32;
-            padding: 2px 8px;
+            padding: 4px 8px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: bold;
             margin-top: 6px;
+        }
+
+        .meal-card {
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .meal-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
     </style>
 </head>
@@ -145,7 +155,7 @@
             </div>
             
             <div id="calendar-grid" class="calendar-grid">
-                <!-- Generat dinàmicament des de app.js amb esmorzar, dinar i sopar -->
+                <!-- Generat dinàmicament des de app.js -->
             </div>
         </section>
 
@@ -180,7 +190,7 @@
                 <div class="form-group">
                     <label for="family-count-input">👥 How many people are at home?</label>
                     <div class="input-inline">
-                        <input type="number" id="family-count-input" min="1" max="10" value="2">
+                        <input type="number" id="family-count-input" min="1" max="10" value="4">
                         <button id="update-family-count-btn" class="btn-primary">Set Members</button>
                     </div>
                 </div>
@@ -246,7 +256,7 @@
         </button>
     </nav>
 
-    <!-- RECIPE MODAL (With Quantities & Macros) -->
+    <!-- RECIPE MODAL (Ingredients with quantities, macros, instructions) -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeRecipe()">&times;</span>
@@ -276,7 +286,7 @@
             <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients & Quantities</h3>
             <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;"></ul>
 
-            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Step-by-Step Instructions</h3>
+            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Step-by-Step Recipe</h3>
             <p id="recipe-instructions" style="white-space: pre-line; line-height: 1.5; color: #444;"></p>
         </div>
     </div>
@@ -286,7 +296,7 @@
         <div class="modal-content text-center">
             <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
             <div class="modal-icon" style="font-size: 40px;">👑</div>
-            <h2>Unlock Family Plan PRO</h2>
+            <h2>Unlock Family Plan <span class="badge-pro">PRO</span></h2>
             <p>Start your 1-week free trial of the PRO plan!</p>
             <ul class="pro-features" style="text-align: left; margin: 15px 0;">
                 <li>✨ Unlimited family members</li>
@@ -380,6 +390,6 @@
         }
     </script>
 
-    <script src="app.js?v=7" defer></script>
+    <script src="app.js?v=8" defer></script>
 </body>
 </html>
