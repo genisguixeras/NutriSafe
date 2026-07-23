@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
 
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 
     <style>
         header {
@@ -81,7 +81,7 @@
         }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
         
-        /* Badge PRO estilitzat i visible */
+        /* Badge PRO general */
         .badge-pro {
             background: #ff9800;
             color: #fff;
@@ -93,16 +93,6 @@
             vertical-align: middle;
             text-transform: uppercase;
             display: inline-block;
-        }
-
-        /* Badge PRO especialment reduït per al menú inferior */
-        .badge-pro-nav {
-            font-size: 7px;
-            padding: 1px 3px;
-            border-radius: 3px;
-            margin-left: 2px;
-            vertical-align: super;
-            line-height: 1;
         }
 
         /* Macros Grid Styling */
@@ -231,7 +221,8 @@
                 </select>
             </div>
 
-            <div class="card">
+            <!-- Secció de restriccions particulars (s'oculta si es tria mode família) -->
+            <div class="card" id="settings-restrictions-card">
                 <h3>🥗 Your natural restrictions</h3>
                 <p>Select the ones that affect you. Your personal menu will update automatically.</p>
                 <div id="settings-checkboxes" class="checkbox-grid"></div>
@@ -258,7 +249,7 @@
         </button>
         <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')">
             <span>👨‍👩‍👧‍👦</span>
-            <span>Family plan <span class="badge-pro badge-pro-nav">PRO</span></span>
+            <span>Family plan <span class="badge-pro" style="font-size: 7px; padding: 1px 3px; border-radius: 3px; margin-left: 2px; vertical-align: super; line-height: 1;">PRO</span></span>
         </button>
         <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')">
             <span>⚙️</span>
@@ -266,7 +257,7 @@
         </button>
     </nav>
 
-    <!-- RECIPE MODAL (Ingredients with quantities, macros, instructions) -->
+    <!-- RECIPE MODAL -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeRecipe()">&times;</span>
@@ -333,8 +324,9 @@
                 </select>
 
                 <label style="font-weight: bold; display: block; margin-bottom: 10px;">Who are you cooking for?</label>
+                <!-- Ambdós botons ara en verd -->
                 <button class="btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;" onclick="finishOnboarding('me')">Just Me</button>
-                <button class="btn-secondary" style="width: 100%; padding: 12px; background: #eee; border: 1px solid #ccc;" onclick="finishOnboarding('family')">My Family</button>
+                <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="finishOnboarding('family')">My Family</button>
             </div>
         </div>
     </div>
@@ -353,6 +345,7 @@
             } else {
                 if (tabId === 'planner-tab') document.getElementById('nav-btn-individual').classList.add('active');
                 if (tabId === 'family-tab') document.getElementById('nav-btn-family').classList.add('active');
+                if (tabId === 'settings-tab') document.getElementById('nav-btn-settings').classList.add('active');
             }
         }
 
@@ -364,12 +357,24 @@
             if (target === 'family') {
                 document.getElementById('nav-text-individual').innerText = 'Recipes';
                 document.getElementById('planner-tab-title').innerText = 'Family Recipes';
+                
+                // S'oculta la secció de restriccions individuals de Settings
+                const restrCard = document.getElementById('settings-restrictions-card');
+                if (restrCard) restrCard.style.display = 'none';
+
                 document.getElementById('premium-modal').style.display = 'flex';
                 switchTab('family-tab');
             } else {
                 document.getElementById('nav-text-individual').innerText = 'Individual Plan';
                 document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
-                showToast('Welcome to your personal plan!');
+                
+                // S'assegura que la secció de restriccions individuals sigui visible
+                const restrCard = document.getElementById('settings-restrictions-card');
+                if (restrCard) restrCard.style.display = 'block';
+
+                // Et porta directament a Settings per configurar les restriccions
+                switchTab('settings-tab');
+                showToast('Please set your diet restrictions to personalize your plan! ⚙️');
             }
         }
 
@@ -400,6 +405,6 @@
         }
     </script>
 
-    <script src="app.js?v=8" defer></script>
+    <script src="app.js?v=9" defer></script>
 </body>
 </html>
