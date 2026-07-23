@@ -254,7 +254,31 @@ nav {
 .text-center { text-align: center; }
 .text-green { color: #2e7d32; }
 .text-orange { color: #e67e22; }
-.badge-pro { background: #e74c3c; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; vertical-align: middle; }
+
+/* BADGES PRO */
+.badge-pro {
+    background: #ff9800;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: bold;
+    margin-left: 4px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+/* Reducció específica per al menú inferior de navegació */
+nav .badge-pro,
+.badge-pro-nav {
+    font-size: 7px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    margin-left: 2px;
+    vertical-align: super;
+    line-height: 1;
+}
 
 .pro-features {
     text-align: left;
