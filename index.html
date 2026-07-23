@@ -18,6 +18,31 @@
 
     <!-- CSS Fixes for Spacing & Notifications -->
     <style>
+        /* Header Layout Fix for Try PRO Button */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .btn-try-pro {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-try-pro:hover {
+            background-color: #f57c00;
+            transform: scale(1.03);
+        }
+
         /* Uncrowd the calendar */
         .calendar-grid {
             display: grid;
@@ -25,6 +50,7 @@
             gap: 20px;
             padding: 15px 0;
         }
+
         /* Toast Notification Styling */
         #toast-container {
             position: fixed;
@@ -59,6 +85,16 @@
             background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative;
         }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
+        
+        .badge-pro {
+            background: #ff9800;
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -66,14 +102,15 @@
     <!-- HEADER -->
     <header>
         <h1>🥑 NutriSafe</h1>
+        <button class="btn-try-pro" onclick="openModal('premium-modal')">Try PRO</button>
     </header>
 
     <!-- MAIN CONTENT -->
     <main>
-        <!-- TAB 1: INDIVIDUAL PLAN -->
+        <!-- TAB 1: INDIVIDUAL PLAN / RECIPES -->
         <section id="planner-tab" class="tab-content active">
             <div class="tab-header">
-                <h2>Your Weekly Plan</h2>
+                <h2 id="planner-tab-title">Your Weekly Plan</h2>
                 <button id="regen-individual-btn" class="btn-secondary" onclick="regenerateWeek()">🔄 Regenerate Week</button>
             </div>
             <!-- Added dummy meals so you can test the recipe click feature -->
@@ -92,7 +129,7 @@
         </section>
 
         <!-- TAB 2: SHOPPING LIST -->
-        <section id="shopping-tab" class="tab-content">
+        <section id="shopping-tab" class="tab-content" style="display:none;">
             <div class="tab-header">
                 <h2>🛒 Shopping List</h2>
                 <div class="action-buttons">
@@ -148,8 +185,6 @@
                     ✨ Generate Family Menu & Update List
                 </button>
             </div>
-
-            <div id="family-calendar-grid" class="calendar-grid"></div>
         </section>
 
         <!-- TAB 4: SETTINGS -->
@@ -184,19 +219,19 @@
 
     <!-- FIXED BOTTOM NAVIGATION -->
     <nav>
-        <button class="nav-btn active" onclick="switchTab('planner-tab')">
+        <button id="nav-btn-individual" class="nav-btn active" onclick="switchTab('planner-tab')">
             <span>👤</span>
-            <span>Plan</span>
+            <span id="nav-text-individual">Individual Plan</span>
         </button>
-        <button class="nav-btn" onclick="switchTab('shopping-tab')">
+        <button id="nav-btn-shopping" class="nav-btn" onclick="switchTab('shopping-tab')">
             <span>🛒</span>
             <span>List</span>
         </button>
-        <button class="nav-btn" onclick="switchTab('family-tab')">
+        <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')">
             <span>👨‍👩‍👧‍👦</span>
-            <span>Family PRO</span>
+            <span>Family plan <span class="badge-pro">PRO</span></span>
         </button>
-        <button class="nav-btn" onclick="switchTab('settings-tab')">
+        <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')">
             <span>⚙️</span>
             <span>Settings</span>
         </button>
@@ -255,16 +290,22 @@
     <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- INLINE SCRIPT FOR NEW LOGIC -->
+    <!-- INLINE SCRIPT FOR TAB & UI LOGIC -->
     <script>
         // Tab switching logic
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-            document.getElementById(tabId).style.display = 'block';
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.style.display = 'block';
             
             // Highlight active nav button
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                if (tabId === 'planner-tab') document.getElementById('nav-btn-individual').classList.add('active');
+                if (tabId === 'family-tab') document.getElementById('nav-btn-family').classList.add('active');
+            }
         }
 
         // Onboarding logic
@@ -276,11 +317,21 @@
             document.getElementById('settings-cooking-time').value = selectedTime;
 
             if (target === 'family') {
+                // Adapt nav text & title for family target
+                document.getElementById('nav-text-individual').innerText = 'Recipes';
+                document.getElementById('planner-tab-title').innerText = 'Family Recipes';
+                
                 document.getElementById('premium-modal').style.display = 'flex';
                 switchTab('family-tab');
             } else {
+                document.getElementById('nav-text-individual').innerText = 'Individual Plan';
+                document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
                 showToast('Welcome to your personal plan!');
             }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
         }
 
         function closeModal(id) {
@@ -319,7 +370,6 @@
 
         // Regenerate Week
         function regenerateWeek() {
-            // Here you would call your generation API
             showToast('Generating a new week of meals... 🔄');
         }
 
