@@ -95,6 +95,16 @@
             display: inline-block;
         }
 
+        /* Badge PRO especialment reduït per al menú inferior */
+        .badge-pro-nav {
+            font-size: 7px;
+            padding: 1px 3px;
+            border-radius: 3px;
+            margin-left: 2px;
+            vertical-align: super;
+            line-height: 1;
+        }
+
         /* Macros Grid Styling */
         .macros-grid {
             display: grid;
@@ -248,7 +258,7 @@
         </button>
         <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')">
             <span>👨‍👩‍👧‍👦</span>
-            <span>Family plan <span class="badge-pro">PRO</span></span>
+            <span>Family plan <span class="badge-pro badge-pro-nav">PRO</span></span>
         </button>
         <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')">
             <span>⚙️</span>
