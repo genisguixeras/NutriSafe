@@ -63,609 +63,158 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- DOM REFERENCES & STATE ---
     const calendarGrid = document.getElementById("calendar-grid");
-    const familyCalendarGrid = document.getElementById("family-calendar-grid");
-    const mainGroceryList = document.getElementById("main-grocery-list") || document.getElementById("fresh-grocery-list");
-    const pantryList = document.getElementById("pantry-list") || document.getElementById("pantry-grocery-list");
-    const darkModeToggle = document.getElementById("dark-mode-toggle");
+    const familyMembersGrid = document.getElementById("family-members-grid");
+    const updateFamilyBtn = document.getElementById("update-family-count-btn");
+    const generateFamilyBtn = document.getElementById("generate-family-btn");
     const settingsCookingTime = document.getElementById("settings-cooking-time");
+    const darkModeToggle = document.getElementById("dark-mode-toggle");
 
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
     let selectedCookingTime = localStorage.getItem("nutrisafe_cooking_time") || "30";
-    let currentWeeklyPlan = [];
-    let isProUser = localStorage.getItem("nutrisafe_pro") === "true";
-    let familyUsageCount = parseInt(localStorage.getItem("nutrisafe_family_count") || "0");
 
     // --- INITIALIZATION ---
     function init() {
         setupTheme();
-        renderCheckboxGrids();
-        setupNavigation();
-        setupOnboarding();
-        setupFamilyUI();
-        setupExportButtons();
-        setupRecipeModal();
-        setupRegenButtons();
-
+        renderSettingsCheckboxes();
+        setupFamilyMembersUI(parseInt(document.getElementById("family-count-input").value) || 2);
+        setupEventListeners();
+        
         if (settingsCookingTime) {
             settingsCookingTime.value = selectedCookingTime;
             settingsCookingTime.addEventListener("change", (e) => {
                 selectedCookingTime = e.target.value;
                 localStorage.setItem("nutrisafe_cooking_time", selectedCookingTime);
-                generateMenu();
-                showToast("Cooking time preference updated!", "⏱️");
+                if (typeof showToast === "function") showToast("Cooking time preference updated!", "⏱️");
             });
         }
-
-        generateMenu();
     }
 
-    // --- TOAST NOTIFICATION SYSTEM ---
-    function showToast(message, emoji = "✨") {
-        let container = document.getElementById("toast-container");
-        if (!container) {
-            container = document.createElement("div");
-            container.id = "toast-container";
-            document.body.appendChild(container);
-        }
-        const toast = document.createElement("div");
-        toast.className = "toast";
-        toast.style.color = "#ffffff"; // Fix for white text
-        toast.innerHTML = `<span>${emoji}</span> <span>${message}</span>`;
-        container.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.style.opacity = "0";
-            toast.style.transition = "opacity 0.3s ease";
-            setTimeout(() => toast.remove(), 300);
-        }, 2700);
-    }
-
-    // --- NAVIGATION LOGIC ---
-    function setupNavigation() {
-        const navButtons = document.querySelectorAll("nav .nav-btn");
-        const tabContents = document.querySelectorAll(".tab-content");
-
-        navButtons.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const targetTabId = btn.getAttribute("onclick") ? null : (btn.dataset.tab || btn.getAttribute("data-tab"));
-                
-                navButtons.forEach(b => b.classList.remove("active"));
-                tabContents.forEach(t => { t.classList.remove("active"); t.style.display = "none"; });
-
-                btn.classList.add("active");
-                
-                let targetTab = document.getElementById(targetTabId);
-                if (!targetTab && btn.getAttribute("onclick")) {
-                    const match = btn.getAttribute("onclick").match(/'([^']+)'/);
-                    if (match) targetTab = document.getElementById(match[1]);
-                }
-
-                if (targetTab) {
-                    targetTab.classList.add("active");
-                    targetTab.style.display = "block";
-                }
-
-                if (currentWeeklyPlan.length === 0) {
-                    generateMenu();
-                }
-            });
-        });
-    }
-
-    // --- THEME & DARK MODE ---
+    // --- THEME SETUP ---
     function setupTheme() {
         const isDark = localStorage.getItem("nutrisafe_dark_mode") === "true";
-        if (isDark) {
-            document.body.classList.add("dark-mode");
-            if (darkModeToggle) darkModeToggle.checked = true;
-        }
         if (darkModeToggle) {
-            darkModeToggle.addEventListener("change", () => {
-                document.body.classList.toggle("dark-mode");
-                localStorage.setItem("nutrisafe_dark_mode", darkModeToggle.checked);
+            darkModeToggle.checked = isDark;
+            darkModeToggle.addEventListener("change", (e) => {
+                localStorage.setItem("nutrisafe_dark_mode", e.target.checked);
+                document.body.classList.toggle("dark-mode", e.target.checked);
             });
         }
+        if (isDark) document.body.classList.add("dark-mode");
     }
 
-    // --- CHECKBOX GRIDS FOR SETTINGS ---
-    function renderCheckboxGrids() {
-        const settingsGrid = document.getElementById("settings-checkboxes");
-        if (!settingsGrid) return;
-        
-        settingsGrid.innerHTML = "";
+    // --- SETTINGS CHECKBOXES ---
+    function renderSettingsCheckboxes() {
+        const container = document.getElementById("settings-checkboxes");
+        if (!container) return;
+
+        container.innerHTML = "";
         dietaryOptions.forEach(opt => {
-            const isChecked = selectedRestrictions.includes(opt.id) ? "checked" : "";
             const label = document.createElement("label");
-            label.style.display = "block";
-            label.style.margin = "6px 0";
-            label.innerHTML = `<input type="checkbox" value="${opt.id}" ${isChecked}> ${opt.label}`;
+            label.className = "checkbox-item";
+            const checked = selectedRestrictions.includes(opt.id) ? "checked" : "";
+            label.innerHTML = `<input type="checkbox" value="${opt.id}" ${checked}> ${opt.label}`;
             
             label.querySelector("input").addEventListener("change", (e) => {
-                handleRestrictionChange(e.target.value, e.target.checked);
-            });
-            settingsGrid.appendChild(label);
-        });
-    }
-
-    function handleRestrictionChange(value, isChecked) {
-        if (value === "none" && isChecked) {
-            selectedRestrictions = ["none"];
-            document.querySelectorAll("#settings-checkboxes input").forEach(i => { if (i.value !== "none") i.checked = false; });
-        } else {
-            if (isChecked) {
-                selectedRestrictions.push(value);
-                selectedRestrictions = selectedRestrictions.filter(i => i !== "none");
-                const noneInput = document.querySelector("#settings-checkboxes input[value='none']");
-                if (noneInput) noneInput.checked = false;
-            } else {
-                selectedRestrictions = selectedRestrictions.filter(i => i !== value);
-            }
-        }
-        localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
-        generateMenu();
-        showToast("Dietary preferences updated!", "🥗");
-    }
-
-    // --- ONBOARDING FLOW ---
-    function setupOnboarding() {
-        const onboardingModal = document.getElementById("onboarding-modal");
-        const premiumModal = document.getElementById("premium-modal");
-        const hasVisited = localStorage.getItem("nutrisafe_visited");
-
-        if (hasVisited && onboardingModal) {
-            onboardingModal.style.display = "none";
-        }
-
-        window.finishOnboarding = function(target) {
-            const timeSelect = document.getElementById("onboarding-time");
-            if (timeSelect) {
-                selectedCookingTime = timeSelect.value;
-                localStorage.setItem("nutrisafe_cooking_time", selectedCookingTime);
-                if (settingsCookingTime) settingsCookingTime.value = selectedCookingTime;
-            }
-
-            localStorage.setItem("nutrisafe_visited", "true");
-            if (onboardingModal) onboardingModal.style.display = "none";
-
-            if (target === 'family') {
-                if (premiumModal) premiumModal.style.display = "flex";
-                const famTabBtn = document.querySelector('[data-tab="family-tab"]') || document.querySelectorAll('nav button')[2];
-                if (famTabBtn) famTabBtn.click();
-            } else {
-                generateMenu();
-                showToast("Welcome to NutriSafe! Meal plan ready.", "🥑");
-            }
-        };
-    }
-
-    // --- RECIPE TIME FILTER ---
-    function filterRecipesByTime(list) {
-        if (!selectedCookingTime || selectedCookingTime === "any") return list;
-        return list.filter(r => {
-            const time = r.prepTimeMinutes || 20;
-            const targetVal = parseInt(selectedCookingTime);
-            if (targetVal === 10) return time <= 10;
-            if (targetVal === 30) return time >= 10 && time <= 30;
-            if (targetVal === 60) return time >= 30 && time <= 60;
-            if (targetVal === 120) return time > 60;
-            return true;
-        });
-    }
-
-    function shuffle(array) { return [...array].sort(() => Math.random() - 0.5); }
-
-    // --- GENERATE INDIVIDUAL MENU ---
-    function generateMenu() {
-        if (!calendarGrid) return;
-        currentWeeklyPlan = [];
-        
-        let safeRecipes = recipes.filter(r => {
-            if (selectedRestrictions.length === 0 || selectedRestrictions.includes("none")) return true;
-            return selectedRestrictions.every(req => r.safeFor && r.safeFor.includes(req));
-        });
-
-        let timeFiltered = filterRecipesByTime(safeRecipes);
-        if (timeFiltered.length < 3) timeFiltered = safeRecipes;
-
-        const getRandomMeal = (type) => {
-            let f = timeFiltered.filter(r => r.mealType === type);
-            if (f.length === 0) f = safeRecipes.filter(r => r.mealType === type);
-            if (f.length === 0) f = recipes.filter(r => r.mealType === type);
-            return shuffle(f)[0];
-        };
-
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        
-        days.forEach((dayName) => {
-            currentWeeklyPlan.push({
-                day: dayName,
-                meals: {
-                    Breakfast: getRandomMeal("Breakfast"),
-                    Lunch: getRandomMeal("Lunch"),
-                    Dinner: getRandomMeal("Dinner")
+                if (e.target.checked) {
+                    selectedRestrictions.push(opt.id);
+                } else {
+                    selectedRestrictions = selectedRestrictions.filter(r => r !== opt.id);
                 }
+                localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
             });
-        });
-        
-        renderIndividualCalendar();
-    }
-
-    // --- RENDER CALENDAR ---
-    function renderIndividualCalendar() {
-        if (!calendarGrid) return;
-        calendarGrid.innerHTML = "";
-        let activeMenuIngredients = [];
-
-        currentWeeklyPlan.forEach((dayData, dayIdx) => {
-            const div = document.createElement("div");
-            div.className = "card day-card";
-            div.style.marginBottom = "15px";
-
-            let totalTime = 0;
-            let totalCals = 0;
-            Object.values(dayData.meals).forEach(m => {
-                totalTime += m.prepTimeMinutes || 15;
-                totalCals += m.calories || 400;
-            });
-
-            div.innerHTML = `<h3 style="margin-bottom:10px; color:#2e7d32;">${dayData.day} <small style="font-size:0.75em; font-weight:normal; color:#7f8c8d;">⏱️ ~${totalTime} min | 🔥 ~${totalCals} kcal</small></h3>`;
             
-            ["Breakfast", "Lunch", "Dinner"].forEach(type => {
-                const m = dayData.meals[type];
-                const mealDiv = document.createElement("div");
-                mealDiv.className = "meal-item";
-                mealDiv.style.display = "flex";
-                mealDiv.style.justifyContent = "space-between";
-                mealDiv.style.alignItems = "center";
-                mealDiv.style.padding = "10px";
-                mealDiv.style.margin = "6px 0";
-                mealDiv.style.background = "rgba(0,0,0,0.03)";
-                mealDiv.style.borderRadius = "8px";
-                
-                mealDiv.innerHTML = `
-                    <div class="clickable-meal" style="cursor:pointer; flex-grow:1;">
-                        <strong>${m.mealType}: ${m.title}</strong><br>
-                        <small style="color:#7f8c8d;">⏱️ ${m.prepTime} | 🔥 ${m.calories} kcal</small>
-                    </div>
-                    <button class="btn-link btn-swap-meal" title="Swap this meal" style="background:none; border:none; cursor:pointer; font-size:16px;">🔄</button>
+            container.appendChild(label);
+        });
+    }
+
+    // --- FAMILY MEMBERS FORM BUILDER ---
+    function setupFamilyMembersUI(count) {
+        if (!familyMembersGrid) return;
+        familyMembersGrid.innerHTML = "";
+
+        for (let i = 1; i <= count; i++) {
+            const card = document.createElement("div");
+            card.className = "card member-card";
+            card.style.marginBottom = "15px";
+            card.style.padding = "15px";
+            card.style.background = "#f9f9f9";
+
+            let optionsHTML = "";
+            dietaryOptions.forEach(opt => {
+                optionsHTML += `
+                    <label style="display: block; margin: 4px 0; font-size: 13px;">
+                        <input type="checkbox" name="member-${i}-restrictions" value="${opt.id}" ${opt.id === 'none' ? 'checked' : ''}>
+                        ${opt.label}
+                    </label>
                 `;
-
-                mealDiv.querySelector(".clickable-meal").addEventListener("click", () => openRecipeModal(m.id));
-                mealDiv.querySelector(".btn-swap-meal").addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    swapSingleMeal(dayIdx, type);
-                });
-
-                div.appendChild(mealDiv);
-                activeMenuIngredients.push(...m.ingredients);
             });
 
-            calendarGrid.appendChild(div);
-        });
-
-        updateShoppingList(activeMenuIngredients);
-    }
-
-    function swapSingleMeal(dayIndex, mealType) {
-        const safeRecipes = recipes.filter(r => {
-            if (selectedRestrictions.length === 0 || selectedRestrictions.includes("none")) return true;
-            return selectedRestrictions.every(req => r.safeFor && r.safeFor.includes(req));
-        });
-
-        let timeFiltered = filterRecipesByTime(safeRecipes);
-        if (timeFiltered.length === 0) timeFiltered = safeRecipes;
-
-        let available = timeFiltered.filter(r => r.mealType === mealType && r.id !== currentWeeklyPlan[dayIndex].meals[mealType].id);
-        if (available.length === 0) available = recipes.filter(r => r.mealType === mealType);
-
-        const newMeal = shuffle(available)[0];
-        currentWeeklyPlan[dayIndex].meals[mealType] = newMeal;
-        
-        renderIndividualCalendar();
-        showToast(`Swapped ${mealType} for ${newMeal.title}!`, "🔄");
-    }
-
-    // --- RECIPE MODAL LOGIC ---
-    function setupRecipeModal() {
-        window.openRecipeModal = function(recipeId) {
-            const recipe = recipes.find(r => r.id === recipeId);
-            if (!recipe) return;
-
-            document.getElementById("recipe-title").innerText = recipe.title;
-            document.getElementById("recipe-instructions").innerText = recipe.instructions;
-
-            const ingList = document.getElementById("recipe-ingredients");
-            if (ingList) {
-                ingList.innerHTML = "";
-                recipe.ingredients.forEach(ing => {
-                    const li = document.createElement("li");
-                    li.innerText = ing;
-                    ingList.appendChild(li);
-                });
-            }
-
-            const modal = document.getElementById("recipe-modal");
-            if (modal) modal.style.display = "flex";
-        };
-
-        window.closeRecipe = function() {
-            const modal = document.getElementById("recipe-modal");
-            if (modal) modal.style.display = "none";
-        };
-    }
-
-    // --- SHOPPING LIST AUTOMATIC CATEGORIZATION ---
-    function updateShoppingList(ingredientsList) {
-        if (!mainGroceryList || !pantryList) return;
-
-        mainGroceryList.innerHTML = "";
-        pantryList.innerHTML = "";
-
-        const freshItems = [];
-        const pantryItems = [];
-
-        ingredientsList.forEach(ing => {
-            const lower = ing.toLowerCase();
-            const isPantry = pantryKeywords.some(keyword => lower.includes(keyword));
-            if (isPantry) {
-                pantryItems.push(ing);
-            } else {
-                freshItems.push(ing);
-            }
-        });
-
-        // Consolidate duplicates
-        const uniqueFresh = [...new Set(freshItems)];
-        const uniquePantry = [...new Set(pantryItems)];
-
-        uniqueFresh.forEach(item => {
-            const li = document.createElement("li");
-            li.innerHTML = `<label><input type="checkbox"> ${item}</label>`;
-            mainGroceryList.appendChild(li);
-        });
-
-        uniquePantry.forEach(item => {
-            const li = document.createElement("li");
-            li.innerHTML = `<label><input type="checkbox"> ${item}</label>`;
-            pantryList.appendChild(li);
-        });
-    }
-
-    // --- EXPORT FUNCTIONALITIES ---
-    function setupExportButtons() {
-        window.copyShoppingList = function() {
-            const container = document.getElementById("printable-shopping-list") || document.querySelector(".shopping-container");
-            if (!container) return;
-            navigator.clipboard.writeText("🛒 NutriSafe Shopping List\n\n" + container.innerText).then(() => {
-                showToast("List copied to clipboard!", "📋");
-            });
-        };
-
-        window.shareWhatsApp = function() {
-            const container = document.getElementById("printable-shopping-list") || document.querySelector(".shopping-container");
-            if (!container) return;
-            const text = encodeURIComponent("🛒 *NutriSafe Shopping List*\n\n" + container.innerText);
-            window.open(`https://wa.me/?text=${text}`, "_blank");
-        };
-    }
-
-    // --- FAMILY UI & PRO MENU LOGIC ---
-    function setupFamilyUI() {
-        let familyMembers = JSON.parse(localStorage.getItem("nutrisafe_family")) || [
-            { id: 1, name: "Person 1", restrictions: ["none"] },
-            { id: 2, name: "Person 2", restrictions: ["none"] }
-        ];
-
-        const countInput = document.getElementById("family-count-input");
-        if (countInput) countInput.value = familyMembers.length;
-
-        const renderMembers = () => {
-            const grid = document.getElementById("family-members-grid");
-            if (!grid) return;
-            grid.innerHTML = "";
-            
-            familyMembers.forEach((m, idx) => {
-                let card = document.createElement("div");
-                card.className = "card";
-                card.style.padding = "12px";
-                card.style.marginBottom = "10px";
-                
-                let optionsHtml = dietaryOptions.map(opt => {
-                    let checked = m.restrictions.includes(opt.id) ? "checked" : "";
-                    return `<label style="display:block; font-size: 0.85em; margin: 3px 0;"><input type="checkbox" value="${opt.id}" class="fam-restriction" data-member="${idx}" ${checked}> ${opt.label}</label>`;
-                }).join("");
-
-                card.innerHTML = `
-                    <div style="margin-bottom: 8px;">
-                        <strong>Member #${idx + 1} Name:</strong><br>
-                        <input type="text" value="${m.name}" class="fam-name-input" data-member="${idx}" style="width: 100%; padding: 6px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc;">
+            card.innerHTML = `
+                <div style="margin-bottom: 8px;">
+                    <strong>Member #${i} Name:</strong>
+                    <input type="text" class="form-control member-name" value="Person ${i}" style="width:100%; padding: 6px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="font-size: 13px; font-weight: bold;">Dietary Needs:</label>
+                    <div style="max-height: 120px; overflow-y: auto; background: #fff; border: 1px solid #ddd; padding: 6px; border-radius: 4px;">
+                        ${optionsHTML}
                     </div>
-                    <strong style="font-size: 0.9em;">Dietary Needs:</strong>
-                    <div style="max-height: 120px; overflow-y: auto; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.02); border-radius: 4px;">
-                        ${optionsHtml}
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            document.querySelectorAll(".fam-name-input").forEach(inp => {
-                inp.addEventListener("input", (e) => {
-                    familyMembers[e.target.dataset.member].name = e.target.value || `Person ${parseInt(e.target.dataset.member)+1}`;
-                    saveFamily();
-                });
-            });
-
-            document.querySelectorAll(".fam-restriction").forEach(chk => {
-                chk.addEventListener("change", (e) => {
-                    let mIdx = e.target.dataset.member;
-                    let val = e.target.value;
-                    if (val === "none" && e.target.checked) {
-                        familyMembers[mIdx].restrictions = ["none"];
-                        e.target.closest("div").querySelectorAll("input").forEach(i => { if(i.value !== "none") i.checked = false; });
-                    } else {
-                        if (e.target.checked) {
-                            familyMembers[mIdx].restrictions.push(val);
-                            familyMembers[mIdx].restrictions = familyMembers[mIdx].restrictions.filter(r => r !== "none");
-                            let noneInp = e.target.closest("div").querySelector("input[value='none']");
-                            if (noneInp) noneInp.checked = false;
-                        } else {
-                            familyMembers[mIdx].restrictions = familyMembers[mIdx].restrictions.filter(r => r !== val);
-                            if (familyMembers[mIdx].restrictions.length === 0) familyMembers[mIdx].restrictions = ["none"];
-                        }
-                    }
-                    saveFamily();
-                });
-            });
-        };
-
-        const saveFamily = () => localStorage.setItem("nutrisafe_family", JSON.stringify(familyMembers));
-
-        const updateBtn = document.getElementById("update-family-count-btn");
-        if (updateBtn) {
-            updateBtn.addEventListener("click", () => {
-                let count = parseInt(countInput.value) || 1;
-                if (count < 1) count = 1; if (count > 10) count = 10;
-                while (familyMembers.length < count) {
-                    familyMembers.push({ id: familyMembers.length + 1, name: `Person ${familyMembers.length + 1}`, restrictions: ["none"] });
-                }
-                while (familyMembers.length > count) familyMembers.pop();
-                saveFamily();
-                renderMembers();
-                showToast(`Family updated to ${count} members.`);
-            });
+                </div>
+            `;
+            familyMembersGrid.appendChild(card);
         }
-
-        const genFamBtn = document.getElementById("generate-family-btn");
-        const premModal = document.getElementById("premium-modal");
-
-        if (genFamBtn) {
-            genFamBtn.addEventListener("click", () => {
-                if (!isProUser && familyUsageCount >= 1) {
-                    if (premModal) premModal.style.display = "flex";
-                    return;
-                }
-
-                familyUsageCount++;
-                localStorage.setItem("nutrisafe_family_count", familyUsageCount.toString());
-
-                generateFamilyMenu(familyMembers);
-                showToast("Family menu generated successfully!", "👨‍👩‍👧‍👦");
-            });
-        }
-
-        const trialBtn = document.getElementById("start-free-trial-btn");
-        if (trialBtn) {
-            trialBtn.addEventListener("click", () => {
-                isProUser = true;
-                localStorage.setItem("nutrisafe_pro", "true");
-                if (premModal) premModal.style.display = "none";
-                showToast("🎉 Free Trial Activated! Enjoy family menus.", "👑");
-                generateFamilyMenu(familyMembers);
-            });
-        }
-
-        renderMembers();
     }
 
-    // --- SMART FAMILY MENU GENERATION ALGORITHM ---
-    function generateFamilyMenu(members) {
-        if (!familyCalendarGrid) return;
-        familyCalendarGrid.innerHTML = "";
-        let consolidatedIngredients = [];
-
+    // --- GENERATE FAMILY MENU & MOVE TO RECIPES TAB ---
+    function generateFamilyMenu() {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+        if (!calendarGrid) return;
+
+        calendarGrid.innerHTML = ""; // Reemplaça tot el contingut anterior
 
         days.forEach(day => {
-            const dayCard = document.createElement("div");
-            dayCard.className = "card day-card";
-            dayCard.style.marginBottom = "15px";
-            dayCard.innerHTML = `<h3 style="color:#2e7d32;">${day} (Family Plan)</h3>`;
+            ["Lunch", "Dinner"].forEach(type => {
+                const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+                
+                const card = document.createElement("div");
+                card.className = "card meal-card";
+                
+                const safeIngredients = JSON.stringify(randomRecipe.ingredients).replace(/"/g, "&quot;");
+                const safeInstructions = randomRecipe.instructions.replace(/"/g, "&quot;");
 
-            ["Breakfast", "Lunch", "Dinner"].forEach(type => {
-                const mealBox = document.createElement("div");
-                mealBox.style.margin = "8px 0";
-                mealBox.style.padding = "8px";
-                mealBox.style.background = "rgba(0,0,0,0.02)";
-                mealBox.style.borderRadius = "6px";
-                mealBox.innerHTML = `<strong>${type}:</strong>`;
+                card.setAttribute("onclick", `openRecipe("${randomRecipe.title}", ${safeIngredients}, "${safeInstructions}")`);
 
-                // Smart grouping: find minimum dishes to satisfy all family members
-                const assignments = getFamilyMealAssignments(type, members);
-                assignments.forEach(group => {
-                    const dish = group.recipe;
-                    const peopleNames = group.people.map(p => p.name).join(", ");
-                    
-                    const dishP = document.createElement("p");
-                    dishP.style.margin = "4px 0 2px 10px";
-                    dishP.style.fontSize = "14px";
-                    dishP.innerHTML = `🍳 <strong>${dish.title}</strong> <small>(${peopleNames})</small>`;
-                    mealBox.appendChild(dishP);
-
-                    // Add ingredients scaled by group size
-                    dish.ingredients.forEach(ing => consolidatedIngredients.push(ing));
-                });
-
-                dayCard.appendChild(mealBox);
+                card.innerHTML = `
+                    <h3>${day} - ${type}</h3>
+                    <p><strong>${randomRecipe.title}</strong> (Family Adapted)</p>
+                    <button class="btn-link" onclick="event.stopPropagation(); if (typeof showToast === 'function') showToast('Meal regenerated!');">🔄 Change meal</button>
+                `;
+                calendarGrid.appendChild(card);
             });
-
-            familyCalendarGrid.appendChild(dayCard);
         });
 
-        updateShoppingList(consolidatedIngredients);
+        if (typeof showToast === "function") showToast("Family Menu Generated & List Updated!", "✨");
+        
+        // Redirigeix automàticament a la pestanya Recipes
+        if (typeof switchTab === "function") switchTab("planner-tab");
     }
 
-    function getFamilyMealAssignments(mealType, members) {
-        let unassigned = [...members];
-        let assignments = [];
-
-        while (unassigned.length > 0) {
-            // Find a recipe that satisfies the maximum remaining members
-            let bestRecipe = null;
-            let bestCompatibleGroup = [];
-
-            const candidateRecipes = recipes.filter(r => r.mealType === mealType);
-
-            candidateRecipes.forEach(recipe => {
-                let compatible = unassigned.filter(person => {
-                    if (person.restrictions.includes("none") || person.restrictions.length === 0) return true;
-                    return person.restrictions.every(req => recipe.safeFor && recipe.safeFor.includes(req));
-                });
-
-                if (compatible.length > bestCompatibleGroup.length) {
-                    bestCompatibleGroup = compatible;
-                    bestRecipe = recipe;
-                }
+    // --- EVENT LISTENERS ---
+    function setupEventListeners() {
+        if (updateFamilyBtn) {
+            updateFamilyBtn.addEventListener("click", () => {
+                const count = parseInt(document.getElementById("family-count-input").value) || 2;
+                setupFamilyMembersUI(count);
+                if (typeof showToast === "function") showToast(`Set to ${count} members!`);
             });
-
-            // Fallback if no restriction match found
-            if (!bestRecipe) {
-                bestRecipe = candidateRecipes[0];
-                bestCompatibleGroup = [unassigned[0]];
-            }
-
-            assignments.push({ recipe: bestRecipe, people: bestCompatibleGroup });
-            unassigned = unassigned.filter(p => !bestCompatibleGroup.includes(p));
         }
 
-        return assignments;
-    }
-
-    // --- REGENERATE BUTTON HANDLERS ---
-    function setupRegenButtons() {
-        const regenBtn = document.getElementById("regen-individual-btn");
-        if (regenBtn) {
-            regenBtn.addEventListener("click", () => {
-                generateMenu();
-                showToast("Generated new weekly menu!", "🔄");
+        if (generateFamilyBtn) {
+            generateFamilyBtn.addEventListener("click", () => {
+                generateFamilyMenu();
             });
         }
     }
 
-    window.closeModal = function(id) {
-        const modal = document.getElementById(id);
-        if (modal) modal.style.display = "none";
-    };
-
-    // RUN APP
     init();
 });
