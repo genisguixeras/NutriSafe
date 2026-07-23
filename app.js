@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Family Matching & Macros
+   NutriSafe - Complete App Engine with Alternative Family Meals
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "oil", "olive oil", "salt", "pepper", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "soy sauce", "mustard", "vanilla", "chia seeds"
     ];
 
-    // BASE DE DADES DE RECEPTES AMB ESMORZARS, DINARS, SOPARS I MACROS
+    // RECEPTES AMB MACROS I SEGURETAT ALIMENTÀRIA
     const recipes = [
         // --- BREAKFASTS ---
         { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, macros: { protein: "14g", carbs: "52g", fat: "10g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk together in a bowl.\n2. Gradually add gluten-free flour while stirring.\n3. Heat a non-stick pan and cook 2-3 min per side.\n4. Serve hot drizzled with maple syrup." },
@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const familyMembersGrid = document.getElementById("family-members-grid");
     const updateFamilyBtn = document.getElementById("update-family-count-btn");
     const generateFamilyBtn = document.getElementById("generate-family-btn");
-    const settingsCookingTime = document.getElementById("settings-cooking-time");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
 
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
@@ -127,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- GENERAR MENÚ INDIVIDUAL (AMB ESMORZAR, DINAR I SOPAR) ---
     function generateIndividualMenu() {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
@@ -141,20 +139,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
 
                 currentWeekPlan.push(recipe);
-                renderMealCard(day, type, recipe, "Personal Plan");
+                renderMealCard(day, type, recipe, "Personal Plan", null);
             });
         });
 
         updateShoppingList();
     }
 
-    // --- GENERADOR DE MENÚ FAMILIAR (TOTS ELS MEMBRES ANALITZATS - "Suitable for:") ---
+    // --- GENERACIÓ DE MENÚ FAMILIAR AMB ÀPAT ALTERNATIU PER A RESTICCIONS ---
     function generateFamilyMenu() {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
         currentWeekPlan = [];
 
-        // Llegir TOTS els membres de la família del formulari
         const memberCards = document.querySelectorAll(".member-card");
         const familyData = [];
 
@@ -174,39 +171,77 @@ document.addEventListener("DOMContentLoaded", () => {
                 const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
                 currentWeekPlan.push(recipe);
 
-                // Comprovar quins membres poden menjar aquest plat
-                const suitableMembers = familyData.filter(member => {
-                    if (member.restrictions.length === 0 || member.restrictions.includes("none")) return true;
-                    return member.restrictions.every(rest => recipe.safeFor.includes(rest));
-                }).map(m => m.name);
+                // Trobar membres que poden menjar la recepta principal
+                const suitableMembers = [];
+                const restrictedMembers = [];
+
+                familyData.forEach(member => {
+                    const isSafe = member.restrictions.length === 0 || 
+                                   member.restrictions.includes("none") || 
+                                   member.restrictions.every(rest => recipe.safeFor.includes(rest));
+                    if (isSafe) {
+                        suitableMembers.push(member);
+                    } else {
+                        restrictedMembers.push(member);
+                    }
+                });
 
                 let familyInfoText = "";
+                let altMealData = null;
+
                 if (suitableMembers.length === familyData.length) {
                     familyInfoText = "Suitable for: All family members";
-                } else if (suitableMembers.length > 0) {
-                    familyInfoText = `Suitable for: ${suitableMembers.join(", ")}`;
                 } else {
-                    familyInfoText = "Suitable for: Special adaptation required";
+                    const suitableNames = suitableMembers.map(m => m.name).join(", ");
+                    const restrictedNames = restrictedMembers.map(m => m.name).join(", ");
+                    familyInfoText = `Suitable for: ${suitableNames || "None"}`;
+
+                    // Cercar un àpat alternatiu adaptat per als membres restringits
+                    const combinedRestrictions = Array.from(new Set(restrictedMembers.flatMap(m => m.restrictions)));
+                    const alternativeRecipe = availableRecipes.find(r => 
+                        r.id !== recipe.id && combinedRestrictions.every(rest => r.safeFor.includes(rest))
+                    ) || availableRecipes.find(r => r.id !== recipe.id);
+
+                    if (alternativeRecipe) {
+                        altMealData = {
+                            forNames: restrictedNames,
+                            recipe: alternativeRecipe
+                        };
+                        // Afegir ingredients de la recepta alternativa a la llista de la compra
+                        currentWeekPlan.push(alternativeRecipe);
+                    }
                 }
 
-                renderMealCard(day, type, recipe, familyInfoText);
+                renderMealCard(day, type, recipe, familyInfoText, altMealData);
             });
         });
 
         updateShoppingList();
 
+        // Ocultar la secció de restriccions individuals
+        if (typeof setFamilyModeUI === "function") setFamilyModeUI(true);
+
         if (typeof showToast === "function") showToast("Family menu generated & shopping list synced!", "✨");
         if (typeof switchTab === "function") switchTab("planner-tab");
     }
 
-    // --- RENDER CARD DINS DEL CALENDARI ---
-    function renderMealCard(day, type, recipe, familyTag) {
+    function renderMealCard(day, type, recipe, familyTag, altMealData) {
         const card = document.createElement("div");
         card.className = "card meal-card";
         
         card.onclick = () => {
-            showRecipeModal(recipe, familyTag);
+            showRecipeModal(recipe, familyTag, altMealData);
         };
+
+        let altMealHTML = "";
+        if (altMealData) {
+            altMealHTML = `
+                <div class="alt-meal-box">
+                    <strong>⚠️ Alternative for ${altMealData.forNames}:</strong><br>
+                    <span>${altMealData.recipe.title} (${altMealData.recipe.prepTime})</span>
+                </div>
+            `;
+        }
 
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -215,6 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <p style="font-weight:bold; font-size:16px; margin: 8px 0 4px 0; color:#2e7d32;">${recipe.title}</p>
             <span class="family-tag">${familyTag}</span>
+            ${altMealHTML}
             <div style="margin-top: 8px; font-size: 12px; color: #555;">
                 🔥 ${recipe.calories} kcal | 💪 Prot: ${recipe.macros.protein}
             </div>
@@ -222,8 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
         calendarGrid.appendChild(card);
     }
 
-    // --- MOSTRAR MODAL DE LA RECEPTA SELECCIONADA ---
-    function showRecipeModal(recipe, familyTag) {
+    function showRecipeModal(recipe, familyTag, altMealData) {
         document.getElementById("recipe-title").innerText = recipe.title;
         document.getElementById("recipe-family-info").innerText = familyTag;
 
@@ -233,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("macro-carbs").innerText = recipe.macros.carbs;
         document.getElementById("macro-fat").innerText = recipe.macros.fat;
 
-        // Mostrar Ingredients amb Quantitats
+        // Mostrar Ingredients
         const ingList = document.getElementById("recipe-ingredients");
         ingList.innerHTML = "";
         recipe.ingredients.forEach(ing => {
@@ -242,13 +277,22 @@ document.addEventListener("DOMContentLoaded", () => {
             ingList.appendChild(li);
         });
 
-        // Mostrar Instruccions de la Recepta
+        // Mostrar Instruccions
         document.getElementById("recipe-instructions").innerText = recipe.instructions;
+
+        // Gestió de la recepta alternativa dins del Modal
+        const altSection = document.getElementById("modal-alt-recipe-section");
+        if (altMealData && altSection) {
+            altSection.style.display = "block";
+            document.getElementById("modal-alt-recipe-title").innerText = `Alternative dish for ${altMealData.forNames}: ${altMealData.recipe.title}`;
+            document.getElementById("modal-alt-recipe-instructions").innerText = `Ingredients:\n- ${altMealData.recipe.ingredients.join("\n- ")}\n\nInstructions:\n${altMealData.recipe.instructions}`;
+        } else if (altSection) {
+            altSection.style.display = "none";
+        }
 
         document.getElementById("recipe-modal").style.display = "flex";
     }
 
-    // --- ACTUALITZAR LLISTA DE LA COMPRA ---
     function updateShoppingList() {
         const mainGroceryList = document.getElementById("main-grocery-list");
         const pantryList = document.getElementById("pantry-list");
