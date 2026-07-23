@@ -17,7 +17,15 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "fructose", label: "Fructose Intolerance" }
     ];
 
-    // 2. RECIPES DATABASE WITH PREP TIME AND REAL QUANTITIES
+    // PANTRY STAPLES LIST FOR AUTOMATIC CATEGORIZATION
+    const pantryKeywords = [
+        "oil", "olive oil", "sesame oil", "salt", "pepper", "paprika", "oregano", 
+        "cumin", "cinnamon", "turmeric", "red pepper flakes", "curry paste", 
+        "tamari sauce", "soy sauce", "mustard", "vanilla extract", "maple syrup", 
+        "chia seeds", "tomato paste"
+    ];
+
+    // 2. RECIPES DATABASE WITH PREP TIME, CALORIES, INGREDIENTS & INSTRUCTIONS
     const recipes = [
         { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTimeMinutes: 15, prepTime: "15 min", calories: 380, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk.\n2. Add gluten-free flour while stirring.\n3. Cook on a hot pan 2-3 min per side.\n4. Serve with maple syrup." },
         { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTimeMinutes: 8, prepTime: "8 min", calories: 310, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["80g Gluten-free oats", "250ml Oat milk", "1 Banana", "1 tbsp Chia seeds"], instructions: "1. Cook oats in oat milk for 5 min.\n2. Slice fresh banana.\n3. Top oatmeal with banana slices and chia seeds." },
@@ -49,7 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ];
 
     const calendarGrid = document.getElementById("calendar-grid");
-    const mainGroceryList = document.getElementById("main-grocery-list");
+    const freshGroceryList = document.getElementById("fresh-grocery-list");
+    const pantryGroceryList = document.getElementById("pantry-grocery-list");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
     const settingsCookingTime = document.getElementById("settings-cooking-time");
     
@@ -175,8 +184,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let chosenPlan = null;
 
         const hasVisited = localStorage.getItem("nutrisafe_visited");
-        if (hasVisited) {
-            if (onboardingModal) onboardingModal.style.display = "none";
+        if (hasVisited && onboardingModal) {
+            onboardingModal.style.display = "none";
         }
 
         document.querySelectorAll(".onboarding-opt-btn").forEach(btn => {
@@ -208,6 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+        // RE-ADDED GET PRO BUTTON EVENT
         if (getProBtn) {
             getProBtn.addEventListener("click", () => {
                 if (premiumModal) premiumModal.style.display = "flex";
@@ -531,9 +541,12 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList(familyIngredients);
     }
 
+    // SEPARATED GROCERY LIST FUNCTION (FRESH VS PANTRY)
     function updateShoppingList(ingredients) {
-        if (!mainGroceryList) return;
-        mainGroceryList.innerHTML = "";
+        if (!freshGroceryList || !pantryGroceryList) return;
+
+        freshGroceryList.innerHTML = "";
+        pantryGroceryList.innerHTML = "";
 
         const counts = {};
         ingredients.forEach(item => {
@@ -541,10 +554,16 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         Object.keys(counts).forEach(ing => {
+            const isPantry = pantryKeywords.some(keyword => ing.toLowerCase().includes(keyword));
             const li = document.createElement("li");
             li.style.margin = "4px 0";
             li.innerHTML = `<label><input type="checkbox"> ${ing} ${counts[ing] > 1 ? `(x${counts[ing]})` : ''}</label>`;
-            mainGroceryList.appendChild(li);
+
+            if (isPantry) {
+                pantryGroceryList.appendChild(li);
+            } else {
+                freshGroceryList.appendChild(li);
+            }
         });
     }
 
@@ -562,6 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // OPEN RECIPE MODAL
     function openRecipeModal(recipeId) {
         const modal = document.getElementById("recipe-modal");
         const titleEl = document.getElementById("recipe-modal-title");
