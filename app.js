@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const calendarGrid = document.getElementById("calendar-grid");
     const mainGroceryList = document.getElementById("main-grocery-list");
-    const pantryList = document.getElementById("pantry-list");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
     const settingsCookingTime = document.getElementById("settings-cooking-time");
     
@@ -180,16 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (onboardingModal) onboardingModal.style.display = "none";
         }
 
-        // STEP 1: Click plan
         document.querySelectorAll(".onboarding-opt-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 chosenPlan = btn.dataset.plan;
-                step1.style.display = "none";
-                step2.style.display = "block";
+                if (step1) step1.style.display = "none";
+                if (step2) step2.style.display = "block";
             });
         });
 
-        // STEP 2: Click cooking time
         document.querySelectorAll(".time-opt-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 selectedCookingTime = btn.dataset.time;
@@ -198,11 +195,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("nutrisafe_visited", "true");
 
                 if (settingsCookingTime) settingsCookingTime.value = selectedCookingTime;
-                onboardingModal.style.display = "none";
+                if (onboardingModal) onboardingModal.style.display = "none";
 
                 if (chosenPlan === "family") {
-                    document.querySelector('[data-tab="family-tab"]').click();
-                    premiumModal.style.display = "flex";
+                    const famTabBtn = document.querySelector('[data-tab="family-tab"]');
+                    if (famTabBtn) famTabBtn.click();
+                    if (premiumModal) premiumModal.style.display = "flex";
                 } else {
                     generateMenu();
                     showToast("Welcome to NutriSafe! Meal plan ready.", "🥑");
@@ -210,10 +208,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Header Get PRO button
         if (getProBtn) {
             getProBtn.addEventListener("click", () => {
-                premiumModal.style.display = "flex";
+                if (premiumModal) premiumModal.style.display = "flex";
             });
         }
     }
@@ -242,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         let timeFiltered = filterRecipesByTime(safeRecipes);
-        if (timeFiltered.length < 3) timeFiltered = safeRecipes; // Fallback if time filter is too strict
+        if (timeFiltered.length < 3) timeFiltered = safeRecipes;
 
         const getRandomMeal = (type) => {
             let f = timeFiltered.filter(r => r.mealType === type);
@@ -423,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (genFamBtn) {
             genFamBtn.addEventListener("click", () => {
                 if (!isProUser && familyUsageCount >= 1) {
-                    premModal.style.display = "flex";
+                    if (premModal) premModal.style.display = "flex";
                     return;
                 }
 
@@ -435,15 +432,21 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        document.getElementById("close-premium-modal").addEventListener("click", () => premModal.style.display = "none");
+        const closePremBtn = document.getElementById("close-premium-modal");
+        if (closePremBtn) {
+            closePremBtn.addEventListener("click", () => premModal.style.display = "none");
+        }
         
-        document.getElementById("start-free-trial-btn").addEventListener("click", () => {
-            isProUser = true;
-            localStorage.setItem("nutrisafe_pro", "true");
-            premModal.style.display = "none";
-            showToast("🎉 1-Week Free Trial Activated! Enjoy unlimited family menus.", "👑");
-            generateFamilyMenu(familyMembers);
-        });
+        const trialBtn = document.getElementById("start-free-trial-btn");
+        if (trialBtn) {
+            trialBtn.addEventListener("click", () => {
+                isProUser = true;
+                localStorage.setItem("nutrisafe_pro", "true");
+                if (premModal) premModal.style.display = "none";
+                showToast("🎉 Free Trial Activated! Enjoy family menus.", "👑");
+                generateFamilyMenu(familyMembers);
+            });
+        }
 
         renderMembers();
     }
@@ -470,196 +473,127 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            if (bestMatchMembers.length === 0) {
-                bestRecipe = availableRecipes[0];
+            if (!bestRecipe || bestMatchMembers.length === 0) {
+                bestRecipe = availableRecipes[0] || recipes[0];
                 bestMatchMembers = [unassigned[0]];
             }
 
             assignments.push({
                 recipe: bestRecipe,
-                members: bestMatchMembers.map(m => m.name || `Person ${m.id}`)
+                forMembers: bestMatchMembers.map(m => m.name)
             });
 
             unassigned = unassigned.filter(m => !bestMatchMembers.includes(m));
         }
+
         return assignments;
     }
 
     function generateFamilyMenu(members) {
-        const famGrid = document.getElementById("family-calendar-grid");
-        if (!famGrid) return;
-        famGrid.innerHTML = "";
-        let allFamilyIngredients = [];
+        const familyContainer = document.getElementById("family-calendar-grid");
+        if (!familyContainer) return;
 
+        familyContainer.innerHTML = "";
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        
-        days.forEach(dayName => {
-            const div = document.createElement("div");
-            div.className = "day-card";
-            div.innerHTML = `<h3>${dayName}</h3>`;
+        let familyIngredients = [];
 
-            ["Breakfast", "Lunch", "Dinner"].forEach(mealType => {
-                const assignments = getFamilyMealPlan(mealType, members);
+        days.forEach(day => {
+            const dayCard = document.createElement("div");
+            dayCard.className = "day-card family-day-card";
+            
+            let html = `<h3>${day}</h3>`;
+
+            ["Breakfast", "Lunch", "Dinner"].forEach(type => {
+                const plan = getFamilyMealPlan(type, members);
+                html += `<div class="meal-section" style="margin-top:8px;"><strong>${type}</strong>`;
                 
-                const mealDiv = document.createElement("div");
-                mealDiv.className = "meal-item";
-                mealDiv.style.marginBottom = "8px";
-                mealDiv.style.padding = "8px";
-                mealDiv.style.background = "rgba(0,0,0,0.03)";
-                mealDiv.style.borderRadius = "6px";
-
-                mealDiv.innerHTML = `<strong style="color:var(--text-color);">${mealType}:</strong>`;
-
-                assignments.forEach(assign => {
-                    let namesStr = assign.members.length === members.length ? "👨‍👩‍👧‍👦 <b>Everyone:</b>" : `👤 <b>${assign.members.join(", ")}:</b>`;
-                    
-                    let itemRow = document.createElement("div");
-                    itemRow.style.marginTop = "6px";
-                    itemRow.style.cursor = "pointer";
-                    itemRow.style.color = "#2ecc71";
-                    itemRow.className = "clickable-meal";
-                    itemRow.innerHTML = `${namesStr} ${assign.recipe.title} <br><small style="color:#7f8c8d;">(⏱️ ${assign.recipe.prepTime} | 🔥 ${assign.recipe.calories} kcal)</small>`;
-                    
-                    itemRow.addEventListener("click", () => openRecipeModal(assign.recipe.id));
-                    mealDiv.appendChild(itemRow);
-                    allFamilyIngredients.push(...assign.recipe.ingredients);
+                plan.forEach(item => {
+                    html += `
+                        <div class="clickable-meal family-meal-item" data-recipe-id="${item.recipe.id}" style="cursor:pointer; margin: 4px 0; padding: 6px; background: rgba(0,0,0,0.03); border-radius: 4px;">
+                            <strong>${item.recipe.title}</strong> <small>(${item.recipe.prepTime})</small><br>
+                            <span style="font-size:0.8em; color: #27ae60;">👤 ${item.forMembers.join(", ")}</span>
+                        </div>
+                    `;
+                    familyIngredients.push(...item.recipe.ingredients);
                 });
 
-                div.appendChild(mealDiv);
+                html += `</div>`;
             });
 
-            famGrid.appendChild(div);
+            dayCard.innerHTML = html;
+            familyContainer.appendChild(dayCard);
         });
 
-        updateShoppingList(allFamilyIngredients);
+        familyContainer.querySelectorAll(".clickable-meal").forEach(el => {
+            el.addEventListener("click", () => openRecipeModal(parseInt(el.dataset.recipeId)));
+        });
+
+        updateShoppingList(familyIngredients);
     }
 
     function updateShoppingList(ingredients) {
-        if (!mainGroceryList || !pantryList) return;
+        if (!mainGroceryList) return;
         mainGroceryList.innerHTML = "";
-        pantryList.innerHTML = "";
-        
-        if (!ingredients || ingredients.length === 0) {
-            mainGroceryList.innerHTML = "<li style='list-style:none; padding:10px;'>No ingredients needed.</li>";
-            return;
-        }
 
-        const stapleKeywords = [
-            "oil", "salt", "pepper", "garlic", "onion", "oregano", "paprika", "cumin", 
-            "cinnamon", "mint", "parsley", "herbs", "lime", "lemon", "curry paste", 
-            "mustard", "vanilla", "sesame", "ginger", "turmeric", "sauce", "spices", 
-            "powder", "water", "broth"
-        ];
+        const counts = {};
+        ingredients.forEach(item => {
+            counts[item] = (counts[item] || 0) + 1;
+        });
 
-        const uniqueItems = Array.from(new Set(ingredients.map(i => i.trim())));
-        uniqueItems.sort().forEach(item => {
+        Object.keys(counts).forEach(ing => {
             const li = document.createElement("li");
-            li.style.listStyle = "none";
-            li.style.padding = "10px 0";
-            li.style.borderBottom = "1px solid rgba(0,0,0,0.06)";
-
-            li.innerHTML = `
-                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: 1.05em;">
-                    <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
-                    <span>${item}</span>
-                </label>
-            `;
-
-            const checkbox = li.querySelector("input");
-            const span = li.querySelector("span");
-
-            checkbox.addEventListener("change", () => {
-                if (checkbox.checked) {
-                    span.style.textDecoration = "line-through";
-                    span.style.opacity = "0.5";
-                } else {
-                    span.style.textDecoration = "none";
-                    span.style.opacity = "1";
-                }
-            });
-
-            const lower = item.toLowerCase();
-            const isStaple = stapleKeywords.some(keyword => lower.includes(keyword));
-
-            if (isStaple) {
-                pantryList.appendChild(li);
-            } else {
-                mainGroceryList.appendChild(li);
-            }
-        });
-    }
-
-    function setupExport() {
-        const regenBtn = document.getElementById("regen-individual-btn");
-        if (regenBtn) {
-            regenBtn.addEventListener("click", () => {
-                generateMenu();
-                showToast("Generated new weekly menu!", "✨");
-            });
-        }
-
-        const getFormattedTextList = () => {
-            let text = "🛒 *NutriSafe - Shopping List*\n\n";
-            text += "*TO BUY:*\n";
-            document.querySelectorAll("#main-grocery-list li span").forEach(s => text += `• ${s.innerText}\n`);
-            text += "\n*PANTRY STAPLES (Check at home):*\n";
-            document.querySelectorAll("#pantry-list li span").forEach(s => text += `• ${s.innerText}\n`);
-            return text;
-        };
-
-        document.getElementById("copy-list-btn")?.addEventListener("click", () => {
-            navigator.clipboard.writeText(getFormattedTextList()).then(() => {
-                showToast("Shopping list copied to clipboard!", "📋");
-            });
-        });
-
-        document.getElementById("whatsapp-list-btn")?.addEventListener("click", () => {
-            const url = "https://wa.me/?text=" + encodeURIComponent(getFormattedTextList());
-            window.open(url, "_blank");
-        });
-
-        document.getElementById("print-list-btn")?.addEventListener("click", () => {
-            window.print();
+            li.style.margin = "4px 0";
+            li.innerHTML = `<label><input type="checkbox"> ${ing} ${counts[ing] > 1 ? `(x${counts[ing]})` : ''}</label>`;
+            mainGroceryList.appendChild(li);
         });
     }
 
     function setupRecipeModal() {
-        let modal = document.getElementById("recipe-detail-modal");
-        if (!modal) {
-            modal = document.createElement("div");
-            modal.id = "recipe-detail-modal";
-            modal.className = "modal";
-            modal.style.display = "none";
-            
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <span id="close-recipe-modal" style="position: absolute; right: 20px; top: 15px; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-                    <h2 id="modal-recipe-title" style="margin-top: 0; color: #2ecc71;"></h2>
-                    <p id="modal-recipe-meta" style="font-size: 0.9em; color: #7f8c8d; border-bottom: 1px solid #ccc; padding-bottom: 10px;"></p>
-                    <h4 style="margin-bottom: 5px;">🛒 Ingredients:</h4>
-                    <ul id="modal-recipe-ingredients" style="margin-top: 5px; padding-left: 20px;"></ul>
-                    <h4 style="margin-bottom: 5px; margin-top: 15px;">👨‍🍳 Step-by-Step Instructions:</h4>
-                    <div id="modal-recipe-instructions" style="background: rgba(0,0,0,0.05); padding: 12px; border-radius: 8px; white-space: pre-line; line-height: 1.5; font-size: 0.95em;"></div>
-                </div>
-            `;
-            document.body.appendChild(modal);
+        const modal = document.getElementById("recipe-modal");
+        const closeBtn = document.getElementById("close-recipe-modal");
 
-            document.getElementById("close-recipe-modal").addEventListener("click", () => modal.style.display = "none");
-            modal.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+        if (closeBtn && modal) {
+            closeBtn.addEventListener("click", () => {
+                modal.style.display = "none";
+            });
+            window.addEventListener("click", (e) => {
+                if (e.target === modal) modal.style.display = "none";
+            });
         }
     }
 
     function openRecipeModal(recipeId) {
-        const r = recipes.find(item => item.id === recipeId);
-        if (!r) return;
+        const modal = document.getElementById("recipe-modal");
+        const titleEl = document.getElementById("recipe-modal-title");
+        const bodyEl = document.getElementById("recipe-modal-body");
 
-        document.getElementById("modal-recipe-title").innerText = r.title;
-        document.getElementById("modal-recipe-meta").innerHTML = `<strong>Type:</strong> ${r.mealType} | <strong>Prep Time:</strong> ⏱️ ${r.prepTime} | <strong>Calories:</strong> 🔥 ${r.calories} kcal`;
-        document.getElementById("modal-recipe-ingredients").innerHTML = r.ingredients.map(ing => `<li>${ing}</li>`).join("");
-        document.getElementById("modal-recipe-instructions").innerText = r.instructions || "No detailed instructions available.";
+        const recipe = recipes.find(r => r.id === recipeId);
+        if (!recipe || !modal) return;
 
-        document.getElementById("recipe-detail-modal").style.display = "flex";
+        if (titleEl) titleEl.textContent = recipe.title;
+        if (bodyEl) {
+            bodyEl.innerHTML = `
+                <p><strong>Meal Type:</strong> ${recipe.mealType} | <strong>Prep Time:</strong> ${recipe.prepTime} | <strong>Calories:</strong> ${recipe.calories} kcal</p>
+                <h4>Ingredients:</h4>
+                <ul>
+                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join("")}
+                </ul>
+                <h4>Instructions:</h4>
+                <p style="white-space: pre-line;">${recipe.instructions}</p>
+                <p><strong>Safe For:</strong> ${recipe.safeFor ? recipe.safeFor.join(", ") : "All"}</p>
+            `;
+        }
+
+        modal.style.display = "flex";
     }
 
+    function setupExport() {
+        const printBtn = document.getElementById("export-print-btn");
+        if (printBtn) {
+            printBtn.addEventListener("click", () => window.print());
+        }
+    }
+
+    // Initialize application
     init();
 });
