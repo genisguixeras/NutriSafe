@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="NutriSafe: Planificador de menús i llista de la compra intel·ligent per a tota la família.">
     <title>NutriSafe</title>
 
     <!-- Metaetiquetes PWA i iOS -->
@@ -12,6 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" type="image/png" href="logo.png">
 
     <link rel="stylesheet" href="style.css?v=5">
 </head>
@@ -74,7 +76,7 @@
                 <div class="form-group">
                     <label for="cooking-time-select">⏱️ Temps de cuina disponible per àpat:</label>
                     <select id="cooking-time-select">
-                        <option value="quick">⚡ Ràpid (< 20 minuts)</option>
+                        <option value="quick">⚡ Ràpid (&lt; 20 minuts)</option>
                         <option value="medium" selected>🍳 Mitjà (20 - 45 minuts)</option>
                         <option value="slow">🍲 Sense límit / Elaborat</option>
                     </select>
@@ -161,6 +163,7 @@
     <!-- NOTIFICACIONS TOAST -->
     <div id="toast-container"></div>
 
-    <script src="app.js?v=5"></script>
+    <!-- SCRIPT DEFER PER MILLORAR RENDIMENT -->
+    <script src="app.js?v=5" defer></script>
 </body>
 </html>
