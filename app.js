@@ -1,4 +1,9 @@
+/* ==========================================================================
+   NutriSafe - Complete PWA Core Application Logic
+   ========================================================================== */
+
 document.addEventListener("DOMContentLoaded", () => {
+
     // 1. DIETARY RESTRICTIONS
     const dietaryOptions = [
         { id: "none", label: "None (Eat Everything)" },
@@ -56,26 +61,30 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 27, title: "Turkey Burgers with Salad", mealType: "Dinner", prepTimeMinutes: 20, prepTime: "20 min", calories: 450, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose", "fructose"], ingredients: ["180g Turkey breast", "80g Mixed greens", "1 Tomato", "1 Cucumber", "1 tbsp Olive oil"], instructions: "1. Form turkey patties and cook 5 min per side.\n2. Serve over fresh mixed salad." }
     ];
 
+    // --- DOM REFERENCES & STATE ---
     const calendarGrid = document.getElementById("calendar-grid");
-    const freshGroceryList = document.getElementById("fresh-grocery-list");
-    const pantryGroceryList = document.getElementById("pantry-grocery-list");
+    const familyCalendarGrid = document.getElementById("family-calendar-grid");
+    const mainGroceryList = document.getElementById("main-grocery-list") || document.getElementById("fresh-grocery-list");
+    const pantryList = document.getElementById("pantry-list") || document.getElementById("pantry-grocery-list");
     const darkModeToggle = document.getElementById("dark-mode-toggle");
     const settingsCookingTime = document.getElementById("settings-cooking-time");
-    
+
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
-    let selectedCookingTime = localStorage.getItem("nutrisafe_cooking_time") || "any";
+    let selectedCookingTime = localStorage.getItem("nutrisafe_cooking_time") || "30";
     let currentWeeklyPlan = [];
     let isProUser = localStorage.getItem("nutrisafe_pro") === "true";
     let familyUsageCount = parseInt(localStorage.getItem("nutrisafe_family_count") || "0");
 
+    // --- INITIALIZATION ---
     function init() {
         setupTheme();
         renderCheckboxGrids();
         setupNavigation();
         setupOnboarding();
         setupFamilyUI();
-        setupExport();
+        setupExportButtons();
         setupRecipeModal();
+        setupRegenButtons();
 
         if (settingsCookingTime) {
             settingsCookingTime.value = selectedCookingTime;
@@ -90,40 +99,60 @@ document.addEventListener("DOMContentLoaded", () => {
         generateMenu();
     }
 
+    // --- TOAST NOTIFICATION SYSTEM ---
     function showToast(message, emoji = "✨") {
-        const container = document.getElementById("toast-container");
-        if (!container) return;
+        let container = document.getElementById("toast-container");
+        if (!container) {
+            container = document.createElement("div");
+            container.id = "toast-container";
+            document.body.appendChild(container);
+        }
         const toast = document.createElement("div");
-        toast.className = "toast-msg";
+        toast.className = "toast";
+        toast.style.color = "#ffffff"; // Fix for white text
         toast.innerHTML = `<span>${emoji}</span> <span>${message}</span>`;
         container.appendChild(toast);
+        
         setTimeout(() => {
             toast.style.opacity = "0";
-            toast.style.transition = "opacity 0.3s";
+            toast.style.transition = "opacity 0.3s ease";
             setTimeout(() => toast.remove(), 300);
-        }, 3000);
+        }, 2700);
     }
 
+    // --- NAVIGATION LOGIC ---
     function setupNavigation() {
-        const navButtons = document.querySelectorAll(".nav-btn");
+        const navButtons = document.querySelectorAll("nav .nav-btn");
         const tabContents = document.querySelectorAll(".tab-content");
 
         navButtons.forEach(btn => {
             btn.addEventListener("click", () => {
-                navButtons.forEach(b => b.classList.remove("active"));
-                tabContents.forEach(t => t.classList.remove("active"));
+                const targetTabId = btn.getAttribute("onclick") ? null : (btn.dataset.tab || btn.getAttribute("data-tab"));
                 
-                btn.classList.add("active");
-                const targetTab = document.getElementById(btn.dataset.tab);
-                if (targetTab) targetTab.classList.add("active");
+                navButtons.forEach(b => b.classList.remove("active"));
+                tabContents.forEach(t => { t.classList.remove("active"); t.style.display = "none"; });
 
-                if (btn.dataset.tab === "planner-tab" && currentWeeklyPlan.length === 0) {
+                btn.classList.add("active");
+                
+                let targetTab = document.getElementById(targetTabId);
+                if (!targetTab && btn.getAttribute("onclick")) {
+                    const match = btn.getAttribute("onclick").match(/'([^']+)'/);
+                    if (match) targetTab = document.getElementById(match[1]);
+                }
+
+                if (targetTab) {
+                    targetTab.classList.add("active");
+                    targetTab.style.display = "block";
+                }
+
+                if (currentWeeklyPlan.length === 0) {
                     generateMenu();
                 }
             });
         });
     }
 
+    // --- THEME & DARK MODE ---
     function setupTheme() {
         const isDark = localStorage.getItem("nutrisafe_dark_mode") === "true";
         if (isDark) {
@@ -138,21 +167,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // --- CHECKBOX GRIDS FOR SETTINGS ---
     function renderCheckboxGrids() {
         const settingsGrid = document.getElementById("settings-checkboxes");
-        if (settingsGrid) settingsGrid.innerHTML = "";
-
+        if (!settingsGrid) return;
+        
+        settingsGrid.innerHTML = "";
         dietaryOptions.forEach(opt => {
             const isChecked = selectedRestrictions.includes(opt.id) ? "checked" : "";
-            const html = `<label style="display:block; margin: 5px 0;"><input type="checkbox" value="${opt.id}" ${isChecked}> ${opt.label}</label>`;
-            if (settingsGrid) settingsGrid.innerHTML += html;
-        });
-
-        if (settingsGrid) {
-            settingsGrid.querySelectorAll("input").forEach(input => {
-                input.addEventListener("change", (e) => handleRestrictionChange(e.target.value, e.target.checked));
+            const label = document.createElement("label");
+            label.style.display = "block";
+            label.style.margin = "6px 0";
+            label.innerHTML = `<input type="checkbox" value="${opt.id}" ${isChecked}> ${opt.label}`;
+            
+            label.querySelector("input").addEventListener("change", (e) => {
+                handleRestrictionChange(e.target.value, e.target.checked);
             });
-        }
+            settingsGrid.appendChild(label);
+        });
     }
 
     function handleRestrictionChange(value, isChecked) {
@@ -171,74 +203,58 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
         generateMenu();
-        showToast("Dietary preferences updated!");
+        showToast("Dietary preferences updated!", "🥗");
     }
 
+    // --- ONBOARDING FLOW ---
     function setupOnboarding() {
         const onboardingModal = document.getElementById("onboarding-modal");
-        const step1 = document.getElementById("onboarding-step-1");
-        const step2 = document.getElementById("onboarding-step-2");
-        const getProBtn = document.getElementById("get-pro-btn");
         const premiumModal = document.getElementById("premium-modal");
-
-        let chosenPlan = null;
-
         const hasVisited = localStorage.getItem("nutrisafe_visited");
+
         if (hasVisited && onboardingModal) {
             onboardingModal.style.display = "none";
         }
 
-        document.querySelectorAll(".onboarding-opt-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                chosenPlan = btn.dataset.plan;
-                if (step1) step1.style.display = "none";
-                if (step2) step2.style.display = "block";
-            });
-        });
-
-        document.querySelectorAll(".time-opt-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                selectedCookingTime = btn.dataset.time;
+        window.finishOnboarding = function(target) {
+            const timeSelect = document.getElementById("onboarding-time");
+            if (timeSelect) {
+                selectedCookingTime = timeSelect.value;
                 localStorage.setItem("nutrisafe_cooking_time", selectedCookingTime);
-                localStorage.setItem("nutrisafe_plan_choice", chosenPlan);
-                localStorage.setItem("nutrisafe_visited", "true");
-
                 if (settingsCookingTime) settingsCookingTime.value = selectedCookingTime;
-                if (onboardingModal) onboardingModal.style.display = "none";
+            }
 
-                if (chosenPlan === "family") {
-                    const famTabBtn = document.querySelector('[data-tab="family-tab"]');
-                    if (famTabBtn) famTabBtn.click();
-                    if (premiumModal) premiumModal.style.display = "flex";
-                } else {
-                    generateMenu();
-                    showToast("Welcome to NutriSafe! Meal plan ready.", "🥑");
-                }
-            });
-        });
+            localStorage.setItem("nutrisafe_visited", "true");
+            if (onboardingModal) onboardingModal.style.display = "none";
 
-        // RE-ADDED GET PRO BUTTON EVENT
-        if (getProBtn) {
-            getProBtn.addEventListener("click", () => {
+            if (target === 'family') {
                 if (premiumModal) premiumModal.style.display = "flex";
-            });
-        }
+                const famTabBtn = document.querySelector('[data-tab="family-tab"]') || document.querySelectorAll('nav button')[2];
+                if (famTabBtn) famTabBtn.click();
+            } else {
+                generateMenu();
+                showToast("Welcome to NutriSafe! Meal plan ready.", "🥑");
+            }
+        };
     }
 
+    // --- RECIPE TIME FILTER ---
     function filterRecipesByTime(list) {
         if (!selectedCookingTime || selectedCookingTime === "any") return list;
         return list.filter(r => {
             const time = r.prepTimeMinutes || 20;
-            if (selectedCookingTime === "<10") return time <= 10;
-            if (selectedCookingTime === "10-30") return time >= 10 && time <= 30;
-            if (selectedCookingTime === "30-60") return time >= 30 && time <= 60;
-            if (selectedCookingTime === ">60") return time > 60;
+            const targetVal = parseInt(selectedCookingTime);
+            if (targetVal === 10) return time <= 10;
+            if (targetVal === 30) return time >= 10 && time <= 30;
+            if (targetVal === 60) return time >= 30 && time <= 60;
+            if (targetVal === 120) return time > 60;
             return true;
         });
     }
 
-    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+    function shuffle(array) { return [...array].sort(() => Math.random() - 0.5); }
 
+    // --- GENERATE INDIVIDUAL MENU ---
     function generateMenu() {
         if (!calendarGrid) return;
         currentWeeklyPlan = [];
@@ -255,7 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let f = timeFiltered.filter(r => r.mealType === type);
             if (f.length === 0) f = safeRecipes.filter(r => r.mealType === type);
             if (f.length === 0) f = recipes.filter(r => r.mealType === type);
-            return shuffle([...f])[0];
+            return shuffle(f)[0];
         };
 
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -274,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderIndividualCalendar();
     }
 
+    // --- RENDER CALENDAR ---
     function renderIndividualCalendar() {
         if (!calendarGrid) return;
         calendarGrid.innerHTML = "";
@@ -281,7 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentWeeklyPlan.forEach((dayData, dayIdx) => {
             const div = document.createElement("div");
-            div.className = "day-card";
+            div.className = "card day-card";
+            div.style.marginBottom = "15px";
 
             let totalTime = 0;
             let totalCals = 0;
@@ -290,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 totalCals += m.calories || 400;
             });
 
-            div.innerHTML = `<h3>${dayData.day} <br><small style="font-size:0.65em; font-weight:normal; color:#7f8c8d;">⏱️ ~${totalTime} min | 🔥 ~${totalCals} kcal</small></h3>`;
+            div.innerHTML = `<h3 style="margin-bottom:10px; color:#2e7d32;">${dayData.day} <small style="font-size:0.75em; font-weight:normal; color:#7f8c8d;">⏱️ ~${totalTime} min | 🔥 ~${totalCals} kcal</small></h3>`;
             
             ["Breakfast", "Lunch", "Dinner"].forEach(type => {
                 const m = dayData.meals[type];
@@ -299,18 +317,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 mealDiv.style.display = "flex";
                 mealDiv.style.justifyContent = "space-between";
                 mealDiv.style.alignItems = "center";
-                mealDiv.style.marginBottom = "6px";
+                mealDiv.style.padding = "10px";
+                mealDiv.style.margin = "6px 0";
+                mealDiv.style.background = "rgba(0,0,0,0.03)";
+                mealDiv.style.borderRadius = "8px";
                 
                 mealDiv.innerHTML = `
                     <div class="clickable-meal" style="cursor:pointer; flex-grow:1;">
                         <strong>${m.mealType}: ${m.title}</strong><br>
                         <small style="color:#7f8c8d;">⏱️ ${m.prepTime} | 🔥 ${m.calories} kcal</small>
                     </div>
-                    <button class="btn-swap-meal" title="Swap this meal">🔄</button>
+                    <button class="btn-link btn-swap-meal" title="Swap this meal" style="background:none; border:none; cursor:pointer; font-size:16px;">🔄</button>
                 `;
 
                 mealDiv.querySelector(".clickable-meal").addEventListener("click", () => openRecipeModal(m.id));
-                mealDiv.querySelector(".btn-swap-meal").addEventListener("click", () => swapSingleMeal(dayIdx, type));
+                mealDiv.querySelector(".btn-swap-meal").addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    swapSingleMeal(dayIdx, type);
+                });
 
                 div.appendChild(mealDiv);
                 activeMenuIngredients.push(...m.ingredients);
@@ -341,6 +365,91 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast(`Swapped ${mealType} for ${newMeal.title}!`, "🔄");
     }
 
+    // --- RECIPE MODAL LOGIC ---
+    function setupRecipeModal() {
+        window.openRecipeModal = function(recipeId) {
+            const recipe = recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+
+            document.getElementById("recipe-title").innerText = recipe.title;
+            document.getElementById("recipe-instructions").innerText = recipe.instructions;
+
+            const ingList = document.getElementById("recipe-ingredients");
+            if (ingList) {
+                ingList.innerHTML = "";
+                recipe.ingredients.forEach(ing => {
+                    const li = document.createElement("li");
+                    li.innerText = ing;
+                    ingList.appendChild(li);
+                });
+            }
+
+            const modal = document.getElementById("recipe-modal");
+            if (modal) modal.style.display = "flex";
+        };
+
+        window.closeRecipe = function() {
+            const modal = document.getElementById("recipe-modal");
+            if (modal) modal.style.display = "none";
+        };
+    }
+
+    // --- SHOPPING LIST AUTOMATIC CATEGORIZATION ---
+    function updateShoppingList(ingredientsList) {
+        if (!mainGroceryList || !pantryList) return;
+
+        mainGroceryList.innerHTML = "";
+        pantryList.innerHTML = "";
+
+        const freshItems = [];
+        const pantryItems = [];
+
+        ingredientsList.forEach(ing => {
+            const lower = ing.toLowerCase();
+            const isPantry = pantryKeywords.some(keyword => lower.includes(keyword));
+            if (isPantry) {
+                pantryItems.push(ing);
+            } else {
+                freshItems.push(ing);
+            }
+        });
+
+        // Consolidate duplicates
+        const uniqueFresh = [...new Set(freshItems)];
+        const uniquePantry = [...new Set(pantryItems)];
+
+        uniqueFresh.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `<label><input type="checkbox"> ${item}</label>`;
+            mainGroceryList.appendChild(li);
+        });
+
+        uniquePantry.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `<label><input type="checkbox"> ${item}</label>`;
+            pantryList.appendChild(li);
+        });
+    }
+
+    // --- EXPORT FUNCTIONALITIES ---
+    function setupExportButtons() {
+        window.copyShoppingList = function() {
+            const container = document.getElementById("printable-shopping-list") || document.querySelector(".shopping-container");
+            if (!container) return;
+            navigator.clipboard.writeText("🛒 NutriSafe Shopping List\n\n" + container.innerText).then(() => {
+                showToast("List copied to clipboard!", "📋");
+            });
+        };
+
+        window.shareWhatsApp = function() {
+            const container = document.getElementById("printable-shopping-list") || document.querySelector(".shopping-container");
+            if (!container) return;
+            const text = encodeURIComponent("🛒 *NutriSafe Shopping List*\n\n" + container.innerText);
+            window.open(`https://wa.me/?text=${text}`, "_blank");
+        };
+    }
+
+    // --- FAMILY UI & PRO MENU LOGIC ---
     function setupFamilyUI() {
         let familyMembers = JSON.parse(localStorage.getItem("nutrisafe_family")) || [
             { id: 1, name: "Person 1", restrictions: ["none"] },
@@ -358,7 +467,8 @@ document.addEventListener("DOMContentLoaded", () => {
             familyMembers.forEach((m, idx) => {
                 let card = document.createElement("div");
                 card.className = "card";
-                card.style.padding = "15px";
+                card.style.padding = "12px";
+                card.style.marginBottom = "10px";
                 
                 let optionsHtml = dietaryOptions.map(opt => {
                     let checked = m.restrictions.includes(opt.id) ? "checked" : "";
@@ -366,12 +476,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 }).join("");
 
                 card.innerHTML = `
-                    <div style="margin-bottom: 10px;">
+                    <div style="margin-bottom: 8px;">
                         <strong>Member #${idx + 1} Name:</strong><br>
                         <input type="text" value="${m.name}" class="fam-name-input" data-member="${idx}" style="width: 100%; padding: 6px; margin-top: 4px; border-radius: 4px; border: 1px solid #ccc;">
                     </div>
                     <strong style="font-size: 0.9em;">Dietary Needs:</strong>
-                    <div style="max-height: 140px; overflow-y: auto; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.02); border-radius: 4px;">
+                    <div style="max-height: 120px; overflow-y: auto; margin-top: 5px; padding: 5px; background: rgba(0,0,0,0.02); border-radius: 4px;">
                         ${optionsHtml}
                     </div>
                 `;
@@ -421,6 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 while (familyMembers.length > count) familyMembers.pop();
                 saveFamily();
                 renderMembers();
+                showToast(`Family updated to ${count} members.`);
             });
         }
 
@@ -442,11 +553,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        const closePremBtn = document.getElementById("close-premium-modal");
-        if (closePremBtn) {
-            closePremBtn.addEventListener("click", () => premModal.style.display = "none");
-        }
-        
         const trialBtn = document.getElementById("start-free-trial-btn");
         if (trialBtn) {
             trialBtn.addEventListener("click", () => {
@@ -461,159 +567,105 @@ document.addEventListener("DOMContentLoaded", () => {
         renderMembers();
     }
 
-    function getFamilyMealPlan(mealType, members) {
-        let unassigned = [...members];
-        let assignments = [];
-        let availableRecipes = shuffle([...recipes.filter(r => r.mealType === mealType)]);
-        if (availableRecipes.length === 0) availableRecipes = shuffle([...recipes]);
+    // --- SMART FAMILY MENU GENERATION ALGORITHM ---
+    function generateFamilyMenu(members) {
+        if (!familyCalendarGrid) return;
+        familyCalendarGrid.innerHTML = "";
+        let consolidatedIngredients = [];
 
-        while (unassigned.length > 0) {
-            let bestRecipe = null;
-            let bestMatchMembers = [];
+        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-            for (let recipe of availableRecipes) {
-                let compatibleMembers = unassigned.filter(member => {
-                    if (member.restrictions.length === 0 || member.restrictions.includes("none")) return true;
-                    return member.restrictions.every(req => recipe.safeFor && recipe.safeFor.includes(req));
+        days.forEach(day => {
+            const dayCard = document.createElement("div");
+            dayCard.className = "card day-card";
+            dayCard.style.marginBottom = "15px";
+            dayCard.innerHTML = `<h3 style="color:#2e7d32;">${day} (Family Plan)</h3>`;
+
+            ["Breakfast", "Lunch", "Dinner"].forEach(type => {
+                const mealBox = document.createElement("div");
+                mealBox.style.margin = "8px 0";
+                mealBox.style.padding = "8px";
+                mealBox.style.background = "rgba(0,0,0,0.02)";
+                mealBox.style.borderRadius = "6px";
+                mealBox.innerHTML = `<strong>${type}:</strong>`;
+
+                // Smart grouping: find minimum dishes to satisfy all family members
+                const assignments = getFamilyMealAssignments(type, members);
+                assignments.forEach(group => {
+                    const dish = group.recipe;
+                    const peopleNames = group.people.map(p => p.name).join(", ");
+                    
+                    const dishP = document.createElement("p");
+                    dishP.style.margin = "4px 0 2px 10px";
+                    dishP.style.fontSize = "14px";
+                    dishP.innerHTML = `🍳 <strong>${dish.title}</strong> <small>(${peopleNames})</small>`;
+                    mealBox.appendChild(dishP);
+
+                    // Add ingredients scaled by group size
+                    dish.ingredients.forEach(ing => consolidatedIngredients.push(ing));
                 });
 
-                if (compatibleMembers.length > bestMatchMembers.length) {
-                    bestMatchMembers = compatibleMembers;
-                    bestRecipe = recipe;
-                }
-            }
-
-            if (!bestRecipe || bestMatchMembers.length === 0) {
-                bestRecipe = availableRecipes[0] || recipes[0];
-                bestMatchMembers = [unassigned[0]];
-            }
-
-            assignments.push({
-                recipe: bestRecipe,
-                forMembers: bestMatchMembers.map(m => m.name)
+                dayCard.appendChild(mealBox);
             });
 
-            unassigned = unassigned.filter(m => !bestMatchMembers.includes(m));
+            familyCalendarGrid.appendChild(dayCard);
+        });
+
+        updateShoppingList(consolidatedIngredients);
+    }
+
+    function getFamilyMealAssignments(mealType, members) {
+        let unassigned = [...members];
+        let assignments = [];
+
+        while (unassigned.length > 0) {
+            // Find a recipe that satisfies the maximum remaining members
+            let bestRecipe = null;
+            let bestCompatibleGroup = [];
+
+            const candidateRecipes = recipes.filter(r => r.mealType === mealType);
+
+            candidateRecipes.forEach(recipe => {
+                let compatible = unassigned.filter(person => {
+                    if (person.restrictions.includes("none") || person.restrictions.length === 0) return true;
+                    return person.restrictions.every(req => recipe.safeFor && recipe.safeFor.includes(req));
+                });
+
+                if (compatible.length > bestCompatibleGroup.length) {
+                    bestCompatibleGroup = compatible;
+                    bestRecipe = recipe;
+                }
+            });
+
+            // Fallback if no restriction match found
+            if (!bestRecipe) {
+                bestRecipe = candidateRecipes[0];
+                bestCompatibleGroup = [unassigned[0]];
+            }
+
+            assignments.push({ recipe: bestRecipe, people: bestCompatibleGroup });
+            unassigned = unassigned.filter(p => !bestCompatibleGroup.includes(p));
         }
 
         return assignments;
     }
 
-    function generateFamilyMenu(members) {
-        const familyContainer = document.getElementById("family-calendar-grid");
-        if (!familyContainer) return;
-
-        familyContainer.innerHTML = "";
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        let familyIngredients = [];
-
-        days.forEach(day => {
-            const dayCard = document.createElement("div");
-            dayCard.className = "day-card family-day-card";
-            
-            let html = `<h3>${day}</h3>`;
-
-            ["Breakfast", "Lunch", "Dinner"].forEach(type => {
-                const plan = getFamilyMealPlan(type, members);
-                html += `<div class="meal-section" style="margin-top:8px;"><strong>${type}</strong>`;
-                
-                plan.forEach(item => {
-                    html += `
-                        <div class="clickable-meal family-meal-item" data-recipe-id="${item.recipe.id}" style="cursor:pointer; margin: 4px 0; padding: 6px; background: rgba(0,0,0,0.03); border-radius: 4px;">
-                            <strong>${item.recipe.title}</strong> <small>(${item.recipe.prepTime})</small><br>
-                            <span style="font-size:0.8em; color: #27ae60;">👤 ${item.forMembers.join(", ")}</span>
-                        </div>
-                    `;
-                    familyIngredients.push(...item.recipe.ingredients);
-                });
-
-                html += `</div>`;
-            });
-
-            dayCard.innerHTML = html;
-            familyContainer.appendChild(dayCard);
-        });
-
-        familyContainer.querySelectorAll(".clickable-meal").forEach(el => {
-            el.addEventListener("click", () => openRecipeModal(parseInt(el.dataset.recipeId)));
-        });
-
-        updateShoppingList(familyIngredients);
-    }
-
-    // SEPARATED GROCERY LIST FUNCTION (FRESH VS PANTRY)
-    function updateShoppingList(ingredients) {
-        if (!freshGroceryList || !pantryGroceryList) return;
-
-        freshGroceryList.innerHTML = "";
-        pantryGroceryList.innerHTML = "";
-
-        const counts = {};
-        ingredients.forEach(item => {
-            counts[item] = (counts[item] || 0) + 1;
-        });
-
-        Object.keys(counts).forEach(ing => {
-            const isPantry = pantryKeywords.some(keyword => ing.toLowerCase().includes(keyword));
-            const li = document.createElement("li");
-            li.style.margin = "4px 0";
-            li.innerHTML = `<label><input type="checkbox"> ${ing} ${counts[ing] > 1 ? `(x${counts[ing]})` : ''}</label>`;
-
-            if (isPantry) {
-                pantryGroceryList.appendChild(li);
-            } else {
-                freshGroceryList.appendChild(li);
-            }
-        });
-    }
-
-    function setupRecipeModal() {
-        const modal = document.getElementById("recipe-modal");
-        const closeBtn = document.getElementById("close-recipe-modal");
-
-        if (closeBtn && modal) {
-            closeBtn.addEventListener("click", () => {
-                modal.style.display = "none";
-            });
-            window.addEventListener("click", (e) => {
-                if (e.target === modal) modal.style.display = "none";
+    // --- REGENERATE BUTTON HANDLERS ---
+    function setupRegenButtons() {
+        const regenBtn = document.getElementById("regen-individual-btn");
+        if (regenBtn) {
+            regenBtn.addEventListener("click", () => {
+                generateMenu();
+                showToast("Generated new weekly menu!", "🔄");
             });
         }
     }
 
-    // OPEN RECIPE MODAL
-    function openRecipeModal(recipeId) {
-        const modal = document.getElementById("recipe-modal");
-        const titleEl = document.getElementById("recipe-modal-title");
-        const bodyEl = document.getElementById("recipe-modal-body");
+    window.closeModal = function(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.style.display = "none";
+    };
 
-        const recipe = recipes.find(r => r.id === recipeId);
-        if (!recipe || !modal) return;
-
-        if (titleEl) titleEl.textContent = recipe.title;
-        if (bodyEl) {
-            bodyEl.innerHTML = `
-                <p><strong>Meal Type:</strong> ${recipe.mealType} | <strong>Prep Time:</strong> ${recipe.prepTime} | <strong>Calories:</strong> ${recipe.calories} kcal</p>
-                <h4>Ingredients:</h4>
-                <ul>
-                    ${recipe.ingredients.map(ing => `<li>${ing}</li>`).join("")}
-                </ul>
-                <h4>Instructions:</h4>
-                <p style="white-space: pre-line;">${recipe.instructions}</p>
-                <p><strong>Safe For:</strong> ${recipe.safeFor ? recipe.safeFor.join(", ") : "All"}</p>
-            `;
-        }
-
-        modal.style.display = "flex";
-    }
-
-    function setupExport() {
-        const printBtn = document.getElementById("export-print-btn");
-        if (printBtn) {
-            printBtn.addEventListener("click", () => window.print());
-        }
-    }
-
-    // Initialize application
+    // RUN APP
     init();
 });
