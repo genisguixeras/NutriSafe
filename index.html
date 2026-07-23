@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +14,9 @@
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
 
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 
-    <!-- CSS Fixes for Spacing & Notifications -->
     <style>
-        /* Header Layout Fix for Try PRO Button */
         header {
             display: flex;
             justify-content: space-between;
@@ -43,18 +41,16 @@
             transform: scale(1.03);
         }
 
-        /* Uncrowd the calendar */
         .calendar-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 15px;
             padding: 15px 0;
         }
 
-        /* Toast Notification Styling */
         #toast-container {
             position: fixed;
-            bottom: 90px; /* Above the bottom nav */
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 9999;
@@ -64,7 +60,7 @@
         }
         .toast {
             background-color: #333333;
-            color: #ffffff; /* White text fix */
+            color: #ffffff;
             padding: 12px 24px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -76,24 +72,58 @@
         @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeout { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
         
-        /* Modal tweaks */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
         .modal-content {
-            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative;
+            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; position: relative;
         }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
         
+        /* Mida del Badge PRO optimitzada */
         .badge-pro {
             background: #ff9800;
             color: #fff;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 8px;
             font-weight: bold;
-            margin-left: 4px;
+            margin-left: 3px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+
+        /* Macro Nutrients Styling */
+        .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            background: #f4f6f8;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 12px 0;
+            text-align: center;
+        }
+        .macro-item {
+            display: flex;
+            flex-direction: column;
+            font-size: 11px;
+        }
+        .macro-value {
+            font-weight: bold;
+            font-size: 13px;
+            color: #2e7d32;
+        }
+        .family-tag {
+            display: inline-block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 6px;
         }
     </style>
 </head>
@@ -113,18 +143,9 @@
                 <h2 id="planner-tab-title">Your Weekly Plan</h2>
                 <button id="regen-individual-btn" class="btn-secondary" onclick="regenerateWeek()">🔄 Regenerate Week</button>
             </div>
-            <!-- Added dummy meals so you can test the recipe click feature -->
+            
             <div id="calendar-grid" class="calendar-grid">
-                <div class="card meal-card" onclick="openRecipe('Grilled Chicken Salad', ['1x Chicken Breast', '50g Spinach', '1x Tomato'], 'Grill the chicken and mix with veggies.')">
-                    <h3>Monday - Lunch</h3>
-                    <p>Grilled Chicken Salad</p>
-                    <button class="btn-link" onclick="event.stopPropagation(); showToast('Meal regenerated successfully!');">🔄 Change meal</button>
-                </div>
-                <div class="card meal-card" onclick="openRecipe('Pasta Bolognese', ['100g Pasta', '50g Minced Meat', 'Tomato Sauce'], 'Boil pasta, cook meat, mix with sauce.')">
-                    <h3>Monday - Dinner</h3>
-                    <p>Pasta Bolognese</p>
-                    <button class="btn-link" onclick="event.stopPropagation(); showToast('Meal regenerated successfully!');">🔄 Change meal</button>
-                </div>
+                <!-- Generat dinàmicament des de app.js amb esmorzar, dinar i sopar -->
             </div>
         </section>
 
@@ -141,21 +162,11 @@
             <div class="shopping-container" id="printable-shopping-list">
                 <div class="card">
                     <h3 class="text-green">🛒 Groceries to Buy</h3>
-                    <ul id="main-grocery-list">
-                        <li><strong>1x</strong> Chicken Breast</li>
-                        <li><strong>100g</strong> Pasta</li>
-                        <li><strong>50g</strong> Minced Meat</li>
-                        <li><strong>50g</strong> Spinach</li>
-                    </ul>
+                    <ul id="main-grocery-list"></ul>
                 </div>
                 <div class="card">
                     <h3 class="text-orange">🧂 Pantry Essentials (Check at home)</h3>
-                    <ul id="pantry-list">
-                        <li><strong>1x</strong> Tomato</li>
-                        <li><strong>1 jar</strong> Tomato Sauce</li>
-                        <li>Olive Oil</li>
-                        <li>Salt & Pepper</li>
-                    </ul>
+                    <ul id="pantry-list"></ul>
                 </div>
             </div>
         </section>
@@ -166,7 +177,6 @@
             <p class="subtitle">Set up your family and we will automatically adapt menus to cook the minimum amount of different dishes!</p>
             
             <div class="card form-card">
-                <!-- 1. Number of people -->
                 <div class="form-group">
                     <label for="family-count-input">👥 How many people are at home?</label>
                     <div class="input-inline">
@@ -175,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- 2. Member restrictions -->
                 <div class="form-group">
                     <label>🥗 Restrictions and allergies per member:</label>
                     <div id="family-members-grid"></div>
@@ -237,32 +246,55 @@
         </button>
     </nav>
 
-    <!-- RECIPE MODAL (Triggered when clicking a meal) -->
+    <!-- RECIPE MODAL (With Quantities & Macros) -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeRecipe()">&times;</span>
-            <h2 id="recipe-title">Recipe</h2>
-            <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients</h3>
-            <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px;"></ul>
-            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Instructions</h3>
-            <p id="recipe-instructions"></p>
+            <h2 id="recipe-title">Recipe Title</h2>
+            <p id="recipe-family-info" class="family-tag" style="margin-top: 8px;"></p>
+            
+            <!-- MACROS GRID -->
+            <div class="macros-grid">
+                <div class="macro-item">
+                    <span>Calories</span>
+                    <span id="macro-calories" class="macro-value">0 kcal</span>
+                </div>
+                <div class="macro-item">
+                    <span>Protein</span>
+                    <span id="macro-protein" class="macro-value">0g</span>
+                </div>
+                <div class="macro-item">
+                    <span>Carbs</span>
+                    <span id="macro-carbs" class="macro-value">0g</span>
+                </div>
+                <div class="macro-item">
+                    <span>Fat</span>
+                    <span id="macro-fat" class="macro-value">0g</span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients & Quantities</h3>
+            <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;"></ul>
+
+            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Step-by-Step Instructions</h3>
+            <p id="recipe-instructions" style="white-space: pre-line; line-height: 1.5; color: #444;"></p>
         </div>
     </div>
 
-    <!-- PREMIUM MODAL / FREE TRIAL -->
+    <!-- PREMIUM MODAL -->
     <div id="premium-modal" class="modal" style="display:none;">
         <div class="modal-content text-center">
             <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
             <div class="modal-icon" style="font-size: 40px;">👑</div>
             <h2>Unlock Family Plan PRO</h2>
-            <p>Would you like to start a 1-week free trial of the PRO plan?</p>
+            <p>Start your 1-week free trial of the PRO plan!</p>
             <ul class="pro-features" style="text-align: left; margin: 15px 0;">
                 <li>✨ Unlimited family members</li>
                 <li>⚡ Smart ingredient merging</li>
                 <li>📲 Direct export to WhatsApp</li>
                 <li>🚫 No ads & priority support</li>
             </ul>
-            <button id="start-free-trial-btn" class="btn-primary btn-large" style="width: 100%; margin-bottom: 10px;" onclick="closeModal('premium-modal'); showToast('PRO Trial Activated!');">🎁 Start 7-Day Free Trial</button>
+            <button class="btn-primary btn-large" style="width: 100%; margin-bottom: 10px;" onclick="closeModal('premium-modal'); showToast('PRO Trial Activated!');">🎁 Start 7-Day Free Trial</button>
         </div>
     </div>
 
@@ -287,18 +319,14 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- INLINE SCRIPT FOR TAB & UI LOGIC -->
     <script>
-        // Tab switching logic
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
             const targetTab = document.getElementById(tabId);
             if (targetTab) targetTab.style.display = 'block';
             
-            // Highlight active nav button
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
@@ -308,19 +336,14 @@
             }
         }
 
-        // Onboarding logic
         function finishOnboarding(target) {
             document.getElementById('onboarding-modal').style.display = 'none';
-            
-            // Sync selected time to settings
             const selectedTime = document.getElementById('onboarding-time').value;
             document.getElementById('settings-cooking-time').value = selectedTime;
 
             if (target === 'family') {
-                // Adapt nav text & title for family target
                 document.getElementById('nav-text-individual').innerText = 'Recipes';
                 document.getElementById('planner-tab-title').innerText = 'Family Recipes';
-                
                 document.getElementById('premium-modal').style.display = 'flex';
                 switchTab('family-tab');
             } else {
@@ -330,35 +353,10 @@
             }
         }
 
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function closeRecipe() { document.getElementById('recipe-modal').style.display = 'none'; }
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        // Recipe Modal Logic
-        function openRecipe(title, ingredients, instructions) {
-            document.getElementById('recipe-title').innerText = title;
-            document.getElementById('recipe-instructions').innerText = instructions;
-            
-            const ingList = document.getElementById('recipe-ingredients');
-            ingList.innerHTML = '';
-            ingredients.forEach(ing => {
-                const li = document.createElement('li');
-                li.innerText = ing;
-                ingList.appendChild(li);
-            });
-            
-            document.getElementById('recipe-modal').style.display = 'flex';
-        }
-
-        function closeRecipe() {
-            document.getElementById('recipe-modal').style.display = 'none';
-        }
-
-        // Toast logic
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -368,12 +366,6 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Regenerate Week
-        function regenerateWeek() {
-            showToast('Generating a new week of meals... 🔄');
-        }
-
-        // Copy Shopping List Function
         function copyShoppingList() {
             const listText = document.getElementById('printable-shopping-list').innerText;
             navigator.clipboard.writeText("🛒 NutriSafe Shopping List\n\n" + listText).then(() => {
@@ -381,7 +373,6 @@
             });
         }
 
-        // WhatsApp Share Function
         function shareWhatsApp() {
             const listText = document.getElementById('printable-shopping-list').innerText;
             const textToShare = encodeURIComponent("🛒 *NutriSafe Shopping List*\n\n" + listText);
@@ -389,7 +380,6 @@
         }
     </script>
 
-    <!-- EXTERNAL SCRIPT DEFER -->
-    <script src="app.js?v=6" defer></script>
+    <script src="app.js?v=7" defer></script>
 </body>
 </html>
