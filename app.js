@@ -24,23 +24,23 @@ document.addEventListener("DOMContentLoaded", () => {
         "oil", "olive oil", "salt", "pepper", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "soy sauce", "mustard", "vanilla", "chia seeds"
     ];
 
-    // RECIPES DATABASE WITH BREAKFASTS, LUNCHES, DINNERS AND MACROS
+    // BASE DE DADES DE RECEPTES AMB ESMORZARS, DINARS, SOPARS I MACROS
     const recipes = [
         // --- BREAKFASTS ---
-        { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, macros: { protein: "14g", carbs: "52g", fat: "10g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk.\n2. Add gluten-free flour while stirring.\n3. Cook on a hot pan 2-3 min per side.\n4. Serve with maple syrup." },
-        { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "8 min", calories: 310, macros: { protein: "11g", carbs: "48g", fat: "6g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["80g Oats", "250ml Oat milk", "1 Banana", "1 tbsp Chia seeds"], instructions: "1. Cook oats in oat milk for 5 min.\n2. Slice fresh banana.\n3. Top oatmeal with banana slices and chia seeds." },
-        { id: 3, title: "Avocado & Egg Toast", mealType: "Breakfast", prepTime: "5 min", calories: 340, macros: { protein: "15g", carbs: "28g", fat: "18g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["2 slices Bread", "1 Avocado", "2 Eggs", "1 pinch Salt"], instructions: "1. Toast bread.\n2. Mash avocado with salt and spread on toast.\n3. Fry or poach eggs and place on top." },
-        { id: 4, title: "Chia Seed Pudding", mealType: "Breakfast", prepTime: "5 min", calories: 280, macros: { protein: "8g", carbs: "22g", fat: "14g" }, safeFor: ["vegan", "vegetarian", "keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["40g Chia seeds", "200ml Coconut milk", "1 tsp Vanilla", "100g Strawberries"], instructions: "1. Mix chia seeds and coconut milk with vanilla.\n2. Refrigerate overnight or 2 hours.\n3. Top with fresh strawberries." },
+        { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, macros: { protein: "14g", carbs: "52g", fat: "10g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk together in a bowl.\n2. Gradually add gluten-free flour while stirring.\n3. Heat a non-stick pan and cook 2-3 min per side.\n4. Serve hot drizzled with maple syrup." },
+        { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "8 min", calories: 310, macros: { protein: "11g", carbs: "48g", fat: "6g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["80g Oats", "250ml Oat milk", "1 Banana", "1 tbsp Chia seeds"], instructions: "1. Bring oat milk to a gentle simmer in a small pot.\n2. Stir in oats and cook for 5 minutes on low heat.\n3. Slice the fresh banana.\n4. Pour oatmeal into a bowl and top with sliced banana and chia seeds." },
+        { id: 3, title: "Avocado & Egg Toast", mealType: "Breakfast", prepTime: "5 min", calories: 340, macros: { protein: "15g", carbs: "28g", fat: "18g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["2 slices Whole-grain bread", "1 Ripe avocado", "2 Eggs", "1 pinch Salt & Black pepper"], instructions: "1. Toast bread slices until golden and crisp.\n2. Mash avocado in a bowl with salt and pepper, then spread evenly on toast.\n3. Fry or poach eggs to your liking and place on top." },
+        { id: 4, title: "Chia Seed Pudding", mealType: "Breakfast", prepTime: "5 min", calories: 280, macros: { protein: "8g", carbs: "22g", fat: "14g" }, safeFor: ["vegan", "vegetarian", "keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["40g Chia seeds", "200ml Coconut milk", "1 tsp Vanilla extract", "100g Fresh strawberries"], instructions: "1. In a glass or jar, mix chia seeds, coconut milk, and vanilla extract.\n2. Let rest in the fridge for at least 2 hours (or overnight).\n3. Garnish with chopped fresh strawberries before serving." },
 
         // --- LUNCHES ---
-        { id: 5, title: "Chicken & Rice Stir-fry", mealType: "Lunch", prepTime: "20 min", calories: 520, macros: { protein: "42g", carbs: "58g", fat: "12g" }, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["200g Chicken breast", "150g Jasmine rice", "2 tbsp Soy sauce", "1 Bell pepper"], instructions: "1. Boil rice.\n2. Stir-fry chicken strips and sliced pepper in pan.\n3. Add soy sauce and serve with rice." },
-        { id: 6, title: "Quinoa Cucumber Salad", mealType: "Lunch", prepTime: "15 min", calories: 410, macros: { protein: "12g", carbs: "54g", fat: "16g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["100g Quinoa", "1 Cucumber", "100g Cherry tomatoes", "2 tbsp Olive oil"], instructions: "1. Boil quinoa and let cool.\n2. Mix with diced cucumber and cherry tomatoes.\n3. Dress with olive oil and salt." },
-        { id: 7, title: "Beef & Broccoli Bowl", mealType: "Lunch", prepTime: "20 min", calories: 580, macros: { protein: "45g", carbs: "20g", fat: "28g" }, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["200g Beef steak", "150g Broccoli", "2 cloves Garlic", "2 tbsp Soy sauce"], instructions: "1. Slice beef thinly.\n2. Sear beef with garlic in pan.\n3. Toss in steamed broccoli florets and soy sauce." },
+        { id: 5, title: "Chicken & Rice Stir-fry", mealType: "Lunch", prepTime: "20 min", calories: 520, macros: { protein: "42g", carbs: "58g", fat: "12g" }, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["200g Chicken breast", "150g Jasmine rice", "2 tbsp Soy sauce", "1 Red bell pepper"], instructions: "1. Boil jasmine rice according to package instructions.\n2. Slice chicken breast and bell pepper into thin strips.\n3. Sauté chicken and peppers in a hot pan, add soy sauce, and toss with rice." },
+        { id: 6, title: "Quinoa Cucumber Salad", mealType: "Lunch", prepTime: "15 min", calories: 410, macros: { protein: "12g", carbs: "54g", fat: "16g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["100g Quinoa", "1 Cucumber", "100g Cherry tomatoes", "2 tbsp Extra virgin olive oil"], instructions: "1. Boil quinoa in water for 12 minutes, drain and let cool.\n2. Chop cucumber and halved cherry tomatoes.\n3. Combine all ingredients in a bowl and drizzle with olive oil." },
+        { id: 7, title: "Beef & Broccoli Bowl", mealType: "Lunch", prepTime: "20 min", calories: 580, macros: { protein: "45g", carbs: "20g", fat: "28g" }, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["200g Beef steak", "150g Broccoli florets", "2 cloves Garlic", "2 tbsp Soy sauce"], instructions: "1. Slice beef thinly against the grain.\n2. Sear beef strips with minced garlic in a hot skillet for 4-5 minutes.\n3. Steam broccoli florets, add to skillet with soy sauce, and stir to combine." },
 
         // --- DINNERS ---
-        { id: 8, title: "Grilled Salmon & Asparagus", mealType: "Dinner", prepTime: "25 min", calories: 610, macros: { protein: "46g", carbs: "8g", fat: "38g" }, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"], ingredients: ["200g Salmon fillet", "150g Asparagus", "2 tbsp Olive oil", "1/2 Lemon"], instructions: "1. Grill salmon fillet 4-5 minutes per side.\n2. Sauté asparagus in olive oil.\n3. Serve with fresh lemon slice." },
-        { id: 9, title: "Steak with Sweet Potato", mealType: "Dinner", prepTime: "30 min", calories: 680, macros: { protein: "50g", carbs: "42g", fat: "24g" }, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["220g Beef steak", "200g Sweet potato", "2 tbsp Olive oil"], instructions: "1. Cut sweet potato into wedges and bake at 200°C for 25 min.\n2. Sear steak 3-4 min per side on pan." },
-        { id: 10, title: "Tofu & Vegetable Curry", mealType: "Dinner", prepTime: "25 min", calories: 430, macros: { protein: "18g", carbs: "26g", fat: "22g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["180g Tofu", "200ml Coconut milk", "1 Bell pepper", "50g Spinach"], instructions: "1. Sauté peppers and tofu in pan.\n2. Pour coconut milk and simmer for 10 min.\n3. Stir in spinach at the end." }
+        { id: 8, title: "Grilled Salmon & Asparagus", mealType: "Dinner", prepTime: "25 min", calories: 610, macros: { protein: "46g", carbs: "8g", fat: "38g" }, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"], ingredients: ["200g Salmon fillet", "150g Asparagus", "2 tbsp Olive oil", "1/2 Fresh lemon"], instructions: "1. Heat grill or skillet with olive oil.\n2. Grill salmon fillet skin-side down for 4 minutes, flip and cook 3 minutes more.\n3. Sauté asparagus in the same pan and serve with fresh lemon wedges." },
+        { id: 9, title: "Steak with Sweet Potato", mealType: "Dinner", prepTime: "30 min", calories: 680, macros: { protein: "50g", carbs: "42g", fat: "24g" }, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["220g Beef steak", "200g Sweet potato", "2 tbsp Olive oil"], instructions: "1. Cut sweet potato into wedges, toss with 1 tbsp olive oil and bake at 200°C for 25 mins.\n2. Season steak and sear on high heat for 3-4 minutes per side.\n3. Let steak rest for 5 minutes before serving with sweet potato wedges." },
+        { id: 10, title: "Tofu & Vegetable Curry", mealType: "Dinner", prepTime: "25 min", calories: 430, macros: { protein: "18g", carbs: "26g", fat: "22g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["180g Firm tofu", "200ml Coconut milk", "1 Bell pepper", "50g Fresh spinach"], instructions: "1. Cube tofu and sauté with sliced bell pepper in a pot for 5 minutes.\n2. Pour in coconut milk and let simmer gently for 10 minutes.\n3. Stir in fresh spinach right before serving until wilted." }
     ];
 
     const calendarGrid = document.getElementById("calendar-grid");
@@ -56,9 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function init() {
         setupTheme();
         renderSettingsCheckboxes();
-        setupFamilyMembersUI(parseInt(document.getElementById("family-count-input").value) || 2);
+        setupFamilyMembersUI(parseInt(document.getElementById("family-count-input").value) || 4);
         setupEventListeners();
-        generateIndividualMenu(); // Carrega menú inicial amb esmorzars
+        generateIndividualMenu();
     }
 
     function setupTheme() {
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.innerHTML = `
                 <div>
                     <strong>Member #${i} Name:</strong>
-                    <input type="text" class="member-name" value="Persona ${i}" style="width:100%; padding: 6px; margin: 4px 0 8px 0; border: 1px solid #ccc; border-radius: 4px;">
+                    <input type="text" class="member-name" value="Person ${i}" style="width:100%; padding: 6px; margin: 4px 0 8px 0; border: 1px solid #ccc; border-radius: 4px;">
                 </div>
                 <div>
                     <label style="font-size: 12px; font-weight: bold;">Dietary Needs:</label>
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- REGENERAR / GENERAR MENÚ AMB ESMORZARS ---
+    // --- GENERAR MENÚ INDIVIDUAL (AMB ESMORZAR, DINAR I SOPAR) ---
     function generateIndividualMenu() {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
@@ -148,18 +148,19 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList();
     }
 
-    // --- GENERADOR DE MENÚ FAMILIAR AMB DETALLS PER PERSONA ---
+    // --- GENERADOR DE MENÚ FAMILIAR (TOTS ELS MEMBRES ANALITZATS - "Suitable for:") ---
     function generateFamilyMenu() {
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
         currentWeekPlan = [];
 
-        // Obtenir dades dels membres de la família
+        // Llegir TOTS els membres de la família del formulari
         const memberCards = document.querySelectorAll(".member-card");
         const familyData = [];
 
         memberCards.forEach((card, idx) => {
-            const name = card.querySelector(".member-name").value || `Persona ${idx + 1}`;
+            const nameInput = card.querySelector(".member-name");
+            const name = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : `Person ${idx + 1}`;
             const checkboxes = card.querySelectorAll("input[type='checkbox']:checked");
             const restrictions = Array.from(checkboxes).map(cb => cb.value);
             familyData.push({ name, restrictions });
@@ -173,19 +174,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
                 currentWeekPlan.push(recipe);
 
-                // Calcular quins membres poden menjar-se aquesta recepta
+                // Comprovar quins membres poden menjar aquest plat
                 const suitableMembers = familyData.filter(member => {
-                    if (member.restrictions.length === 0) return true;
+                    if (member.restrictions.length === 0 || member.restrictions.includes("none")) return true;
                     return member.restrictions.every(rest => recipe.safeFor.includes(rest));
                 }).map(m => m.name);
 
                 let familyInfoText = "";
                 if (suitableMembers.length === familyData.length) {
-                    familyInfoText = "Apte per a: Tots els membres";
+                    familyInfoText = "Suitable for: All family members";
                 } else if (suitableMembers.length > 0) {
-                    familyInfoText = `Apte per a: ${suitableMembers.join(", ")}`;
+                    familyInfoText = `Suitable for: ${suitableMembers.join(", ")}`;
                 } else {
-                    familyInfoText = "Atenció: Adaptació especial requerida";
+                    familyInfoText = "Suitable for: Special adaptation required";
                 }
 
                 renderMealCard(day, type, recipe, familyInfoText);
@@ -194,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateShoppingList();
 
-        if (typeof showToast === "function") showToast("Family menu updated & shopping list synced!", "✨");
+        if (typeof showToast === "function") showToast("Family menu generated & shopping list synced!", "✨");
         if (typeof switchTab === "function") switchTab("planner-tab");
     }
 
@@ -221,18 +222,18 @@ document.addEventListener("DOMContentLoaded", () => {
         calendarGrid.appendChild(card);
     }
 
-    // --- MOSTRAR MODAL AMB QUANTITATS, MACROS I INSTRUCCIONS ---
+    // --- MOSTRAR MODAL DE LA RECEPTA SELECCIONADA ---
     function showRecipeModal(recipe, familyTag) {
         document.getElementById("recipe-title").innerText = recipe.title;
         document.getElementById("recipe-family-info").innerText = familyTag;
 
-        // Macros
+        // Mostrar Macros
         document.getElementById("macro-calories").innerText = `${recipe.calories} kcal`;
         document.getElementById("macro-protein").innerText = recipe.macros.protein;
         document.getElementById("macro-carbs").innerText = recipe.macros.carbs;
         document.getElementById("macro-fat").innerText = recipe.macros.fat;
 
-        // Ingredients amb Quantitats
+        // Mostrar Ingredients amb Quantitats
         const ingList = document.getElementById("recipe-ingredients");
         ingList.innerHTML = "";
         recipe.ingredients.forEach(ing => {
@@ -241,13 +242,13 @@ document.addEventListener("DOMContentLoaded", () => {
             ingList.appendChild(li);
         });
 
-        // Instruccions
+        // Mostrar Instruccions de la Recepta
         document.getElementById("recipe-instructions").innerText = recipe.instructions;
 
         document.getElementById("recipe-modal").style.display = "flex";
     }
 
-    // --- ACTUALITZACIÓ DINÀMICA DE LA LLISTA DE LA COMPRA ---
+    // --- ACTUALITZAR LLISTA DE LA COMPRA ---
     function updateShoppingList() {
         const mainGroceryList = document.getElementById("main-grocery-list");
         const pantryList = document.getElementById("pantry-list");
@@ -288,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function setupEventListeners() {
         if (updateFamilyBtn) {
             updateFamilyBtn.addEventListener("click", () => {
-                const count = parseInt(document.getElementById("family-count-input").value) || 2;
+                const count = parseInt(document.getElementById("family-count-input").value) || 4;
                 setupFamilyMembersUI(count);
                 if (typeof showToast === "function") showToast(`Set to ${count} family members!`);
             });
