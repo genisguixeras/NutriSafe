@@ -1,169 +1,345 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NutriSafe: Planificador de menús i llista de la compra intel·ligent per a tota la família.">
+    <meta name="description" content="NutriSafe: Smart meal planner and shopping list.">
     <title>NutriSafe</title>
 
-    <!-- Metaetiquetes PWA i iOS -->
+    <!-- PWA & iOS Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
-    <link rel="icon" type="image/png" href="logo.png">
 
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
+
+    <!-- CSS Fixes for Spacing & Notifications -->
+    <style>
+        /* Uncrowd the calendar */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            padding: 15px 0;
+        }
+        /* Toast Notification Styling */
+        #toast-container {
+            position: fixed;
+            bottom: 90px; /* Above the bottom nav */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background-color: #333333;
+            color: #ffffff; /* White text fix */
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            animation: fadein 0.3s, fadeout 0.3s 2.7s;
+        }
+        @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeout { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+        
+        /* Modal tweaks */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; position: relative;
+        }
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
-    <!-- CAPÇALERA -->
+    <!-- HEADER -->
     <header>
         <h1>🥑 NutriSafe</h1>
     </header>
 
-    <!-- CONTINGUT PRINCIPAL -->
+    <!-- MAIN CONTENT -->
     <main>
-        <!-- PESTANYA 1: PLA INDIVIDUAL -->
+        <!-- TAB 1: INDIVIDUAL PLAN -->
         <section id="planner-tab" class="tab-content active">
             <div class="tab-header">
-                <h2>El teu pla setmanal</h2>
-                <button id="regen-individual-btn" class="btn-secondary">🔄 Regenerar setmana</button>
+                <h2>Your Weekly Plan</h2>
+                <button id="regen-individual-btn" class="btn-secondary" onclick="regenerateWeek()">🔄 Regenerate Week</button>
             </div>
-            <div id="calendar-grid" class="calendar-grid"></div>
+            <!-- Added dummy meals so you can test the recipe click feature -->
+            <div id="calendar-grid" class="calendar-grid">
+                <div class="card meal-card" onclick="openRecipe('Grilled Chicken Salad', ['1x Chicken Breast', '50g Spinach', '1x Tomato'], 'Grill the chicken and mix with veggies.')">
+                    <h3>Monday - Lunch</h3>
+                    <p>Grilled Chicken Salad</p>
+                    <button class="btn-link" onclick="event.stopPropagation(); showToast('Meal regenerated successfully!');">🔄 Change meal</button>
+                </div>
+                <div class="card meal-card" onclick="openRecipe('Pasta Bolognese', ['100g Pasta', '50g Minced Meat', 'Tomato Sauce'], 'Boil pasta, cook meat, mix with sauce.')">
+                    <h3>Monday - Dinner</h3>
+                    <p>Pasta Bolognese</p>
+                    <button class="btn-link" onclick="event.stopPropagation(); showToast('Meal regenerated successfully!');">🔄 Change meal</button>
+                </div>
+            </div>
         </section>
 
-        <!-- PESTANYA 2: LLISTA DE LA COMPRA -->
+        <!-- TAB 2: SHOPPING LIST -->
         <section id="shopping-tab" class="tab-content">
             <div class="tab-header">
-                <h2>🛒 Llista de la compra</h2>
+                <h2>🛒 Shopping List</h2>
                 <div class="action-buttons">
-                    <button id="copy-list-btn" class="btn-action btn-blue">📋 Copiar</button>
-                    <button id="whatsapp-list-btn" class="btn-action btn-whatsapp">💬 WhatsApp</button>
-                    <button id="print-list-btn" class="btn-action btn-dark">🖨️ PDF</button>
+                    <button id="copy-list-btn" class="btn-action btn-blue" onclick="copyShoppingList()">📋 Copy</button>
+                    <button id="whatsapp-list-btn" class="btn-action btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
+                    <button id="print-list-btn" class="btn-action btn-dark" onclick="window.print()">🖨️ Print</button>
                 </div>
             </div>
-            <div class="shopping-container">
+            <div class="shopping-container" id="printable-shopping-list">
                 <div class="card">
-                    <h3 class="text-green">🛒 Ingredients per comprar</h3>
-                    <ul id="main-grocery-list"></ul>
+                    <h3 class="text-green">🛒 Groceries to Buy</h3>
+                    <ul id="main-grocery-list">
+                        <li><strong>1x</strong> Chicken Breast</li>
+                        <li><strong>100g</strong> Pasta</li>
+                        <li><strong>50g</strong> Minced Meat</li>
+                        <li><strong>50g</strong> Spinach</li>
+                    </ul>
                 </div>
                 <div class="card">
-                    <h3 class="text-orange">🧂 Fons d'armari (Revisa a casa)</h3>
-                    <ul id="pantry-list"></ul>
+                    <h3 class="text-orange">🧂 Pantry Essentials (Check at home)</h3>
+                    <ul id="pantry-list">
+                        <li><strong>1x</strong> Tomato</li>
+                        <li><strong>1 jar</strong> Tomato Sauce</li>
+                        <li>Olive Oil</li>
+                        <li>Salt & Pepper</li>
+                    </ul>
                 </div>
             </div>
         </section>
 
-        <!-- PESTANYA 3: PLA FAMILIAR PRO -->
-        <section id="family-tab" class="tab-content">
-            <h2>👨‍👩‍👧‍👦 Pla Familiar Intel·ligent <span class="badge-pro">PRO</span></h2>
-            <p class="subtitle">Configura la teva família i adaptarem els menús automàticament per cuinar el mínim de plats diferents!</p>
+        <!-- TAB 3: SMART FAMILY PLAN -->
+        <section id="family-tab" class="tab-content" style="display:none;">
+            <h2>👨‍👩‍👧‍👦 Smart Family Plan <span class="badge-pro">PRO</span></h2>
+            <p class="subtitle">Set up your family and we will automatically adapt menus to cook the minimum amount of different dishes!</p>
             
             <div class="card form-card">
-                <!-- 1. Nombre de persones -->
+                <!-- 1. Number of people -->
                 <div class="form-group">
-                    <label for="family-count-input">👥 Quantes persones sou a casa?</label>
+                    <label for="family-count-input">👥 How many people are at home?</label>
                     <div class="input-inline">
                         <input type="number" id="family-count-input" min="1" max="10" value="2">
-                        <button id="update-family-count-btn" class="btn-primary">Establir membres</button>
+                        <button id="update-family-count-btn" class="btn-primary">Set Members</button>
                     </div>
                 </div>
 
-                <!-- 2. Temps de cuina disponible -->
+                <!-- 2. Member restrictions -->
                 <div class="form-group">
-                    <label for="cooking-time-select">⏱️ Temps de cuina disponible per àpat:</label>
-                    <select id="cooking-time-select">
-                        <option value="quick">⚡ Ràpid (&lt; 20 minuts)</option>
-                        <option value="medium" selected>🍳 Mitjà (20 - 45 minuts)</option>
-                        <option value="slow">🍲 Sense límit / Elaborat</option>
-                    </select>
-                </div>
-
-                <!-- 3. Membres i les seves restriccions/al·lèrgies -->
-                <div class="form-group">
-                    <label>🥗 Restriccions i al·lèrgies per membre:</label>
+                    <label>🥗 Restrictions and allergies per member:</label>
                     <div id="family-members-grid"></div>
                 </div>
 
                 <button id="generate-family-btn" class="btn-primary btn-large">
-                    ✨ Generar menú familiar i actualitzar llista
+                    ✨ Generate Family Menu & Update List
                 </button>
             </div>
 
             <div id="family-calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 4: CONFIGURACIÓ -->
-        <section id="settings-tab" class="tab-content">
-            <h2>⚙️ Configuració</h2>
+        <!-- TAB 4: SETTINGS -->
+        <section id="settings-tab" class="tab-content" style="display:none;">
+            <h2>⚙️ Settings</h2>
+            
             <div class="card">
-                <h3>🥗 Les teves restriccions naturals</h3>
-                <p>Selecciona les que t'afectin a tu. El teu menú individual s'actualitzarà automàticament.</p>
+                <h3>⏱️ Cooking Time</h3>
+                <p>How much time do you have to cook per day?</p>
+                <select id="settings-cooking-time" class="form-control" style="width: 100%; padding: 10px; margin-top: 5px;">
+                    <option value="10">Less than 10 mins</option>
+                    <option value="30">Between 10 and 30 mins</option>
+                    <option value="60">Between 30 mins and 1 hour</option>
+                    <option value="120">More than 1 hour</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <h3>🥗 Your natural restrictions</h3>
+                <p>Select the ones that affect you. Your personal menu will update automatically.</p>
                 <div id="settings-checkboxes" class="checkbox-grid"></div>
             </div>
+            
             <div class="card">
-                <h3>🌙 Aparença</h3>
+                <h3>🌙 Appearance</h3>
                 <label class="toggle-label">
-                    <input type="checkbox" id="dark-mode-toggle"> Activar Mode Fosc
+                    <input type="checkbox" id="dark-mode-toggle"> Enable Dark Mode
                 </label>
             </div>
         </section>
     </main>
 
-    <!-- NAVEGACIÓ INFERIOR FIXA (BARRA MÒBIL) -->
+    <!-- FIXED BOTTOM NAVIGATION -->
     <nav>
-        <button class="nav-btn active" data-tab="planner-tab">
+        <button class="nav-btn active" onclick="switchTab('planner-tab')">
             <span>👤</span>
-            <span>Pla</span>
+            <span>Plan</span>
         </button>
-        <button class="nav-btn" data-tab="shopping-tab">
+        <button class="nav-btn" onclick="switchTab('shopping-tab')">
             <span>🛒</span>
-            <span>Compra</span>
+            <span>List</span>
         </button>
-        <button class="nav-btn" data-tab="family-tab">
+        <button class="nav-btn" onclick="switchTab('family-tab')">
             <span>👨‍👩‍👧‍👦</span>
-            <span>Familiar</span>
+            <span>Family PRO</span>
         </button>
-        <button class="nav-btn" data-tab="settings-tab">
+        <button class="nav-btn" onclick="switchTab('settings-tab')">
             <span>⚙️</span>
-            <span>Ajustos</span>
+            <span>Settings</span>
         </button>
     </nav>
 
-    <!-- MODAL PREMIUM / PROVA GRATUÏTA -->
+    <!-- RECIPE MODAL (Triggered when clicking a meal) -->
+    <div id="recipe-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRecipe()">&times;</span>
+            <h2 id="recipe-title">Recipe</h2>
+            <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients</h3>
+            <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px;"></ul>
+            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Instructions</h3>
+            <p id="recipe-instructions"></p>
+        </div>
+    </div>
+
+    <!-- PREMIUM MODAL / FREE TRIAL -->
     <div id="premium-modal" class="modal" style="display:none;">
         <div class="modal-content text-center">
-            <div class="modal-icon">👑</div>
-            <h2>Desbloqueja el Pla Familiar PRO</h2>
-            <p>Has utilitzat la teva generació de prova! Passa't a <strong>NutriSafe PRO</strong> per gaudir de planificació familiar il·limitada.</p>
-            <ul class="pro-features">
-                <li>✨ Membres de la família il·limitats</li>
-                <li>⚡ Fusió intel·ligent d'ingredients</li>
-                <li>📲 Exportació directa a WhatsApp</li>
-                <li>🚫 Sense anuncis i suport prioritari</li>
+            <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
+            <div class="modal-icon" style="font-size: 40px;">👑</div>
+            <h2>Unlock Family Plan PRO</h2>
+            <p>Would you like to start a 1-week free trial of the PRO plan?</p>
+            <ul class="pro-features" style="text-align: left; margin: 15px 0;">
+                <li>✨ Unlimited family members</li>
+                <li>⚡ Smart ingredient merging</li>
+                <li>📲 Direct export to WhatsApp</li>
+                <li>🚫 No ads & priority support</li>
             </ul>
-            <button id="start-free-trial-btn" class="btn-primary btn-large">🎁 Començar prova de 7 dies (4,99€/mes)</button>
-            <button id="close-premium-modal" class="btn-link">Més tard</button>
+            <button id="start-free-trial-btn" class="btn-primary btn-large" style="width: 100%; margin-bottom: 10px;" onclick="closeModal('premium-modal'); showToast('PRO Trial Activated!');">🎁 Start 7-Day Free Trial</button>
         </div>
     </div>
 
-    <!-- MODAL D'INICI (ONBOARDING) -->
-    <div id="onboarding-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Benvingut/da a NutriSafe! 🥑</h2>
-            <p>Per començar, quines al·lèrgies o dietes hem de tenir en compte?</p>
-            <div id="onboarding-checkboxes" class="checkbox-grid"></div>
-            <button id="save-onboarding-btn" class="btn-primary btn-large">Desar i començar 🚀</button>
+    <!-- ONBOARDING MODAL -->
+    <div id="onboarding-modal" class="modal">
+        <div class="modal-content text-center">
+            <h2>Welcome to NutriSafe! 🥑</h2>
+            
+            <div style="margin-top: 20px; text-align: left;">
+                <label style="font-weight: bold;">How much time do you have to cook per day?</label>
+                <select id="onboarding-time" style="width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 5px;">
+                    <option value="10">Less than 10 mins</option>
+                    <option value="30">Between 10 and 30 mins</option>
+                    <option value="60">Between 30 mins and 1 hour</option>
+                    <option value="120">More than 1 hour</option>
+                </select>
+
+                <label style="font-weight: bold; display: block; margin-bottom: 10px;">Who are you cooking for?</label>
+                <button class="btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;" onclick="finishOnboarding('me')">Just Me</button>
+                <button class="btn-secondary" style="width: 100%; padding: 12px; background: #eee; border: 1px solid #ccc;" onclick="finishOnboarding('family')">My Family</button>
+            </div>
         </div>
     </div>
 
-    <!-- NOTIFICACIONS TOAST -->
+    <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container"></div>
 
-    <!-- SCRIPT DEFER PER MILLORAR RENDIMENT -->
-    <script src="app.js?v=5" defer></script>
+    <!-- INLINE SCRIPT FOR NEW LOGIC -->
+    <script>
+        // Tab switching logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+            
+            // Highlight active nav button
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Onboarding logic
+        function finishOnboarding(target) {
+            document.getElementById('onboarding-modal').style.display = 'none';
+            
+            // Sync selected time to settings
+            const selectedTime = document.getElementById('onboarding-time').value;
+            document.getElementById('settings-cooking-time').value = selectedTime;
+
+            if (target === 'family') {
+                document.getElementById('premium-modal').style.display = 'flex';
+                switchTab('family-tab');
+            } else {
+                showToast('Welcome to your personal plan!');
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        // Recipe Modal Logic
+        function openRecipe(title, ingredients, instructions) {
+            document.getElementById('recipe-title').innerText = title;
+            document.getElementById('recipe-instructions').innerText = instructions;
+            
+            const ingList = document.getElementById('recipe-ingredients');
+            ingList.innerHTML = '';
+            ingredients.forEach(ing => {
+                const li = document.createElement('li');
+                li.innerText = ing;
+                ingList.appendChild(li);
+            });
+            
+            document.getElementById('recipe-modal').style.display = 'flex';
+        }
+
+        function closeRecipe() {
+            document.getElementById('recipe-modal').style.display = 'none';
+        }
+
+        // Toast logic
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Regenerate Week
+        function regenerateWeek() {
+            // Here you would call your generation API
+            showToast('Generating a new week of meals... 🔄');
+        }
+
+        // Copy Shopping List Function
+        function copyShoppingList() {
+            const listText = document.getElementById('printable-shopping-list').innerText;
+            navigator.clipboard.writeText("🛒 NutriSafe Shopping List\n\n" + listText).then(() => {
+                showToast('List copied to clipboard! 📋');
+            });
+        }
+
+        // WhatsApp Share Function
+        function shareWhatsApp() {
+            const listText = document.getElementById('printable-shopping-list').innerText;
+            const textToShare = encodeURIComponent("🛒 *NutriSafe Shopping List*\n\n" + listText);
+            window.open(`https://wa.me/?text=${textToShare}`, '_blank');
+        }
+    </script>
+
+    <!-- EXTERNAL SCRIPT DEFER -->
+    <script src="app.js?v=6" defer></script>
 </body>
 </html>
