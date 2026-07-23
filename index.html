@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriSafe</title>
 
-    <!-- Configuració PWA per a instal·lació al mòbil -->
+    <!-- PWA Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
 
-    <!-- Configuració prioritària per a iOS (iPhone / iPad) -->
+    <!-- iOS Settings -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
@@ -21,6 +21,7 @@
     <header>
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <h1 style="margin: 0;">🥑 NutriSafe</h1>
+            <button id="get-pro-btn" class="btn-get-pro">🎁 Get PRO for Free</button>
         </div>
         <nav style="margin-top: 15px;">
             <button class="nav-btn active" data-tab="planner-tab">👤 Individual Plan</button>
@@ -31,7 +32,7 @@
     </header>
 
     <main>
-        <!-- PESTANYA 1: MENÚ INDIVIDUAL -->
+        <!-- TAB 1: INDIVIDUAL PLAN -->
         <section id="planner-tab" class="tab-content active">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
                 <h2>Individual Meal Plan</h2>
@@ -40,7 +41,7 @@
             <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 2: LLISTA DE LA COMPRA AMB QUANTITATS REALS -->
+        <!-- TAB 2: SHOPPING LIST -->
         <section id="shopping-tab" class="tab-content">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
                 <h2>Shopping List</h2>
@@ -62,7 +63,7 @@
             </div>
         </section>
 
-        <!-- PESTANYA 3: PLA FAMILIAR PRO -->
+        <!-- TAB 3: FAMILY PLANNER PRO -->
         <section id="family-tab" class="tab-content">
             <h2>👨‍👩‍👧‍👦 Smart Family Meal Planner <span class="badge-pro">PRO</span></h2>
             <p style="color: #7f8c8d; margin-bottom: 20px;">Configure your family members and their dietary needs. We automatically merge meals so you cook as few separate dishes as possible!</p>
@@ -80,9 +81,20 @@
             <div id="family-calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- PESTANYA 4: CONFIGURACIÓ -->
+        <!-- TAB 4: SETTINGS -->
         <section id="settings-tab" class="tab-content">
             <h2>Settings</h2>
+            <div class="card" style="margin-bottom: 20px;">
+                <h3>⏱️ Daily Cooking Time Preference</h3>
+                <p style="color: #7f8c8d; font-size: 0.9em; margin-bottom: 10px;">Filter recipes according to your available daily cooking time:</p>
+                <select id="settings-cooking-time" style="padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color); font-weight: bold; width: 100%; max-width: 300px;">
+                    <option value="any">Any time (All recipes)</option>
+                    <option value="<10">⚡ Less than 10 minutes</option>
+                    <option value="10-30">🍳 10 - 30 minutes</option>
+                    <option value="30-60">🍲 30 minutes - 1 hour</option>
+                    <option value=">60">👨‍🍳 More than 1 hour</option>
+                </select>
+            </div>
             <div class="card">
                 <h3>🥗 Dietary Restrictions & Allergies</h3>
                 <p>Select all that apply. Your weekly menu will update automatically.</p>
@@ -97,12 +109,12 @@
         </section>
     </main>
 
-    <!-- MODAL PREMIUM / PROVA GRATUÏTA -->
+    <!-- PREMIUM / PRO TRIAL MODAL -->
     <div id="premium-modal" class="modal" style="display:none;">
         <div class="modal-content" style="text-align: center; max-width: 420px;">
             <div style="font-size: 3em; margin-bottom: 10px;">👑</div>
             <h2 style="margin-top: 0; color: #2ecc71;">Unlock Family Planner PRO</h2>
-            <p style="color: #666; font-size: 0.95em; line-height: 1.5;">You've used your free trial generation! Upgrade to <strong>NutriSafe PRO</strong> to enjoy unlimited smart family planning and automatic list merging.</p>
+            <p style="color: #666; font-size: 0.95em; line-height: 1.5;">Get <strong>1 Week FREE Trial</strong> of NutriSafe PRO to enjoy unlimited smart family planning and automatic list merging.</p>
             <ul style="text-align: left; background: rgba(46,204,113,0.1); padding: 15px 20px 15px 35px; border-radius: 8px; font-size: 0.9em; margin: 15px 0;">
                 <li>✨ Unlimited Family Members</li>
                 <li>⚡ Smart Ingredient Merging</li>
@@ -114,18 +126,57 @@
         </div>
     </div>
 
-    <!-- ONBOARDING MODAL -->
-    <div id="onboarding-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2>Welcome to NutriSafe! 🥑</h2>
-            <p>Select your dietary restrictions to get started:</p>
-            <div id="onboarding-checkboxes" class="checkbox-grid"></div>
-            <button id="save-onboarding-btn" class="btn-primary" style="margin-top: 15px;">Save & Get Started</button>
+    <!-- ONBOARDING MODAL (MULTI-STEP) -->
+    <div id="onboarding-modal" class="modal" style="display: flex;">
+        <div class="modal-content" style="text-align: center; max-width: 480px; padding: 30px 25px;">
+            
+            <!-- STEP 1: Who are you planning for? -->
+            <div id="onboarding-step-1">
+                <div style="font-size: 3em; margin-bottom: 10px;">🥑</div>
+                <h2 style="margin-top: 0; color: var(--text-color);">Welcome to NutriSafe!</h2>
+                <p style="color: #7f8c8d; margin-bottom: 25px;">Who are you planning meals for?</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="onboarding-opt-btn" data-plan="individual">
+                        <span style="font-size: 2em;">👤</span>
+                        <div>
+                            <div style="font-size: 1.05em; font-weight: bold;">Just for Me</div>
+                            <div style="font-size: 0.82em; color: #7f8c8d; font-weight: normal; margin-top: 2px;">Personalized individual meal plan</div>
+                        </div>
+                    </button>
+
+                    <button class="onboarding-opt-btn pro-opt" data-plan="family">
+                        <span style="font-size: 2em;">👨‍👩‍👧‍👦</span>
+                        <div>
+                            <div style="font-size: 1.05em; font-weight: bold; color: #27ae60;">
+                                For My Family <span class="badge-pro">PRO</span>
+                            </div>
+                            <div style="font-size: 0.82em; color: #27ae60; font-weight: normal; margin-top: 2px;">Get 1-Week FREE Trial of PRO Plan!</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Cooking time preference -->
+            <div id="onboarding-step-2" style="display: none;">
+                <div style="font-size: 3em; margin-bottom: 10px;">⏱️</div>
+                <h2 style="margin-top: 0; color: var(--text-color);">Cooking Time Preference</h2>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">How much time do you have to cook each day?</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="time-opt-btn" data-time="<10">⚡ Less than 10 minutes</button>
+                    <button class="time-opt-btn" data-time="10-30">🍳 10 - 30 minutes</button>
+                    <button class="time-opt-btn" data-time="30-60">🍲 30 minutes - 1 hour</button>
+                    <button class="time-opt-btn" data-time=">60">👨‍🍳 More than 1 hour</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <!-- TOAST NOTIFICATIONS -->
     <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;"></div>
-    <script src="app.js?v=4"></script>
+
+    <script src="app.js?v=5"></script>
 </body>
 </html>
