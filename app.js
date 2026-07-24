@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Alternative Family Meals & Time Limits
+   NutriSafe - Complete App Engine with Alternative Family Meals & Smart Scaling
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -20,11 +20,16 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "lactose", label: "Lactose Intolerance" }
     ];
 
-    const pantryKeywords = [
-        "oil", "olive oil", "salt", "pepper", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "soy sauce", "mustard", "vanilla", "chia seeds"
-    ];
+    // Supermarket sections and keywords for smart sorting
+    const supermarketSections = {
+        "🍎 Fruits & Vegetables": ["banana", "strawberry", "strawberries", "pepper", "cucumber", "tomato", "tomatoes", "broccoli", "asparagus", "potato", "lemon", "spinach", "avocado", "garlic", "cherry tomatoes", "sweet potato"],
+        "🥩 Meat & Seafood": ["chicken", "beef", "salmon", "steak"],
+        "🥚 Dairy & Eggs": ["milk", "egg", "eggs", "cheese", "butter"],
+        "🌾 Grains & Legumes": ["flour", "oats", "rice", "quinoa", "bread", "chia", "tofu"],
+        "🧂 Pantry & Spices": ["syrup", "oil", "salt", "pepper", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "soy sauce", "mustard", "vanilla", "coconut milk"]
+    };
 
-    // RECEPTES AMB MACROS I SEGURETAT ALIMENTÀRIA
+    // RECIPES WITH MACROS & FOOD SAFETY PROFILES
     const recipes = [
         // --- BREAKFASTS ---
         { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, macros: { protein: "14g", carbs: "52g", fat: "10g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Whisk eggs and almond milk together in a bowl.\n2. Gradually add gluten-free flour while stirring.\n3. Heat a non-stick pan and cook 2-3 min per side.\n4. Serve hot drizzled with maple syrup." },
@@ -51,8 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
     let currentWeekPlan = []; 
-    let currentSelectedMealIndex = null; // Per saber quin àpat estem canviant
-    let isFamilyMode = false; // Per saber com regenerar àpats
+    let currentSelectedMealIndex = null; // Tracks which meal is being modified
+    let isFamilyMode = false; // Tracks mode for regenerating meals
 
     function init() {
         setupTheme();
@@ -128,12 +133,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- FUNCIÓ PER FILTRAR PER TEMPS ---
-    // Converteix el temps del desplegable en un temps màxim per àpat
+    // Converts dropdown time to maximum time per meal
     function getMaxTimePerMeal() {
         const timeSelect = document.getElementById("settings-cooking-time");
         const totalMinutes = timeSelect ? parseInt(timeSelect.value) : 60;
-        // Dividim el temps total entre els 3 àpats diaris (i donem 5 minutets extres de marge per tenir més opcions)
+        // Divide total daily time by 3 meals + add 5 minutes margin for flexibility
         return (totalMinutes / 3) + 5; 
     }
 
@@ -141,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- GENERACIÓ INDIVIDUAL ---
+    // --- INDIVIDUAL GENERATION ---
     function generateIndividualMenu() {
         isFamilyMode = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -152,12 +156,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                // Filtrem per tipus i que el temps no superi el límit per àpat
                 let availableRecipes = recipes.filter(r => 
                     r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal
                 );
                 
-                // Si som massa restrictius amb el temps i ens quedem sense opcions, agafem la més ràpida que tinguem
+                // Fallback to fastest recipe if time limit is too strict
                 if (availableRecipes.length === 0) {
                     availableRecipes = recipes.filter(r => r.mealType === type).sort((a,b) => getPrepTimeInt(a.prepTime) - getPrepTimeInt(b.prepTime));
                     availableRecipes = [availableRecipes[0]];
@@ -179,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList();
     }
 
-    // --- GENERACIÓ FAMILIAR ---
+    // --- FAMILY GENERATION ---
     function generateFamilyMenu() {
         isFamilyMode = true;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -201,7 +204,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                // Filtre per temps per la recepta principal
                 let availableRecipes = recipes.filter(r => 
                     r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal
                 );
@@ -238,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     familyInfoText = `Suitable for: ${suitableNames || "None"}`;
 
                     const combinedRestrictions = Array.from(new Set(restrictedMembers.flatMap(m => m.restrictions)));
-                    // Busquem l'alternativa (pot ser una miqueta més llarga si no hi ha més remei)
+                    
                     const alternativeRecipe = recipes.find(r => 
                         r.mealType === type && r.id !== recipe.id && combinedRestrictions.every(rest => r.safeFor.includes(rest))
                     ) || recipes.find(r => r.mealType === type && r.id !== recipe.id);
@@ -268,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof switchTab === "function") switchTab("planner-tab");
     }
 
-    // --- RENDERITZAT DEL CALENDARI ---
+    // --- CALENDAR RENDERING ---
     function renderCalendarFromPlan() {
         calendarGrid.innerHTML = "";
         currentWeekPlan.forEach((planItem, index) => {
@@ -281,7 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         card.className = "card meal-card";
         
         card.onclick = () => {
-            currentSelectedMealIndex = planIndex; // Guardem l'índex quan fem clic
+            currentSelectedMealIndex = planIndex; 
             showRecipeModal(recipe, familyTag, altMealData);
         };
 
@@ -332,21 +334,19 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("recipe-modal").style.display = "flex";
     }
 
-    // --- LÒGICA PER CANVIAR UN SOL ÀPAT ---
+    // --- SWAP SINGLE MEAL LOGIC ---
     window.changeSingleMeal = function() {
         if (currentSelectedMealIndex === null) return;
         
         const currentItem = currentWeekPlan[currentSelectedMealIndex];
         const maxTimePerMeal = getMaxTimePerMeal();
         
-        // Busquem una altra recepta del mateix tipus que no sigui la mateixa i compleixi el temps
         let availableRecipes = recipes.filter(r => 
             r.mealType === currentItem.type && 
             r.id !== currentItem.recipe.id && 
             getPrepTimeInt(r.prepTime) <= maxTimePerMeal
         );
 
-        // Si ens quedem sense opcions de temps, traiem el límit de temps per aquest canvi
         if (availableRecipes.length === 0) {
             availableRecipes = recipes.filter(r => r.mealType === currentItem.type && r.id !== currentItem.recipe.id);
         }
@@ -354,17 +354,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (availableRecipes.length > 0) {
             const newRecipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
             
-            // Actualitzem l'objecte dins de l'array setmanal
             currentWeekPlan[currentSelectedMealIndex].recipe = newRecipe;
             
-            // Si estem en mode familiar, hauríem de recalcular l'àpat alternatiu (ho simplifiquem deixant el mateix text o regenerant-lo completament)
             if (isFamilyMode) {
-                // Per simplificar, esborrem la dada de l'àpat alternatiu i diem que verifiquin les al·lèrgies manualment per aquest àpat canviat
-                currentWeekPlan[currentSelectedMealIndex].familyTag = "Swapped Meal (Check ingredients)";
+                currentWeekPlan[currentSelectedMealIndex].familyTag = "Swapped Meal (Check ingredients manually)";
                 currentWeekPlan[currentSelectedMealIndex].altMealData = null; 
             }
 
-            // Recarreguem la vista sense esborrar res més
             renderCalendarFromPlan();
             updateShoppingList();
             
@@ -374,60 +370,177 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // --- LLISTA DE LA COMPRA AMB CHECKBOX I SENSE PUNTS ---
+    // --- ADVANCED SMART SHOPPING LIST ENGINE ---
+
+    // Parses string like "150g Gluten-free flour" -> { amount: 150, unit: "g", name: "Gluten-free flour" }
+    function parseIngredient(ingStr) {
+        let amount = 1;
+        let unit = "";
+        let name = ingStr;
+        
+        const regex = /^([\d\.\/]+)\s*([a-zA-Z]+)?\s*(.*)$/;
+        const match = ingStr.trim().match(regex);
+        
+        if (match) {
+            const numStr = match[1];
+            let potentialUnit = match[2] ? match[2].toLowerCase() : "";
+            let rest = match[3] || "";
+            
+            if (numStr.includes('/')) {
+                const [num, den] = numStr.split('/');
+                amount = parseFloat(num) / parseFloat(den);
+            } else {
+                amount = parseFloat(numStr);
+            }
+            
+            const validUnits = ['g', 'ml', 'kg', 'l', 'tbsp', 'tsp', 'pinch', 'cloves', 'slices', 'cup', 'cups'];
+            if (validUnits.includes(potentialUnit)) {
+                unit = potentialUnit;
+                name = rest;
+            } else {
+                name = (potentialUnit + " " + rest).trim();
+            }
+        }
+        
+        return { 
+            amount: amount, 
+            unit: unit, 
+            name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase() 
+        };
+    }
+
+    // Finds the matching supermarket section for an ingredient
+    function getSection(ingredientName) {
+        const lowerName = ingredientName.toLowerCase();
+        for (const [section, keywords] of Object.entries(supermarketSections)) {
+            if (keywords.some(kw => lowerName.includes(kw))) {
+                return section;
+            }
+        }
+        return "🛒 Others"; // Fallback category
+    }
+
+    // Generates, multiplies, accumulates, and categorizes the shopping list
     function updateShoppingList() {
+        // Find the parent container where the old lists were to safely inject the new layout
         const mainGroceryList = document.getElementById("main-grocery-list");
-        const pantryList = document.getElementById("pantry-list");
+        if (!mainGroceryList) return;
+        
+        const listContainer = mainGroceryList.parentElement; // We use the parent div of the old ul
+        const aggregatedIngredients = {};
 
-        if (!mainGroceryList || !pantryList) return;
-
-        mainGroceryList.innerHTML = "";
-        pantryList.innerHTML = "";
-
-        const groceriesSet = new Set();
-        const pantrySet = new Set();
-
+        // Loop through the entire week
         currentWeekPlan.forEach(planItem => {
-            // Ingredients del plat principal
-            planItem.recipe.ingredients.forEach(ing => {
-                const lower = ing.toLowerCase();
-                if (pantryKeywords.some(keyword => lower.includes(keyword))) pantrySet.add(ing);
-                else groceriesSet.add(ing);
-            });
-            // Ingredients del plat alternatiu (si n'hi ha)
+            
+            // --- SCALING LOGIC (MULTIPLIER) ---
+            let mainMultiplier = 1; // Default for personal plan
+            
+            if (isFamilyMode) {
+                if (planItem.familyTag.includes("All family members")) {
+                    mainMultiplier = parseInt(document.getElementById("family-count-input").value) || 4;
+                } else if (planItem.familyTag.includes("Suitable for:")) {
+                    const namesString = planItem.familyTag.replace("Suitable for:", "").trim();
+                    if (namesString !== "None" && namesString !== "") {
+                        mainMultiplier = namesString.split(",").length;
+                    } else {
+                        mainMultiplier = 0; // No one eats this main dish
+                    }
+                }
+            }
+
+            // A. Process main recipe
+            if (mainMultiplier > 0) {
+                planItem.recipe.ingredients.forEach(ing => {
+                    const parsed = parseIngredient(ing);
+                    const finalAmount = parsed.amount * mainMultiplier;
+                    const key = parsed.name + "_" + parsed.unit; 
+
+                    if (aggregatedIngredients[key]) {
+                        aggregatedIngredients[key].amount += finalAmount;
+                    } else {
+                        aggregatedIngredients[key] = {
+                            amount: finalAmount,
+                            unit: parsed.unit,
+                            name: parsed.name,
+                            section: getSection(parsed.name)
+                        };
+                    }
+                });
+            }
+
+            // B. Process alternative recipe (if any)
             if (planItem.altMealData) {
+                let altMultiplier = planItem.altMealData.forNames.split(",").length;
+
                 planItem.altMealData.recipe.ingredients.forEach(ing => {
-                    const lower = ing.toLowerCase();
-                    if (pantryKeywords.some(keyword => lower.includes(keyword))) pantrySet.add(ing);
-                    else groceriesSet.add(ing);
+                    const parsed = parseIngredient(ing);
+                    const finalAmount = parsed.amount * altMultiplier;
+                    const key = parsed.name + "_" + parsed.unit; 
+
+                    if (aggregatedIngredients[key]) {
+                        aggregatedIngredients[key].amount += finalAmount;
+                    } else {
+                        aggregatedIngredients[key] = {
+                            amount: finalAmount,
+                            unit: parsed.unit,
+                            name: parsed.name,
+                            section: getSection(parsed.name)
+                        };
+                    }
                 });
             }
         });
 
-        // Crear la llista amb checkboxes i eliminant espais inicials (sense •)
-        groceriesSet.forEach((item, index) => {
-            let textNet = item.replace(/^[\s•\-]+/, ''); 
-            const li = document.createElement("li");
-            li.className = "shopping-list-item";
-            li.innerHTML = `
-                <input type="checkbox" id="grocery-${index}" onchange="toggleShoppingItem(this, '${textNet}')">
-                <span>${textNet}</span>
-            `;
-            mainGroceryList.appendChild(li);
+        // --- RENDER CATEGORIZED HTML ---
+        
+        const sectionsData = {};
+        Object.values(aggregatedIngredients).forEach(item => {
+            if (!sectionsData[item.section]) sectionsData[item.section] = [];
+            sectionsData[item.section].push(item);
         });
 
-        pantrySet.forEach((item, index) => {
-            let textNet = item.replace(/^[\s•\-]+/, '');
-            const li = document.createElement("li");
-            li.className = "shopping-list-item";
-            li.innerHTML = `
-                <input type="checkbox" id="pantry-${index}" onchange="toggleShoppingItem(this, '${textNet}')">
-                <span>${textNet}</span>
-            `;
-            pantryList.appendChild(li);
+        // Clear existing containers to avoid duplication
+        listContainer.innerHTML = ""; 
+
+        const sortedSections = Object.keys(sectionsData).sort();
+        let indexCounter = 0;
+
+        sortedSections.forEach(sectionTitle => {
+            const sectionCard = document.createElement("div");
+            sectionCard.className = "card";
+            sectionCard.style.marginBottom = "15px";
+            
+            sectionCard.innerHTML = `<h3 style="color: #2e7d32; border-bottom: 2px solid #e8f5e9; padding-bottom: 5px; font-size: 16px;">${sectionTitle}</h3>`;
+            
+            const ul = document.createElement("ul");
+            ul.className = "clean-list";
+            ul.style.listStyleType = "none";
+            ul.style.paddingLeft = "0";
+
+            sectionsData[sectionTitle].forEach(ing => {
+                const li = document.createElement("li");
+                li.className = "shopping-list-item";
+                li.style.padding = "6px 0";
+                
+                let displayAmount = Number.isInteger(ing.amount) ? ing.amount : parseFloat(ing.amount.toFixed(2));
+                let unitStr = ing.unit ? ` ${ing.unit}` : "";
+                let textNet = `${displayAmount}${unitStr} ${ing.name}`;
+                
+                li.innerHTML = `
+                    <label style="display:flex; align-items:center; cursor:pointer;">
+                        <input type="checkbox" id="grocery-${indexCounter}" onchange="toggleShoppingItem(this, '${textNet}')" style="margin-right: 10px; width: 16px; height: 16px;">
+                        <span>${textNet}</span>
+                    </label>
+                `;
+                ul.appendChild(li);
+                indexCounter++;
+            });
+
+            sectionCard.appendChild(ul);
+            listContainer.appendChild(sectionCard);
         });
 
-        // Recuperar els elements que ja tenies marcats
+        // Restore checkbox states if the helper function exists
         if (typeof restoreShoppingListState === 'function') {
             restoreShoppingListState();
         }
