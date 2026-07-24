@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Alternative Family Meals
+   NutriSafe - Complete App Engine with Alternative Family Meals & Time Limits
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -50,7 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const darkModeToggle = document.getElementById("dark-mode-toggle");
 
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
-    let currentWeekPlan = [];
+    let currentWeekPlan = []; 
+    let currentSelectedMealIndex = null; // Per saber quin àpat estem canviant
+    let isFamilyMode = false; // Per saber com regenerar àpats
 
     function init() {
         setupTheme();
@@ -126,30 +128,64 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // --- FUNCIÓ PER FILTRAR PER TEMPS ---
+    // Converteix el temps del desplegable en un temps màxim per àpat
+    function getMaxTimePerMeal() {
+        const timeSelect = document.getElementById("settings-cooking-time");
+        const totalMinutes = timeSelect ? parseInt(timeSelect.value) : 60;
+        // Dividim el temps total entre els 3 àpats diaris (i donem 5 minutets extres de marge per tenir més opcions)
+        return (totalMinutes / 3) + 5; 
+    }
+
+    function getPrepTimeInt(prepTimeStr) {
+        return parseInt(prepTimeStr) || 0;
+    }
+
+    // --- GENERACIÓ INDIVIDUAL ---
     function generateIndividualMenu() {
+        isFamilyMode = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
+        const maxTimePerMeal = getMaxTimePerMeal();
+        
         currentWeekPlan = [];
-
-        calendarGrid.innerHTML = "";
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                const availableRecipes = recipes.filter(r => r.mealType === type);
+                // Filtrem per tipus i que el temps no superi el límit per àpat
+                let availableRecipes = recipes.filter(r => 
+                    r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal
+                );
+                
+                // Si som massa restrictius amb el temps i ens quedem sense opcions, agafem la més ràpida que tinguem
+                if (availableRecipes.length === 0) {
+                    availableRecipes = recipes.filter(r => r.mealType === type).sort((a,b) => getPrepTimeInt(a.prepTime) - getPrepTimeInt(b.prepTime));
+                    availableRecipes = [availableRecipes[0]];
+                }
+
                 const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
 
-                currentWeekPlan.push(recipe);
-                renderMealCard(day, type, recipe, "Personal Plan", null);
+                currentWeekPlan.push({
+                    day: day,
+                    type: type,
+                    recipe: recipe,
+                    familyTag: "Personal Plan",
+                    altMealData: null
+                });
             });
         });
 
+        renderCalendarFromPlan();
         updateShoppingList();
     }
 
-    // --- GENERACIÓ DE MENÚ FAMILIAR AMB ÀPAT ALTERNATIU PER A RESTICCIONS ---
+    // --- GENERACIÓ FAMILIAR ---
     function generateFamilyMenu() {
+        isFamilyMode = true;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
         const mealTypes = ["Breakfast", "Lunch", "Dinner"];
+        const maxTimePerMeal = getMaxTimePerMeal();
+        
         currentWeekPlan = [];
 
         const memberCards = document.querySelectorAll(".member-card");
@@ -163,15 +199,20 @@ document.addEventListener("DOMContentLoaded", () => {
             familyData.push({ name, restrictions });
         });
 
-        calendarGrid.innerHTML = "";
-
         days.forEach(day => {
             mealTypes.forEach(type => {
-                const availableRecipes = recipes.filter(r => r.mealType === type);
-                const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
-                currentWeekPlan.push(recipe);
+                // Filtre per temps per la recepta principal
+                let availableRecipes = recipes.filter(r => 
+                    r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal
+                );
 
-                // Trobar membres que poden menjar la recepta principal
+                if (availableRecipes.length === 0) {
+                    availableRecipes = recipes.filter(r => r.mealType === type).sort((a,b) => getPrepTimeInt(a.prepTime) - getPrepTimeInt(b.prepTime));
+                    availableRecipes = [availableRecipes[0]];
+                }
+
+                const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
+                
                 const suitableMembers = [];
                 const restrictedMembers = [];
 
@@ -196,49 +237,60 @@ document.addEventListener("DOMContentLoaded", () => {
                     const restrictedNames = restrictedMembers.map(m => m.name).join(", ");
                     familyInfoText = `Suitable for: ${suitableNames || "None"}`;
 
-                    // Cercar un àpat alternatiu adaptat per als membres restringits
                     const combinedRestrictions = Array.from(new Set(restrictedMembers.flatMap(m => m.restrictions)));
-                    const alternativeRecipe = availableRecipes.find(r => 
-                        r.id !== recipe.id && combinedRestrictions.every(rest => r.safeFor.includes(rest))
-                    ) || availableRecipes.find(r => r.id !== recipe.id);
+                    // Busquem l'alternativa (pot ser una miqueta més llarga si no hi ha més remei)
+                    const alternativeRecipe = recipes.find(r => 
+                        r.mealType === type && r.id !== recipe.id && combinedRestrictions.every(rest => r.safeFor.includes(rest))
+                    ) || recipes.find(r => r.mealType === type && r.id !== recipe.id);
 
                     if (alternativeRecipe) {
                         altMealData = {
                             forNames: restrictedNames,
                             recipe: alternativeRecipe
                         };
-                        // Afegir ingredients de la recepta alternativa a la llista de la compra
-                        currentWeekPlan.push(alternativeRecipe);
                     }
                 }
 
-                renderMealCard(day, type, recipe, familyInfoText, altMealData);
+                currentWeekPlan.push({
+                    day: day,
+                    type: type,
+                    recipe: recipe,
+                    familyTag: familyInfoText,
+                    altMealData: altMealData
+                });
             });
         });
 
+        renderCalendarFromPlan();
         updateShoppingList();
-
-        // Ocultar la secció de restriccions individuals
-        if (typeof setFamilyModeUI === "function") setFamilyModeUI(true);
 
         if (typeof showToast === "function") showToast("Family menu generated & shopping list synced!", "✨");
         if (typeof switchTab === "function") switchTab("planner-tab");
     }
 
-    function renderMealCard(day, type, recipe, familyTag, altMealData) {
+    // --- RENDERITZAT DEL CALENDARI ---
+    function renderCalendarFromPlan() {
+        calendarGrid.innerHTML = "";
+        currentWeekPlan.forEach((planItem, index) => {
+            renderMealCard(planItem.day, planItem.type, planItem.recipe, planItem.familyTag, planItem.altMealData, index);
+        });
+    }
+
+    function renderMealCard(day, type, recipe, familyTag, altMealData, planIndex) {
         const card = document.createElement("div");
         card.className = "card meal-card";
         
         card.onclick = () => {
+            currentSelectedMealIndex = planIndex; // Guardem l'índex quan fem clic
             showRecipeModal(recipe, familyTag, altMealData);
         };
 
         let altMealHTML = "";
         if (altMealData) {
             altMealHTML = `
-                <div class="alt-meal-box">
-                    <strong>⚠️ Alternative for ${altMealData.forNames}:</strong><br>
-                    <span>${altMealData.recipe.title} (${altMealData.recipe.prepTime})</span>
+                <div class="alt-meal-box" style="background:#fff3e0; padding:8px; border-radius:6px; margin-top:8px; font-size:12px;">
+                    <strong>⚠️ Alt for ${altMealData.forNames}:</strong><br>
+                    <span>${altMealData.recipe.title}</span>
                 </div>
             `;
         }
@@ -262,13 +314,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("recipe-title").innerText = recipe.title;
         document.getElementById("recipe-family-info").innerText = familyTag;
 
-        // Mostrar Macros
         document.getElementById("macro-calories").innerText = `${recipe.calories} kcal`;
         document.getElementById("macro-protein").innerText = recipe.macros.protein;
         document.getElementById("macro-carbs").innerText = recipe.macros.carbs;
         document.getElementById("macro-fat").innerText = recipe.macros.fat;
 
-        // Mostrar Ingredients
         const ingList = document.getElementById("recipe-ingredients");
         ingList.innerHTML = "";
         recipe.ingredients.forEach(ing => {
@@ -277,22 +327,54 @@ document.addEventListener("DOMContentLoaded", () => {
             ingList.appendChild(li);
         });
 
-        // Mostrar Instruccions
         document.getElementById("recipe-instructions").innerText = recipe.instructions;
-
-        // Gestió de la recepta alternativa dins del Modal
-        const altSection = document.getElementById("modal-alt-recipe-section");
-        if (altMealData && altSection) {
-            altSection.style.display = "block";
-            document.getElementById("modal-alt-recipe-title").innerText = `Alternative dish for ${altMealData.forNames}: ${altMealData.recipe.title}`;
-            document.getElementById("modal-alt-recipe-instructions").innerText = `Ingredients:\n- ${altMealData.recipe.ingredients.join("\n- ")}\n\nInstructions:\n${altMealData.recipe.instructions}`;
-        } else if (altSection) {
-            altSection.style.display = "none";
-        }
 
         document.getElementById("recipe-modal").style.display = "flex";
     }
 
+    // --- LÒGICA PER CANVIAR UN SOL ÀPAT ---
+    window.changeSingleMeal = function() {
+        if (currentSelectedMealIndex === null) return;
+        
+        const currentItem = currentWeekPlan[currentSelectedMealIndex];
+        const maxTimePerMeal = getMaxTimePerMeal();
+        
+        // Busquem una altra recepta del mateix tipus que no sigui la mateixa i compleixi el temps
+        let availableRecipes = recipes.filter(r => 
+            r.mealType === currentItem.type && 
+            r.id !== currentItem.recipe.id && 
+            getPrepTimeInt(r.prepTime) <= maxTimePerMeal
+        );
+
+        // Si ens quedem sense opcions de temps, traiem el límit de temps per aquest canvi
+        if (availableRecipes.length === 0) {
+            availableRecipes = recipes.filter(r => r.mealType === currentItem.type && r.id !== currentItem.recipe.id);
+        }
+
+        if (availableRecipes.length > 0) {
+            const newRecipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
+            
+            // Actualitzem l'objecte dins de l'array setmanal
+            currentWeekPlan[currentSelectedMealIndex].recipe = newRecipe;
+            
+            // Si estem en mode familiar, hauríem de recalcular l'àpat alternatiu (ho simplifiquem deixant el mateix text o regenerant-lo completament)
+            if (isFamilyMode) {
+                // Per simplificar, esborrem la dada de l'àpat alternatiu i diem que verifiquin les al·lèrgies manualment per aquest àpat canviat
+                currentWeekPlan[currentSelectedMealIndex].familyTag = "Swapped Meal (Check ingredients)";
+                currentWeekPlan[currentSelectedMealIndex].altMealData = null; 
+            }
+
+            // Recarreguem la vista sense esborrar res més
+            renderCalendarFromPlan();
+            updateShoppingList();
+            
+            if (typeof showToast === "function") showToast("Meal changed successfully! 🔄");
+        } else {
+            if (typeof showToast === "function") showToast("No other meals available! ⚠️");
+        }
+    };
+
+    // --- LLISTA DE LA COMPRA AMB CHECKBOX I SENSE PUNTS ---
     function updateShoppingList() {
         const mainGroceryList = document.getElementById("main-grocery-list");
         const pantryList = document.getElementById("pantry-list");
@@ -305,29 +387,50 @@ document.addEventListener("DOMContentLoaded", () => {
         const groceriesSet = new Set();
         const pantrySet = new Set();
 
-        currentWeekPlan.forEach(recipe => {
-            recipe.ingredients.forEach(ing => {
+        currentWeekPlan.forEach(planItem => {
+            // Ingredients del plat principal
+            planItem.recipe.ingredients.forEach(ing => {
                 const lower = ing.toLowerCase();
-                const isPantry = pantryKeywords.some(keyword => lower.includes(keyword));
-                if (isPantry) {
-                    pantrySet.add(ing);
-                } else {
-                    groceriesSet.add(ing);
-                }
+                if (pantryKeywords.some(keyword => lower.includes(keyword))) pantrySet.add(ing);
+                else groceriesSet.add(ing);
             });
+            // Ingredients del plat alternatiu (si n'hi ha)
+            if (planItem.altMealData) {
+                planItem.altMealData.recipe.ingredients.forEach(ing => {
+                    const lower = ing.toLowerCase();
+                    if (pantryKeywords.some(keyword => lower.includes(keyword))) pantrySet.add(ing);
+                    else groceriesSet.add(ing);
+                });
+            }
         });
 
-        groceriesSet.forEach(item => {
+        // Crear la llista amb checkboxes i eliminant espais inicials (sense •)
+        groceriesSet.forEach((item, index) => {
+            let textNet = item.replace(/^[\s•\-]+/, ''); 
             const li = document.createElement("li");
-            li.innerHTML = `<strong>•</strong> ${item}`;
+            li.className = "shopping-list-item";
+            li.innerHTML = `
+                <input type="checkbox" id="grocery-${index}" onchange="toggleShoppingItem(this, '${textNet}')">
+                <span>${textNet}</span>
+            `;
             mainGroceryList.appendChild(li);
         });
 
-        pantrySet.forEach(item => {
+        pantrySet.forEach((item, index) => {
+            let textNet = item.replace(/^[\s•\-]+/, '');
             const li = document.createElement("li");
-            li.innerHTML = `<strong>•</strong> ${item}`;
+            li.className = "shopping-list-item";
+            li.innerHTML = `
+                <input type="checkbox" id="pantry-${index}" onchange="toggleShoppingItem(this, '${textNet}')">
+                <span>${textNet}</span>
+            `;
             pantryList.appendChild(li);
         });
+
+        // Recuperar els elements que ja tenies marcats
+        if (typeof restoreShoppingListState === 'function') {
+            restoreShoppingListState();
+        }
     }
 
     function setupEventListeners() {
