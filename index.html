@@ -6,7 +6,6 @@
     <meta name="description" content="NutriSafe: Smart meal planner and shopping list.">
     <title>NutriSafe</title>
 
-    <!-- PWA & iOS Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,190 +13,53 @@
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
     <link rel="apple-touch-icon" href="logo.png">
 
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
 
     <style>
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-        }
-
-        .btn-try-pro {
-            background-color: #ff9800;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            transition: background-color 0.2s, transform 0.1s;
-        }
-
-        .btn-try-pro:hover {
-            background-color: #f57c00;
-            transform: scale(1.03);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            padding: 15px 0;
-        }
-
-        #toast-container {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            background-color: #333333;
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            font-size: 14px;
-            font-weight: 500;
-            text-align: center;
-            animation: fadein 0.3s, fadeout 0.3s 2.7s;
-        }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
+        .btn-try-pro { background-color: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: background-color 0.2s, transform 0.1s; }
+        .btn-try-pro:hover { background-color: #f57c00; transform: scale(1.03); }
+        .calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 15px 0; }
+        #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background-color: #333333; color: #ffffff; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 14px; font-weight: 500; text-align: center; animation: fadein 0.3s, fadeout 0.3s 2.7s; }
         @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeout { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
-        
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
-        }
-        .modal-content {
-            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; position: relative;
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; position: relative; }
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
         
-        /* Badge PRO general */
-        .badge-pro {
-            background: #ff9800;
-            color: #fff;
-            padding: 2px 5px;
-            border-radius: 4px;
-            font-size: 9px;
-            font-weight: bold;
-            margin-left: 4px;
-            vertical-align: middle;
-            text-transform: uppercase;
-            display: inline-block;
-        }
+        .badge-pro { background: #ff9800; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 4px; vertical-align: middle; text-transform: uppercase; display: inline-block; }
+        .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: #f4f6f8; padding: 10px; border-radius: 8px; margin: 12px 0; text-align: center; }
+        .macro-item { display: flex; flex-direction: column; font-size: 11px; }
+        .macro-value { font-weight: bold; font-size: 13px; color: #2e7d32; }
+        .family-tag { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 6px; }
+        .meal-card { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .meal-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* Macros Grid Styling */
-        .macros-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: #f4f6f8;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 12px 0;
-            text-align: center;
-        }
-        .macro-item {
-            display: flex;
-            flex-direction: column;
-            font-size: 11px;
-        }
-        .macro-value {
-            font-weight: bold;
-            font-size: 13px;
-            color: #2e7d32;
-        }
-        .family-tag {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 6px;
-        }
-
-        .meal-card {
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .meal-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        /* Estils per a la llista de la compra amb checkboxes */
-        .shopping-list-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 0;
-            border-bottom: 1px solid #f0f0f0;
-            list-style: none;
-        }
-        .shopping-list-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #2e7d32;
-        }
-        .shopping-list-item.checked span {
-            text-decoration: line-through;
-            color: #888;
-        }
-
-        /* Botó de canvi d'àpat a la modala */
-        .btn-swap-meal {
-            background-color: #e67e22;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-top: 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .btn-swap-meal:hover {
-            background-color: #d35400;
-        }
+        /* Llista de la compra sense punts i amb checkbox */
+        ul.clean-list { list-style-type: none !important; padding-left: 0 !important; margin: 0; }
+        .shopping-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; list-style: none; }
+        .shopping-list-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2e7d32; flex-shrink: 0; }
+        .shopping-list-item.checked span { text-decoration: line-through; color: #888; }
+        .btn-swap-meal { background-color: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-swap-meal:hover { background-color: #d35400; }
     </style>
 </head>
 <body>
-
-    <!-- HEADER -->
     <header>
         <h1>🥑 NutriSafe</h1>
         <button class="btn-try-pro" onclick="openModal('premium-modal')">Try PRO</button>
     </header>
 
-    <!-- MAIN CONTENT -->
     <main>
-        <!-- TAB 1: INDIVIDUAL PLAN / RECIPES -->
         <section id="planner-tab" class="tab-content active">
             <div class="tab-header">
                 <h2 id="planner-tab-title">Your Weekly Plan</h2>
                 <button id="regen-individual-btn" class="btn-secondary" onclick="regenerateWeek()">🔄 Regenerate Week</button>
             </div>
-            
-            <div id="calendar-grid" class="calendar-grid">
-                <!-- Generat dinàmicament des de app.js -->
-            </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <!-- TAB 2: SHOPPING LIST -->
         <section id="shopping-tab" class="tab-content" style="display:none;">
             <div class="tab-header">
                 <h2>🛒 Shopping List</h2>
@@ -210,20 +72,18 @@
             <div class="shopping-container" id="printable-shopping-list">
                 <div class="card">
                     <h3 class="text-green">🛒 Groceries to Buy</h3>
-                    <ul id="main-grocery-list" style="padding-left: 0;"></ul>
+                    <ul id="main-grocery-list" class="clean-list"></ul>
                 </div>
                 <div class="card">
-                    <h3 class="text-orange">🧂 Pantry Essentials (Check at home)</h3>
-                    <ul id="pantry-list" style="padding-left: 0;"></ul>
+                    <h3 class="text-orange">🧂 Pantry Essentials</h3>
+                    <ul id="pantry-list" class="clean-list"></ul>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 3: SMART FAMILY PLAN -->
         <section id="family-tab" class="tab-content" style="display:none;">
             <h2>👨‍👩‍👧‍👦 Smart Family Plan <span class="badge-pro">PRO</span></h2>
             <p class="subtitle">Set up your family and we will automatically adapt menus to cook the minimum amount of different dishes!</p>
-            
             <div class="card form-card">
                 <div class="form-group">
                     <label for="family-count-input">👥 How many people are at home?</label>
@@ -232,110 +92,63 @@
                         <button id="update-family-count-btn" class="btn-primary">Set Members</button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>🥗 Restrictions and allergies per member:</label>
                     <div id="family-members-grid"></div>
                 </div>
-
-                <button id="generate-family-btn" class="btn-primary btn-large">
-                    ✨ Generate Family Menu & Update List
-                </button>
+                <button id="generate-family-btn" class="btn-primary btn-large">✨ Generate Family Menu & Update List</button>
             </div>
         </section>
 
-        <!-- TAB 4: SETTINGS -->
         <section id="settings-tab" class="tab-content" style="display:none;">
             <h2>⚙️ Settings</h2>
-            
             <div class="card">
                 <h3>⏱️ Cooking Time</h3>
                 <p>How much time do you have to cook per day?</p>
                 <select id="settings-cooking-time" class="form-control" style="width: 100%; padding: 10px; margin-top: 5px;">
-                    <option value="10">Less than 10 mins</option>
                     <option value="30">Between 10 and 30 mins</option>
                     <option value="60">Between 30 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
             </div>
-
-            <!-- Secció de restriccions particulars (s'oculta si es tria mode família) -->
             <div class="card" id="settings-restrictions-card">
                 <h3>🥗 Your natural restrictions</h3>
                 <p>Select the ones that affect you. Your personal menu will update automatically.</p>
                 <div id="settings-checkboxes" class="checkbox-grid"></div>
             </div>
-            
             <div class="card">
                 <h3>🌙 Appearance</h3>
-                <label class="toggle-label">
-                    <input type="checkbox" id="dark-mode-toggle"> Enable Dark Mode
-                </label>
+                <label class="toggle-label"><input type="checkbox" id="dark-mode-toggle"> Enable Dark Mode</label>
             </div>
         </section>
     </main>
 
-    <!-- FIXED BOTTOM NAVIGATION -->
     <nav>
-        <button id="nav-btn-individual" class="nav-btn active" onclick="switchTab('planner-tab')">
-            <span>👤</span>
-            <span id="nav-text-individual">Individual Plan</span>
-        </button>
-        <button id="nav-btn-shopping" class="nav-btn" onclick="switchTab('shopping-tab')">
-            <span>🛒</span>
-            <span>List</span>
-        </button>
-        <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')">
-            <span>👨‍👩‍👧‍👦</span>
-            <span>Family plan <span class="badge-pro" style="font-size: 7px; padding: 1px 3px; border-radius: 3px; margin-left: 2px; vertical-align: super; line-height: 1;">PRO</span></span>
-        </button>
-        <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')">
-            <span>⚙️</span>
-            <span>Settings</span>
-        </button>
+        <button id="nav-btn-individual" class="nav-btn active" onclick="switchTab('planner-tab')"><span>👤</span><span id="nav-text-individual">Individual Plan</span></button>
+        <button id="nav-btn-shopping" class="nav-btn" onclick="switchTab('shopping-tab')"><span>🛒</span><span>List</span></button>
+        <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')"><span>👨‍👩‍👧‍👦</span><span>Family plan <span class="badge-pro" style="font-size: 7px; padding: 1px 3px; border-radius: 3px; margin-left: 2px; vertical-align: super; line-height: 1;">PRO</span></span></button>
+        <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')"><span>⚙️</span><span>Settings</span></button>
     </nav>
 
-    <!-- RECIPE MODAL -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeRecipe()">&times;</span>
             <h2 id="recipe-title">Recipe Title</h2>
             <p id="recipe-family-info" class="family-tag" style="margin-top: 8px;"></p>
-            
-            <!-- Botó per canviar aquest àpat -->
-            <div>
-                <button class="btn-swap-meal" onclick="swapCurrentMeal()">🔄 Change meal</button>
-            </div>
-
-            <!-- MACROS GRID -->
+            <div><button class="btn-swap-meal" onclick="swapCurrentMeal()">🔄 Change meal</button></div>
             <div class="macros-grid">
-                <div class="macro-item">
-                    <span>Calories</span>
-                    <span id="macro-calories" class="macro-value">0 kcal</span>
-                </div>
-                <div class="macro-item">
-                    <span>Protein</span>
-                    <span id="macro-protein" class="macro-value">0g</span>
-                </div>
-                <div class="macro-item">
-                    <span>Carbs</span>
-                    <span id="macro-carbs" class="macro-value">0g</span>
-                </div>
-                <div class="macro-item">
-                    <span>Fat</span>
-                    <span id="macro-fat" class="macro-value">0g</span>
-                </div>
+                <div class="macro-item"><span>Calories</span><span id="macro-calories" class="macro-value">0 kcal</span></div>
+                <div class="macro-item"><span>Protein</span><span id="macro-protein" class="macro-value">0g</span></div>
+                <div class="macro-item"><span>Carbs</span><span id="macro-carbs" class="macro-value">0g</span></div>
+                <div class="macro-item"><span>Fat</span><span id="macro-fat" class="macro-value">0g</span></div>
             </div>
-
             <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients & Quantities</h3>
             <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;"></ul>
-
             <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Step-by-Step Recipe</h3>
             <p id="recipe-instructions" style="white-space: pre-line; line-height: 1.5; color: #444;"></p>
         </div>
     </div>
 
-    <!-- PREMIUM MODAL -->
     <div id="premium-modal" class="modal" style="display:none;">
         <div class="modal-content text-center">
             <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
@@ -352,20 +165,16 @@
         </div>
     </div>
 
-    <!-- ONBOARDING MODAL -->
     <div id="onboarding-modal" class="modal">
         <div class="modal-content text-center">
             <h2>Welcome to NutriSafe! 🥑</h2>
-            
             <div style="margin-top: 20px; text-align: left;">
                 <label style="font-weight: bold;">How much time do you have to cook per day?</label>
                 <select id="onboarding-time" style="width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 5px;">
-                    <option value="10">Less than 10 mins</option>
                     <option value="30">Between 10 and 30 mins</option>
                     <option value="60">Between 30 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
-
                 <label style="font-weight: bold; display: block; margin-bottom: 10px;">Who are you cooking for?</label>
                 <button class="btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;" onclick="finishOnboarding('me')">Just Me</button>
                 <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="finishOnboarding('family')">My Family</button>
@@ -382,11 +191,9 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
             const targetTab = document.getElementById(tabId);
             if (targetTab) targetTab.style.display = 'block';
-            
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
-            } else {
+            if (event && event.currentTarget) { event.currentTarget.classList.add('active'); } 
+            else {
                 if (tabId === 'planner-tab') document.getElementById('nav-btn-individual').classList.add('active');
                 if (tabId === 'family-tab') document.getElementById('nav-btn-family').classList.add('active');
                 if (tabId === 'settings-tab') document.getElementById('nav-btn-settings').classList.add('active');
@@ -395,25 +202,19 @@
 
         function finishOnboarding(target) {
             document.getElementById('onboarding-modal').style.display = 'none';
-            const selectedTime = document.getElementById('onboarding-time').value;
-            document.getElementById('settings-cooking-time').value = selectedTime;
-
+            document.getElementById('settings-cooking-time').value = document.getElementById('onboarding-time').value;
             if (target === 'family') {
                 document.getElementById('nav-text-individual').innerText = 'Recipes';
                 document.getElementById('planner-tab-title').innerText = 'Family Recipes';
-                
                 const restrCard = document.getElementById('settings-restrictions-card');
                 if (restrCard) restrCard.style.display = 'none';
-
                 document.getElementById('premium-modal').style.display = 'flex';
                 switchTab('family-tab');
             } else {
                 document.getElementById('nav-text-individual').innerText = 'Individual Plan';
                 document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
-                
                 const restrCard = document.getElementById('settings-restrictions-card');
                 if (restrCard) restrCard.style.display = 'block';
-
                 switchTab('settings-tab');
                 showToast('Please set your diet restrictions to personalize your plan! ⚙️');
             }
@@ -423,30 +224,25 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function closeRecipe() { document.getElementById('recipe-modal').style.display = 'none'; }
 
-        /* Funcio per intercanviar l'àpat seleccionat actualment */
         function swapCurrentMeal() {
             if (typeof window.changeSingleMeal === 'function') {
                 window.changeSingleMeal(currentSelectedMealId);
             } else {
-                showToast('Meal changed successfully! 🔄');
+                showToast('Function changeSingleMeal not defined in app.js! ⚠️');
             }
             closeRecipe();
         }
 
-        /* Guardar i carregar estat dels checkboxes de la llista de la compra */
         function toggleShoppingItem(checkbox, key) {
             const parentLi = checkbox.closest('li');
-            if (checkbox.checked) {
-                parentLi.classList.add('checked');
-            } else {
-                parentLi.classList.remove('checked');
-            }
+            if (checkbox.checked) { parentLi.classList.add('checked'); } 
+            else { parentLi.classList.remove('checked'); }
             saveShoppingListState();
         }
 
         function saveShoppingListState() {
             const checkedStates = {};
-            document.querySelectorAll('.shopping-list-item').forEach((li, idx) => {
+            document.querySelectorAll('.shopping-list-item').forEach((li) => {
                 const cb = li.querySelector('input[type="checkbox"]');
                 const text = li.querySelector('span').innerText;
                 if (cb) checkedStates[text] = cb.checked;
@@ -492,7 +288,6 @@
             window.open(`https://wa.me/?text=${textToShare}`, '_blank');
         }
     </script>
-
-    <script src="app.js?v=10" defer></script>
+    <script src="app.js?v=11" defer></script>
 </body>
 </html>
