@@ -6,191 +6,460 @@
     <meta name="description" content="NutriSafe: Smart meal planner and shopping list.">
     <title>NutriSafe</title>
 
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2e7d32">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
-    <link rel="apple-touch-icon" href="logo.png">
-
-    <link rel="stylesheet" href="style.css?v=11">
 
     <style>
-        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; }
-        .btn-try-pro { background-color: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: background-color 0.2s, transform 0.1s; }
-        .btn-try-pro:hover { background-color: #f57c00; transform: scale(1.03); }
-        .calendar-grid { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 15px 0; }
-        #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background-color: #333333; color: #ffffff; padding: 12px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 14px; font-weight: 500; text-align: center; animation: fadein 0.3s, fadeout 0.3s 2.7s; }
-        @keyframes fadein { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeout { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(20px); } }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #f4f6f8; color: #333; padding-bottom: 80px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #fff; border-bottom: 1px solid #ddd; }
+        h1 { color: #2e7d32; font-size: 22px; }
+        .btn-try-pro { background-color: #ff9800; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        main { padding: 15px; max-width: 600px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
+        .card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .calendar-grid { display: flex; flex-direction: column; gap: 12px; }
+        .meal-card { cursor: pointer; border-left: 5px solid #2e7d32; transition: transform 0.15s ease; }
+        .meal-card:hover { transform: translateY(-2px); }
+        nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #ddd; z-index: 100; }
+        .nav-btn { flex: 1; background: none; border: none; padding: 10px; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #666; }
+        .nav-btn.active { color: #2e7d32; font-weight: bold; }
+        .nav-btn span:first-child { font-size: 18px; }
+        #toast-container { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background-color: #333; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 420px; max-height: 85vh; overflow-y: auto; position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
-        
-        .badge-pro { background: #ff9800; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: bold; margin-left: 4px; vertical-align: middle; text-transform: uppercase; display: inline-block; }
-        .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; background: #f4f6f8; padding: 10px; border-radius: 8px; margin: 12px 0; text-align: center; }
-        .macro-item { display: flex; flex-direction: column; font-size: 11px; }
-        .macro-value { font-weight: bold; font-size: 13px; color: #2e7d32; }
-        .family-tag { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 6px; }
-        .meal-card { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
-        .meal-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-
-        ul.clean-list { list-style-type: none !important; padding-left: 0 !important; margin: 0; }
-        .shopping-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; list-style: none; }
-        .shopping-list-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #2e7d32; flex-shrink: 0; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .close-btn { position: absolute; top: 12px; right: 18px; font-size: 22px; cursor: pointer; }
+        .btn-primary { background: #2e7d32; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-secondary { background: #e0e0e0; color: #333; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-whatsapp { background: #25d366; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-swap { background-color: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-swap:hover { background-color: #d35400; }
+        .badge-pro { background: #ff9800; color: #fff; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: bold; }
+        .family-tag { display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: bold; margin-top: 6px; }
+        .macros-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: #f4f6f8; padding: 8px; border-radius: 8px; margin: 10px 0; text-align: center; }
+        .macro-item { display: flex; flex-direction: column; font-size: 10px; color: #666; }
+        .macro-value { font-weight: bold; font-size: 12px; color: #2e7d32; }
+        .shopping-list-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; list-style: none; }
+        .shopping-list-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2e7d32; cursor: pointer; }
         .shopping-list-item.checked span { text-decoration: line-through; color: #888; }
-        .btn-swap-meal { background-color: #e67e22; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; margin-top: 10px; display: inline-flex; align-items: center; gap: 5px; }
-        .btn-swap-meal:hover { background-color: #d35400; }
+        .clean-list { list-style: none; padding: 0; }
     </style>
 </head>
 <body>
+
     <header>
         <h1>🥑 NutriSafe</h1>
         <button class="btn-try-pro" onclick="openModal('premium-modal')">Try PRO</button>
     </header>
 
     <main>
+        <!-- PLANNER TAB -->
         <section id="planner-tab" class="tab-content active">
             <div class="tab-header">
-                <h2 id="planner-tab-title">Your Weekly Plan</h2>
-                <div style="display: flex; gap: 8px;">
-                    <button id="regen-individual-btn" class="btn-secondary" onclick="regenerateWeekWithRotation()">🔄 New Week</button>
-                </div>
+                <h2 id="planner-tab-title" style="font-size: 18px;">Your Weekly Plan</h2>
+                <button class="btn-secondary" onclick="regenerateWeek()">🔄 New Week</button>
             </div>
             <div id="calendar-grid" class="calendar-grid"></div>
         </section>
 
-        <section id="shopping-tab" class="tab-content" style="display:none;">
+        <!-- SHOPPING TAB -->
+        <section id="shopping-tab" class="tab-content">
             <div class="tab-header">
-                <h2>🛒 Shopping List</h2>
-                <div class="action-buttons" style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <button id="copy-list-btn" class="btn-action btn-blue" onclick="copyShoppingList()">📋 Copy</button>
-                    <button id="whatsapp-list-btn" class="btn-action btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
-                    <button id="print-list-btn" class="btn-action btn-dark" onclick="window.print()">🖨️ Print</button>
-                    <button id="clear-checked-btn" class="btn-action" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;" onclick="clearCheckedShoppingItems()">🧹 Clear Checked</button>
+                <h2 style="font-size: 18px;">🛒 Shopping List</h2>
+                <div style="display: flex; gap: 6px;">
+                    <button class="btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
+                    <button class="btn-secondary" style="background:#e74c3c; color:white;" onclick="clearCheckedShoppingItems()">🧹 Clear Checked</button>
                 </div>
             </div>
-            <div class="shopping-container" id="printable-shopping-list">
-                <div class="card">
-                    <h3 class="text-green">🛒 Groceries to Buy</h3>
-                    <ul id="main-grocery-list" class="clean-list"></ul>
-                </div>
+            <div class="card" id="printable-shopping-list">
+                <h3 style="color:#2e7d32; font-size:15px; margin-bottom:8px;">Groceries to Buy</h3>
+                <ul id="main-grocery-list" class="clean-list"></ul>
             </div>
         </section>
 
-        <section id="family-tab" class="tab-content" style="display:none;">
-            <h2>👨‍👩‍👧‍👦 Smart Family Plan <span class="badge-pro">PRO</span></h2>
-            <p class="subtitle">Set up your family and we will automatically adapt menus to cook the minimum amount of different dishes!</p>
-            <div class="card form-card">
-                <div class="form-group">
-                    <label for="family-count-input">👥 How many people are at home?</label>
-                    <div class="input-inline">
-                        <input type="number" id="family-count-input" min="1" max="10" value="4">
-                        <button id="update-family-count-btn" class="btn-primary">Set Members</button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>🥗 Restrictions and allergies per member:</label>
-                    <div id="family-members-grid"></div>
-                </div>
-                <button id="generate-family-btn" class="btn-primary btn-large">✨ Generate Family Menu & Update List</button>
-            </div>
-        </section>
-
-        <section id="settings-tab" class="tab-content" style="display:none;">
-            <h2>⚙️ Settings</h2>
+        <!-- FAMILY TAB -->
+        <section id="family-tab" class="tab-content">
+            <h2 style="font-size: 18px;">👨‍👩‍👧‍👦 Smart Family Plan <span class="badge-pro">PRO</span></h2>
+            <p style="font-size: 13px; color: #666; margin: 8px 0 15px 0;">Adapt menus automatically for everyone at home.</p>
             <div class="card">
-                <h3>⏱️ Cooking Time</h3>
-                <p>How much time do you have to cook per day?</p>
-                <select id="settings-cooking-time" class="form-control" style="width: 100%; padding: 10px; margin-top: 5px;">
+                <label style="font-size: 13px; font-weight: bold;">How many people are at home?</label>
+                <div style="display: flex; gap: 8px; margin: 8px 0 15px 0;">
+                    <input type="number" id="family-count-input" min="1" max="10" value="4" style="flex:1; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+                    <button class="btn-secondary" id="update-family-count-btn">Set Members</button>
+                </div>
+                <div id="family-members-grid"></div>
+                <button class="btn-primary" id="generate-family-btn" style="margin-top: 15px;">✨ Generate Family Menu</button>
+            </div>
+        </section>
+
+        <!-- SETTINGS TAB -->
+        <section id="settings-tab" class="tab-content">
+            <h2 style="font-size: 18px; margin-bottom: 12px;">⚙️ Settings</h2>
+            <div class="card">
+                <h3 style="font-size: 14px; margin-bottom: 6px;">⏱️ Cooking Time</h3>
+                <select id="settings-cooking-time" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
                     <option value="30">Between 10 and 30 mins</option>
-                    <option value="60">Between 30 mins and 1 hour</option>
+                    <option value="60" selected>Between 30 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
             </div>
             <div class="card" id="settings-restrictions-card">
-                <h3>🥗 Your natural restrictions</h3>
-                <p>Select the ones that affect you. Your personal menu will update automatically.</p>
-                <div id="settings-checkboxes" class="checkbox-grid"></div>
-            </div>
-            <div class="card">
-                <h3>🌙 Appearance</h3>
-                <label class="toggle-label"><input type="checkbox" id="dark-mode-toggle"> Enable Dark Mode</label>
+                <h3 style="font-size: 14px; margin-bottom: 6px;">🥗 Your Allergies & Restrictions</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Select your needs. The menu updates instantly.</p>
+                <div id="settings-checkboxes" style="display: flex; flex-direction: column; gap: 6px;"></div>
             </div>
         </section>
     </main>
 
+    <!-- NAV BAR -->
     <nav>
-        <button id="nav-btn-individual" class="nav-btn active" onclick="switchTab('planner-tab')"><span>👤</span><span id="nav-text-individual">Individual Plan</span></button>
-        <button id="nav-btn-shopping" class="nav-btn" onclick="switchTab('shopping-tab')"><span>🛒</span><span>List</span></button>
-        <button id="nav-btn-family" class="nav-btn" onclick="switchTab('family-tab')"><span>👨‍👩‍👧‍👦</span><span>Family plan <span class="badge-pro" style="font-size: 7px; padding: 1px 3px; border-radius: 3px; margin-left: 2px; vertical-align: super; line-height: 1;">PRO</span></span></button>
-        <button id="nav-btn-settings" class="nav-btn" onclick="switchTab('settings-tab')"><span>⚙️</span><span>Settings</span></button>
+        <button id="nav-btn-individual" class="nav-btn active" onclick="switchTab('planner-tab', this)"><span>👤</span><span id="nav-text-individual">Plan</span></button>
+        <button class="nav-btn" onclick="switchTab('shopping-tab', this)"><span>🛒</span><span>List</span></button>
+        <button class="nav-btn" onclick="switchTab('family-tab', this)"><span>👨‍👩‍👧‍👦</span><span>Family</span></button>
+        <button class="nav-btn" onclick="switchTab('settings-tab', this)"><span>⚙️</span><span>Settings</span></button>
     </nav>
 
+    <!-- RECIPE MODAL -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeRecipe()">&times;</span>
-            <h2 id="recipe-title">Recipe Title</h2>
-            <p id="recipe-family-info" class="family-tag" style="margin-top: 8px;"></p>
-            <div><button class="btn-swap-meal" onclick="swapCurrentMeal()">🔄 Change meal</button></div>
+            <span class="close-btn" onclick="closeModal('recipe-modal')">&times;</span>
+            <h2 id="recipe-title" style="font-size: 18px; color: #2e7d32;"></h2>
+            <p id="recipe-family-info" class="family-tag"></p>
+            <div><button class="btn-swap" onclick="openSwapModal()">🔄 Change meal</button></div>
             <div class="macros-grid">
-                <div class="macro-item"><span>Calories</span><span id="macro-calories" class="macro-value">0 kcal</span></div>
+                <div class="macro-item"><span>Calories</span><span id="macro-calories" class="macro-value">0</span></div>
                 <div class="macro-item"><span>Protein</span><span id="macro-protein" class="macro-value">0g</span></div>
                 <div class="macro-item"><span>Carbs</span><span id="macro-carbs" class="macro-value">0g</span></div>
                 <div class="macro-item"><span>Fat</span><span id="macro-fat" class="macro-value">0g</span></div>
             </div>
-            <h3 style="margin-top: 15px; color: #2e7d32;">🛒 Ingredients & Quantities</h3>
-            <ul id="recipe-ingredients" style="list-style-type: disc; padding-left: 20px; line-height: 1.6;"></ul>
-            <h3 style="margin-top: 15px; color: #2e7d32;">🍳 Step-by-Step Recipe</h3>
-            <p id="recipe-instructions" style="white-space: pre-line; line-height: 1.5; color: #444;"></p>
+            <h3 style="font-size: 14px; color: #2e7d32; margin-top: 12px;">Ingredients</h3>
+            <ul id="recipe-ingredients" style="font-size: 13px; padding-left: 15px; margin-top: 4px; line-height: 1.5;"></ul>
+            <h3 style="font-size: 14px; color: #2e7d32; margin-top: 12px;">Instructions</h3>
+            <p id="recipe-instructions" style="font-size: 13px; color: #444; margin-top: 4px; white-space: pre-line; line-height: 1.5;"></p>
         </div>
     </div>
 
+    <!-- SWAP MODAL (Canvi individual de plat) -->
     <div id="swap-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('swap-modal')">&times;</span>
-            <h3 style="color: #2e7d32; margin-bottom: 10px;">🔄 Tria un plat alternatiu</h3>
-            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Selecciona una opció compatible amb les teves preferències:</p>
-            <div id="swap-alternatives-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <h3 style="color: #2e7d32; margin-bottom: 8px; font-size: 16px;">🔄 Tria un plat alternatiu</h3>
+            <p style="font-size: 12px; color: #666; margin-bottom: 12px;">Selecciona una opció compatible:</p>
+            <div id="swap-alternatives-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
         </div>
     </div>
 
-    <div id="premium-modal" class="modal" style="display:none;">
-        <div class="modal-content text-center">
-            <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
-            <div class="modal-icon" style="font-size: 40px;">👑</div>
-            <h2>Unlock Family Plan <span class="badge-pro">PRO</span></h2>
-            <p>Start your 1-week free trial of the PRO plan!</p>
-            <ul class="pro-features" style="text-align: left; margin: 15px 0;">
-                <li>✨ Unlimited family members</li>
-                <li>⚡ Smart ingredient merging</li>
-                <li>📲 Direct export to WhatsApp</li>
-                <li>🚫 No ads & priority support</li>
-            </ul>
-            <button class="btn-primary btn-large" style="width: 100%; margin-bottom: 10px;" onclick="closeModal('premium-modal'); showToast('PRO Trial Activated!');">🎁 Start 7-Day Free Trial</button>
-        </div>
-    </div>
-
+    <!-- ONBOARDING MODAL -->
     <div id="onboarding-modal" class="modal">
-        <div class="modal-content text-center">
-            <h2>Welcome to NutriSafe! 🥑</h2>
-            <div style="margin-top: 20px; text-align: left;">
-                <label style="font-weight: bold;">How much time do you have to cook per day?</label>
-                <select id="onboarding-time" style="width: 100%; padding: 10px; margin: 10px 0 20px 0; border-radius: 5px;">
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="color: #2e7d32; margin-bottom: 10px;">Welcome to NutriSafe! 🥑</h2>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Let's setup your meal planner.</p>
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 12px; font-weight: bold;">Cooking time per day:</label>
+                <select id="onboarding-time" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc;">
                     <option value="30">Between 10 and 30 mins</option>
-                    <option value="60">Between 30 mins and 1 hour</option>
+                    <option value="60" selected>Between 30 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
-                <label style="font-weight: bold; display: block; margin-bottom: 10px;">Who are you cooking for?</label>
-                <button class="btn-primary" style="width: 100%; margin-bottom: 10px; padding: 12px;" onclick="finishOnboarding('me')">Just Me</button>
-                <button class="btn-primary" style="width: 100%; padding: 12px;" onclick="finishOnboarding('family')">My Family</button>
             </div>
+            <label style="font-size: 12px; font-weight: bold; display: block; text-align: left; margin-bottom: 8px;">Who are you cooking for?</label>
+            <button class="btn-primary" style="margin-bottom: 8px;" onclick="finishOnboarding('me')">Just Me</button>
+            <button class="btn-secondary" style="width: 100%; padding: 10px; background: #ff9800; color: white; font-weight: bold;" onclick="finishOnboarding('family')">My Family (PRO)</button>
+        </div>
+    </div>
+
+    <!-- PREMIUM MODAL -->
+    <div id="premium-modal" class="modal" style="display:none;">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close-btn" onclick="closeModal('premium-modal')">&times;</span>
+            <h2 style="color: #ff9800;">Unlock Family Plan 👑</h2>
+            <p style="font-size: 13px; margin: 10px 0;">Manage multiple restrictions easily.</p>
+            <button class="btn-primary" onclick="closeModal('premium-modal'); showToast('PRO Trial Activated!');">Start 7-Day Free Trial</button>
         </div>
     </div>
 
     <div id="toast-container"></div>
 
-    <script src="app.js?v=13" defer></script>
+    <script>
+        const dietaryOptions = [
+            { id: "none", label: "None (Eat Everything)" },
+            { id: "vegan", label: "Vegan" },
+            { id: "vegetarian", label: "Vegetarian" },
+            { id: "keto", label: "Keto" },
+            { id: "cows_milk", label: "Cow's Milk-Free" },
+            { id: "eggs", label: "Egg-Free" },
+            { id: "peanuts", label: "Peanut-Free" },
+            { id: "tree_nuts", label: "Tree Nut-Free" },
+            { id: "fish", label: "Fish-Free" },
+            { id: "shellfish", label: "Shellfish-Free" },
+            { id: "wheat", label: "Wheat-Free" },
+            { id: "soy", label: "Soy-Free" },
+            { id: "lactose", label: "Lactose Intolerance" }
+        ];
+
+        const recipes = [
+            { id: 1, title: "Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "15 min", calories: 380, macros: { protein: "14g", carbs: "52g", fat: "10g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["150g GF flour", "200ml Almond milk", "2 Eggs", "2 tbsp Maple syrup"], instructions: "1. Mix ingredients.\n2. Cook in a pan for 3 min per side." },
+            { id: 2, title: "Creamy Oatmeal Bowl", mealType: "Breakfast", prepTime: "8 min", calories: 310, macros: { protein: "11g", carbs: "48g", fat: "6g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["80g Oats", "250ml Oat milk", "1 Banana"], instructions: "1. Simmer oat milk and oats for 5 mins.\n2. Top with sliced banana." },
+            { id: 3, title: "Avocado & Egg Toast", mealType: "Breakfast", prepTime: "5 min", calories: 340, macros: { protein: "15g", carbs: "28g", fat: "18g" }, safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"], ingredients: ["2 slices Bread", "1 Avocado", "2 Eggs"], instructions: "1. Toast bread.\n2. Mash avocado on top and add fried eggs." },
+            { id: 4, title: "Chicken & Rice Stir-fry", mealType: "Lunch", prepTime: "20 min", calories: 520, macros: { protein: "42g", carbs: "58g", fat: "12g" }, safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["200g Chicken", "150g Rice", "2 tbsp Soy sauce"], instructions: "1. Boil rice.\n2. Sauté chicken and mix with rice." },
+            { id: 5, title: "Quinoa Cucumber Salad", mealType: "Lunch", prepTime: "15 min", calories: 410, macros: { protein: "12g", carbs: "54g", fat: "16g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"], ingredients: ["100g Quinoa", "1 Cucumber", "Olive oil"], instructions: "1. Boil quinoa.\n2. Chop cucumber and combine with olive oil." },
+            { id: 6, title: "Grilled Salmon & Asparagus", mealType: "Dinner", prepTime: "25 min", calories: 610, macros: { protein: "46g", carbs: "8g", fat: "38g" }, safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"], ingredients: ["200g Salmon", "150g Asparagus", "Olive oil"], instructions: "1. Grill salmon and asparagus with olive oil." },
+            { id: 7, title: "Turkey & Veggie Wrap", mealType: "Lunch", prepTime: "10 min", calories: 450, macros: { protein: "35g", carbs: "40g", fat: "14g" }, safeFor: ["cows_milk", "eggs", "peanuts", "fish", "shellfish", "lactose"], ingredients: ["1 Tortilla", "120g Turkey slices", "Lettuce & Tomato"], instructions: "1. Fill tortilla with turkey and veggies.\n2. Roll up tightly." }
+        ];
+
+        let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
+        let currentWeekPlan = [];
+        let isFamilyMode = false;
+        let currentSelectedMealId = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            renderSettingsCheckboxes();
+            setupFamilyMembersUI(4);
+            generateIndividualMenu();
+            setupEventListeners();
+        });
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerText = msg;
+            container.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        function finishOnboarding(target) {
+            closeModal('onboarding-modal');
+            document.getElementById('settings-cooking-time').value = document.getElementById('onboarding-time').value;
+            if (target === 'family') {
+                openModal('premium-modal');
+                switchTab('family-tab', document.querySelectorAll('.nav-btn')[2]);
+            } else {
+                switchTab('settings-tab', document.querySelectorAll('.nav-btn')[3]);
+                showToast('Select your allergies below! ⚙️');
+            }
+        }
+
+        function renderSettingsCheckboxes() {
+            const container = document.getElementById("settings-checkboxes");
+            if (!container) return;
+            container.innerHTML = "";
+            dietaryOptions.forEach(opt => {
+                const label = document.createElement("label");
+                label.style.cssText = "display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;";
+                const isChecked = selectedRestrictions.includes(opt.id) ? "checked" : "";
+                label.innerHTML = `<input type="checkbox" value="${opt.id}" ${isChecked} style="width:16px; height:16px; accent-color:#2e7d32;"> ${opt.label}`;
+                
+                label.querySelector("input").addEventListener("change", (e) => {
+                    if (e.target.checked) {
+                        if (opt.id === "none") selectedRestrictions = ["none"];
+                        else {
+                            selectedRestrictions = selectedRestrictions.filter(r => r !== "none");
+                            selectedRestrictions.push(opt.id);
+                        }
+                    } else {
+                        selectedRestrictions = selectedRestrictions.filter(r => r !== opt.id);
+                    }
+                    localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
+                    renderSettingsCheckboxes();
+                    generateIndividualMenu();
+                    showToast("Preferences updated & menu regenerated! 🥗");
+                });
+                container.appendChild(label);
+            });
+        }
+
+        function setupFamilyMembersUI(count) {
+            const grid = document.getElementById("family-members-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
+            for (let i = 1; i <= count; i++) {
+                const card = document.createElement("div");
+                card.style.cssText = "background:#f9f9f9; padding:10px; border-radius:6px; margin-bottom:8px; border:1px solid #ddd;";
+                let optHtml = "";
+                dietaryOptions.forEach(o => {
+                    optHtml += `<label style="display:inline-block; margin:2px 6px; font-size:11px;"><input type="checkbox" class="member-restr" value="${o.id}"> ${o.label}</label>`;
+                });
+                card.innerHTML = `<input type="text" value="Person ${i}" class="member-name" style="width:100%; padding:4px; margin-bottom:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"><div style="max-height:60px; overflow-y:auto;">${optHtml}</div>`;
+                grid.appendChild(card);
+            }
+        }
+
+        function isRecipeSafe(recipe, restrictions) {
+            if (!restrictions || restrictions.length === 0 || restrictions.includes("none")) return true;
+            for (const r of restrictions) {
+                if (!recipe.safeFor.includes(r)) return false;
+            }
+            return true;
+        }
+
+        function generateIndividualMenu() {
+            isFamilyMode = false;
+            currentWeekPlan = [];
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+            days.forEach(day => {
+                ["Breakfast", "Lunch", "Dinner"].forEach(type => {
+                    let avail = recipes.filter(r => r.mealType === type && isRecipeSafe(r, selectedRestrictions));
+                    if (avail.length === 0) avail = recipes.filter(r => r.mealType === type);
+                    const recipe = avail[Math.floor(Math.random() * avail.length)];
+                    currentWeekPlan.push({ day, type, recipe, tag: "Personal Plan" });
+                });
+            });
+            renderCalendar();
+            updateShoppingList();
+        }
+
+        function generateFamilyMenu() {
+            isFamilyMode = true;
+            currentWeekPlan = [];
+            const cards = document.querySelectorAll("#family-members-grid > div");
+            const familyData = [];
+            cards.forEach(c => {
+                const name = c.querySelector(".member-name").value;
+                const restrs = Array.from(c.querySelectorAll(".member-restr:checked")).map(cb => cb.value);
+                familyData.push({ name, restrs });
+            });
+
+            const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+            days.forEach(day => {
+                ["Breakfast", "Lunch", "Dinner"].forEach(type => {
+                    let avail = recipes.filter(r => r.mealType === type && familyData.every(m => isRecipeSafe(r, m.restrs)));
+                    if (avail.length === 0) avail = recipes.filter(r => r.mealType === type);
+                    const recipe = avail[Math.floor(Math.random() * avail.length)];
+                    currentWeekPlan.push({ day, type, recipe, tag: `Adapted for ${familyData.length} members` });
+                });
+            });
+            renderCalendar();
+            updateShoppingList();
+            showToast("Family Plan Generated! 👨‍👩‍👧‍👦");
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById("calendar-grid");
+            if (!grid) return;
+            grid.innerHTML = "";
+            currentWeekPlan.forEach((item, idx) => {
+                const card = document.createElement("div");
+                card.className = "card meal-card";
+                card.innerHTML = `
+                    <span style="font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase;">${item.day} — ${item.type}</span>
+                    <h3 style="margin: 4px 0; color: #2e7d32; font-size: 15px;">${item.recipe.title}</h3>
+                    <p style="font-size: 11px; color: #555;">⏱️ ${item.recipe.prepTime} &nbsp;|&nbsp; 🔥 ${item.recipe.calories} kcal</p>
+                    <span class="family-tag">${item.tag}</span>
+                `;
+                card.addEventListener("click", () => openRecipe(idx));
+                grid.appendChild(card);
+            });
+        }
+
+        function openRecipe(idx) {
+            currentSelectedMealId = idx;
+            const meal = currentWeekPlan[idx];
+            document.getElementById("recipe-title").innerText = meal.recipe.title;
+            document.getElementById("recipe-family-info").innerText = meal.tag;
+            document.getElementById("macro-calories").innerText = meal.recipe.calories;
+            document.getElementById("macro-protein").innerText = meal.recipe.macros.protein;
+            document.getElementById("macro-carbs").innerText = meal.recipe.macros.carbs;
+            document.getElementById("macro-fat").innerText = meal.recipe.macros.fat;
+            
+            const ingList = document.getElementById("recipe-ingredients");
+            ingList.innerHTML = "";
+            meal.recipe.ingredients.forEach(i => {
+                const li = document.createElement("li");
+                li.innerText = i;
+                ingList.appendChild(li);
+            });
+            document.getElementById("recipe-instructions").innerText = meal.recipe.instructions;
+            openModal("recipe-modal");
+        }
+
+        function openSwapModal() {
+            closeModal("recipe-modal");
+            const meal = currentWeekPlan[currentSelectedMealId];
+            const altContainer = document.getElementById("swap-alternatives-list");
+            altContainer.innerHTML = "";
+
+            const alternatives = recipes.filter(r => r.mealType === meal.type && r.id !== meal.recipe.id);
+            if (alternatives.length === 0) {
+                altContainer.innerHTML = "<p style='font-size:12px; color:#666;'>No alternatives available.</p>";
+            } else {
+                alternatives.forEach(alt => {
+                    const btn = document.createElement("button");
+                    btn.style.cssText = "padding: 8px 12px; background: #f4f6f8; border: 1px solid #ddd; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px;";
+                    btn.innerHTML = `<strong>${alt.title}</strong><br><span style="font-size:11px; color:#666;">⏱️ ${alt.prepTime} | 🔥 ${alt.calories} kcal</span>`;
+                    btn.onclick = () => {
+                        currentWeekPlan[currentSelectedMealId].recipe = alt;
+                        renderCalendar();
+                        updateShoppingList();
+                        closeModal("swap-modal");
+                        showToast("Meal updated successfully! 🔄");
+                    };
+                    altContainer.appendChild(btn);
+                });
+            }
+            openModal("swap-modal");
+        }
+
+        function updateShoppingList() {
+            const list = document.getElementById("main-grocery-list");
+            if (!list) return;
+            list.innerHTML = "";
+            const set = new Set();
+            currentWeekPlan.forEach(i => i.recipe.ingredients.forEach(ing => set.add(ing)));
+            set.forEach(ing => {
+                const li = document.createElement("li");
+                li.className = "shopping-list-item";
+                li.innerHTML = `<input type="checkbox" onchange="this.closest('li').classList.toggle('checked', this.checked)"><span>${ing}</span>`;
+                list.appendChild(li);
+            });
+        }
+
+        function clearCheckedShoppingItems() {
+            document.querySelectorAll("#main-grocery-list .shopping-list-item").forEach(li => {
+                if (li.querySelector("input").checked) li.remove();
+            });
+            showToast("Checked items cleared!");
+        }
+
+        function shareWhatsApp() {
+            const items = Array.from(document.querySelectorAll("#main-grocery-list span")).map(s => `- ${s.innerText}`).join("\n");
+            const text = encodeURIComponent(`🛒 *NutriSafe Shopping List*\n\n${items}`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+
+        function regenerateWeek() {
+            if (isFamilyMode) generateFamilyMenu();
+            else generateIndividualMenu();
+            showToast("New weekly plan generated! 🔄");
+        }
+
+        function setupEventListeners() {
+            document.getElementById("update-family-count-btn").addEventListener("click", () => {
+                const count = parseInt(document.getElementById("family-count-input").value) || 4;
+                setupFamilyMembersUI(count);
+                showToast(`Family updated to ${count} members!`);
+            });
+            document.getElementById("generate-family-btn").addEventListener("click", () => {
+                closeModal("premium-modal");
+                switchTab('planner-tab', document.querySelectorAll('.nav-btn')[0]);
+                generateFamilyMenu();
+            });
+        }
+    </script>
 </body>
 </html>
