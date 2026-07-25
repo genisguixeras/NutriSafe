@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Strict Family/Individual Filters
+   NutriSafe - Complete App Engine with Onboarding & Strict Dietary Filters
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -57,6 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
         setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
         setupClearCheckedButton();
+        
+        // Si ja s'havia guardat selecció prèvia, genera directament
         generateIndividualMenu();
     }
 
@@ -72,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isDark) document.body.classList.add("dark-mode");
     }
 
-    // --- RENDERITZAR LES RESTRICCIONS A LA CONFIGURACIÓ (Per a tu mateix) ---
+    // --- RENDERITZAR CHECKBOXES DE RESTRICCIONS INDIVIDUALS ---
     function renderSettingsCheckboxes() {
         const container = document.getElementById("settings-checkboxes");
         if (!container) return;
@@ -96,8 +98,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     selectedRestrictions = selectedRestrictions.filter(r => r !== opt.id);
                 }
                 localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
-                renderSettingsCheckboxes(); // Actualitza visualment si s'escau
-                generateIndividualMenu(); // Genera automàticament el menú individual segons els canvis
+                renderSettingsCheckboxes();
+                generateIndividualMenu(); // Actualització automàtica del menú individual
             });
             container.appendChild(label);
         });
@@ -148,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- VALIDACIÓ ESTRICTA PER A UN CONJUNT DE RESTRICCIONS ---
+    // --- FILtratge estricte per a qualsevol conjunt de restriccions ---
     function isRecipeSafeForRestrictions(recipe, restrictions) {
         if (!restrictions || restrictions.length === 0 || restrictions.includes("none")) return true;
 
@@ -177,10 +179,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
-    // --- VALIDACIÓ ESTRICTA FAMILIAR ---
+    // --- FILTRATGE ESTRICTE FAMILIAR ---
     function isRecipeSafeForFamily(recipe, familyData) {
         if (!familyData || familyData.length === 0) return true;
-
         for (const member of familyData) {
             if (!isRecipeSafeForRestrictions(recipe, member.restrictions)) {
                 return false;
@@ -189,7 +190,38 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
-    // --- CLEAR CHECKED BUTTON ---
+    // --- CONNEXIÓ AMB ONBOARDING (Just Me -> Demana al·lèrgies i fa menú automàtic) ---
+    window.finishOnboarding = function(target) {
+        const onboardingModal = document.getElementById('onboarding-modal');
+        if (onboardingModal) onboardingModal.style.display = 'none';
+
+        const onboardingTime = document.getElementById('onboarding-time');
+        const settingsTime = document.getElementById('settings-cooking-time');
+        if (onboardingTime && settingsTime) {
+            settingsTime.value = onboardingTime.value;
+        }
+
+        if (target === 'family') {
+            document.getElementById('nav-text-individual').innerText = 'Recipes';
+            document.getElementById('planner-tab-title').innerText = 'Family Recipes';
+            const restrCard = document.getElementById('settings-restrictions-card');
+            if (restrCard) restrCard.style.display = 'none';
+            openModal('premium-modal');
+            switchTab('family-tab');
+        } else {
+            document.getElementById('nav-text-individual').innerText = 'Individual Plan';
+            document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
+            const restrCard = document.getElementById('settings-restrictions-card');
+            if (restrCard) restrCard.style.display = 'block';
+            
+            // Genera menú individual inicial i porta a settings per triar al·lèrgies si ho desitja
+            generateIndividualMenu();
+            switchTab('settings-tab');
+            showToast('Set your diet restrictions below to update your plan automatically! ⚙️');
+        }
+    };
+
+    // --- CLEAR CHECKED SHOPPING ITEMS ---
     window.clearCheckedShoppingItems = function() {
         const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
         checkboxes.forEach(cb => {
@@ -207,21 +239,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function setupClearCheckedButton() {
-        const buttons = document.querySelectorAll("button");
-        let clearBtn = document.getElementById("clear-checked-btn") || document.querySelector(".clear-checked-btn");
-        
-        if (!clearBtn) {
-            buttons.forEach(btn => {
-                if (btn.innerText.toLowerCase().includes("clear checked") || btn.innerText.toLowerCase().includes("esborrar marcats")) {
-                    clearBtn = btn;
-                }
-            });
-        }
-
+        const clearBtn = document.getElementById("clear-checked-btn");
         if (clearBtn) {
             const newBtn = clearBtn.cloneNode(true);
             clearBtn.parentNode.replaceChild(newBtn, clearBtn);
-            
             newBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 window.clearCheckedShoppingItems();
@@ -233,13 +254,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const li = checkbox.closest("li");
         if (li) {
             if (checkbox.checked) {
-                li.classList.add("completed");
-                li.style.textDecoration = "line-through";
-                li.style.opacity = "0.6";
+                li.classList.add("checked");
             } else {
-                li.classList.remove("completed");
-                li.style.textDecoration = "none";
-                li.style.opacity = "1";
+                li.classList.remove("checked");
+            }
+            if (typeof saveShoppingListState === "function") {
+                saveShoppingListState();
             }
         }
     };
@@ -253,7 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("New rotated weekly plan generated! 🔄");
     };
 
-    // --- GENERACIÓ DE MENÚ INDIVIDUAL (Segons les teves al·lèrgies/dietes) ---
+    // --- GENERAR MENÚ INDIVIDUAL AUTOMÀTIC ---
     function generateIndividualMenu(isRotation = false) {
         isFamilyMode = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -298,7 +318,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList();
     }
 
-    // --- GENERACIÓ DE MENÚ FAMILIAR ---
+    // --- GENERAR MENÚ FAMILIAR ---
     function generateFamilyMenu() {
         isFamilyMode = true;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -366,7 +386,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="event.stopPropagation(); openSwapModal(${index})">🔄 Change</button>
                 </div>
             `;
-            card.addEventListener("click", () => openRecipeModal(index));
+            card.addEventListener("click", () => {
+                currentSelectedMealId = index;
+                openRecipeModal(index);
+            });
             calendarGrid.appendChild(card);
         });
     }
@@ -402,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modalList.innerHTML = "";
 
         const maxTime = getMaxTimePerMeal();
-        const activeRestrictions = isFamilyMode ? [] : selectedRestrictions; // Opcional per alternatives
+        const activeRestrictions = isFamilyMode ? [] : selectedRestrictions;
         const alternatives = recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title && getPrepTimeInt(r.prepTime) <= maxTime && isRecipeSafeForRestrictions(r, activeRestrictions));
 
         if (alternatives.length === 0) {
