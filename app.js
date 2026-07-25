@@ -54,8 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function init() {
         setupTheme();
         renderSettingsCheckboxes();
-        setupFamilyMembersUI(parseInt(document.getElementById("family-count-input").value) || 4);
+        setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
+        setupClearCheckedButton();
         generateIndividualMenu();
     }
 
@@ -135,7 +136,66 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- GENERACIÓ AMB ROTACIÓ INTEL·LIGENT (Evita duplicats exactes respecte a l'anterior) ---
+    // --- VALIDACIÓ ESTRICTA DE RESTRICCIONS FAMILIARS ---
+    function isRecipeSafeForFamily(recipe, familyData) {
+        if (!familyData || familyData.length === 0) return true;
+
+        for (const member of familyData) {
+            const restrictions = member.restrictions;
+            if (restrictions.length === 0 || restrictions.includes("none")) continue;
+
+            const ingText = recipe.ingredients.join(" ").toLowerCase();
+            const titleText = recipe.title.toLowerCase();
+            const safeList = recipe.safeFor || [];
+
+            for (const rest of restrictions) {
+                // Comprovació estricta per a VEGAN
+                if (rest === "vegan") {
+                    const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
+                    const hasAnimalByproducts = /egg|eggs|milk|cheese|butter/.test(ingText);
+                    if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) {
+                        return false;
+                    }
+                }
+                // Comprovació estricta per a VEGETARIAN
+                else if (rest === "vegetarian") {
+                    const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
+                    if (hasMeat || !safeList.includes("vegetarian")) {
+                        return false;
+                    }
+                }
+                // Resta de restriccions basades en la propietat safeFor de la recepta
+                else {
+                    if (!safeList.includes(rest)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    // --- CORRECCIÓ: CLEAR CHECKED (Només desmarca, no esborra ingredients) ---
+    function setupClearCheckedButton() {
+        const clearBtn = document.getElementById("clear-checked-btn") || document.querySelector(".clear-checked-btn");
+        if (clearBtn) {
+            clearBtn.addEventListener("click", () => {
+                const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
+                checkboxes.forEach(cb => {
+                    cb.checked = false;
+                    const itemLi = cb.closest("li");
+                    if (itemLi) {
+                        itemLi.classList.remove("completed", "checked");
+                    }
+                });
+                if (typeof showToast === "function") {
+                    showToast("Checked items unchecked! 🛒");
+                }
+            });
+        }
+    }
+
+    // --- GENERACIÓ AMB ROTACIÓ INTEL·LIGENT ---
     window.regenerateWeekWithRotation = function() {
         if (isFamilyMode) {
             generateFamilyMenu();
@@ -164,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     availableRecipes = recipes.filter(r => r.mealType === type);
                 }
 
-                // Si estem rotant, intentem prioritzar receptes diferents a les de la setmana prèvia
                 if (isRotation && availableRecipes.length > 1) {
                     const filteredNew = availableRecipes.filter(r => !oldTitles.includes(r.title));
                     if (filteredNew.length > 0) availableRecipes = filteredNew;
@@ -206,8 +265,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                let validRecipes = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal);
-                if (validRecipes.length === 0) validRecipes = recipes.filter(r => r.mealType === type);
+                let validRecipes = recipes.filter(r => 
+                    r.mealType === type && 
+                    getPrepTimeInt(r.prepTime) <= maxTimePerMeal && 
+                    isRecipeSafeForFamily(r, familyData)
+                );
+
+                if (validRecipes.length === 0) {
+                    validRecipes = recipes.filter(r => r.mealType === type && isRecipeSafeForFamily(r, familyData));
+                }
+                if (validRecipes.length === 0) {
+                    validRecipes = recipes.filter(r => r.mealType === type);
+                }
 
                 const recipe = validRecipes[Math.floor(Math.random() * validRecipes.length)];
                 currentWeekPlan.push({
@@ -273,7 +342,7 @@ document.addEventListener("DOMContentLoaded", () => {
         openModal("recipe-modal");
     }
 
-    // --- SELECTOR D'ALTERNATIVES (Modal de canvi d'àpat individual) ---
+    // --- SELECTOR D'ALTERNATIVES ---
     window.openSwapModal = function(index) {
         currentSelectedMealId = index;
         const meal = currentWeekPlan[index];
@@ -331,7 +400,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Agrupar per seccions de supermercat
         const grouped = {};
         Object.keys(supermarketSections).forEach(sec => grouped[sec] = []);
         grouped["📦 Other Ingredients"] = [];
@@ -371,7 +439,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        restoreShoppingListState();
+        if (typeof restoreShoppingListState === "function") {
+            restoreShoppingListState();
+        }
     }
 
     function setupEventListeners() {
