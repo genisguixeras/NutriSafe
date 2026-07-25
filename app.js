@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Onboarding & Strict Dietary Filters
+   NutriSafe - Core App Engine (Fix Directiu Definitiu)
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -41,40 +41,18 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 10, title: "Tofu & Vegetable Curry", mealType: "Dinner", prepTime: "25 min", calories: 430, macros: { protein: "18g", carbs: "26g", fat: "22g" }, safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"], ingredients: ["180g Firm tofu", "200ml Coconut milk", "1 Bell pepper", "50g Fresh spinach"], instructions: "1. Cube tofu and sauté with sliced bell pepper in a pot for 5 minutes.\n2. Pour in coconut milk and let simmer gently for 10 minutes.\n3. Stir in fresh spinach right before serving until wilted." }
     ];
 
-    const calendarGrid = document.getElementById("calendar-grid");
-    const familyMembersGrid = document.getElementById("family-members-grid");
-    const updateFamilyBtn = document.getElementById("update-family-count-btn");
-    const generateFamilyBtn = document.getElementById("generate-family-btn");
-    const darkModeToggle = document.getElementById("dark-mode-toggle");
-
     let selectedRestrictions = JSON.parse(localStorage.getItem("nutrisafe_restrictions")) || [];
     let currentWeekPlan = []; 
     let isFamilyMode = false;
 
     function init() {
-        setupTheme();
         renderSettingsCheckboxes();
         setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
-        setupClearCheckedButton();
-        
-        // Si ja s'havia guardat selecció prèvia, genera directament
         generateIndividualMenu();
     }
 
-    function setupTheme() {
-        const isDark = localStorage.getItem("nutrisafe_dark_mode") === "true";
-        if (darkModeToggle) {
-            darkModeToggle.checked = isDark;
-            darkModeToggle.addEventListener("change", (e) => {
-                localStorage.setItem("nutrisafe_dark_mode", e.target.checked);
-                document.body.classList.toggle("dark-mode", e.target.checked);
-            });
-        }
-        if (isDark) document.body.classList.add("dark-mode");
-    }
-
-    // --- RENDERITZAR CHECKBOXES DE RESTRICCIONS INDIVIDUALS ---
+    // --- RENDERITZAR CHECKBOXES INDIVIDUALS AMB EVENT DIRECT ---
     function renderSettingsCheckboxes() {
         const container = document.getElementById("settings-checkboxes");
         if (!container) return;
@@ -83,11 +61,15 @@ document.addEventListener("DOMContentLoaded", () => {
         dietaryOptions.forEach(opt => {
             const label = document.createElement("label");
             label.className = "checkbox-item";
-            const checked = selectedRestrictions.includes(opt.id) ? "checked" : "";
-            label.innerHTML = `<input type="checkbox" value="${opt.id}" ${checked}> ${opt.label}`;
+            label.style.display = "block";
+            label.style.margin = "6px 0";
             
-            label.querySelector("input").addEventListener("change", (e) => {
-                if (e.target.checked) {
+            const isChecked = selectedRestrictions.includes(opt.id) ? "checked" : "";
+            label.innerHTML = `<input type="checkbox" value="${opt.id}" ${isChecked} style="margin-right: 8px;"> ${opt.label}`;
+            
+            const checkbox = label.querySelector("input");
+            checkbox.addEventListener("change", () => {
+                if (checkbox.checked) {
                     if (opt.id === "none") {
                         selectedRestrictions = ["none"];
                     } else {
@@ -99,15 +81,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
                 renderSettingsCheckboxes();
-                generateIndividualMenu(); // Actualització automàtica del menú individual
+                generateIndividualMenu(); // Canvi automàtic al moment de marcar al·lèrgies
+                if (typeof showToast === "function") showToast("Preferences updated & menu regenerated! 🥗");
             });
+
             container.appendChild(label);
         });
     }
 
     function setupFamilyMembersUI(count) {
-        if (!familyMembersGrid) return;
-        familyMembersGrid.innerHTML = "";
+        const grid = document.getElementById("family-members-grid");
+        if (!grid) return;
+        grid.innerHTML = "";
 
         for (let i = 1; i <= count; i++) {
             const card = document.createElement("div");
@@ -136,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
             `;
-            familyMembersGrid.appendChild(card);
+            grid.appendChild(card);
         }
     }
 
@@ -150,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- FILtratge estricte per a qualsevol conjunt de restriccions ---
+    // --- FILTRATGE ESTRICTE RESTRICCIONS ---
     function isRecipeSafeForRestrictions(recipe, restrictions) {
         if (!restrictions || restrictions.length === 0 || restrictions.includes("none")) return true;
 
@@ -162,35 +147,26 @@ document.addEventListener("DOMContentLoaded", () => {
             if (rest === "vegan") {
                 const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
                 const hasAnimalByproducts = /egg|eggs|milk|cheese|butter/.test(ingText);
-                if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) {
-                    return false;
-                }
+                if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) return false;
             } else if (rest === "vegetarian") {
                 const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
-                if (hasMeat || !safeList.includes("vegetarian")) {
-                    return false;
-                }
+                if (hasMeat || !safeList.includes("vegetarian")) return false;
             } else {
-                if (!safeList.includes(rest)) {
-                    return false;
-                }
+                if (!safeList.includes(rest)) return false;
             }
         }
         return true;
     }
 
-    // --- FILTRATGE ESTRICTE FAMILIAR ---
     function isRecipeSafeForFamily(recipe, familyData) {
         if (!familyData || familyData.length === 0) return true;
         for (const member of familyData) {
-            if (!isRecipeSafeForRestrictions(recipe, member.restrictions)) {
-                return false;
-            }
+            if (!isRecipeSafeForRestrictions(recipe, member.restrictions)) return false;
         }
         return true;
     }
 
-    // --- CONNEXIÓ AMB ONBOARDING (Just Me -> Demana al·lèrgies i fa menú automàtic) ---
+    // --- SOBRESCRIURE ONBOARDING DE MANERA SEGURA ---
     window.finishOnboarding = function(target) {
         const onboardingModal = document.getElementById('onboarding-modal');
         if (onboardingModal) onboardingModal.style.display = 'none';
@@ -206,74 +182,41 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('planner-tab-title').innerText = 'Family Recipes';
             const restrCard = document.getElementById('settings-restrictions-card');
             if (restrCard) restrCard.style.display = 'none';
-            openModal('premium-modal');
-            switchTab('family-tab');
+            if (typeof openModal === 'function') openModal('premium-modal');
+            if (typeof switchTab === 'function') switchTab('family-tab');
         } else {
             document.getElementById('nav-text-individual').innerText = 'Individual Plan';
             document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
             const restrCard = document.getElementById('settings-restrictions-card');
             if (restrCard) restrCard.style.display = 'block';
             
-            // Genera menú individual inicial i porta a settings per triar al·lèrgies si ho desitja
             generateIndividualMenu();
-            switchTab('settings-tab');
-            showToast('Set your diet restrictions below to update your plan automatically! ⚙️');
+            if (typeof switchTab === 'function') switchTab('settings-tab');
+            if (typeof showToast === 'function') showToast('Select your allergies below and your menu will update automatically! ⚙️');
         }
     };
 
-    // --- CLEAR CHECKED SHOPPING ITEMS ---
     window.clearCheckedShoppingItems = function() {
         const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
-        checkboxes.forEach(cb => {
-            cb.checked = false;
-            const itemLi = cb.closest("li");
-            if (itemLi) {
-                itemLi.classList.remove("completed", "checked");
-                itemLi.style.textDecoration = "none";
-                itemLi.style.opacity = "1";
-            }
-        });
-        if (typeof showToast === "function") {
-            showToast("Checked items unchecked! 🛒");
-        }
+        checkboxes.forEach(cb => cb.checked = false);
+        if (typeof showToast === "function") showToast("Checked items cleared! 🛒");
     };
 
-    function setupClearCheckedButton() {
-        const clearBtn = document.getElementById("clear-checked-btn");
-        if (clearBtn) {
-            const newBtn = clearBtn.cloneNode(true);
-            clearBtn.parentNode.replaceChild(newBtn, clearBtn);
-            newBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                window.clearCheckedShoppingItems();
-            });
-        }
-    }
-
     window.toggleShoppingItem = function(checkbox) {
-        const li = checkbox.closest("li");
+        const li = checkbox.closest('li');
         if (li) {
-            if (checkbox.checked) {
-                li.classList.add("checked");
-            } else {
-                li.classList.remove("checked");
-            }
-            if (typeof saveShoppingListState === "function") {
-                saveShoppingListState();
-            }
+            if (checkbox.checked) li.classList.add('checked');
+            else li.classList.remove('checked');
         }
+        if (typeof saveShoppingListState === 'function') saveShoppingListState();
     };
 
     window.regenerateWeekWithRotation = function() {
-        if (isFamilyMode) {
-            generateFamilyMenu();
-        } else {
-            generateIndividualMenu(true);
-        }
-        showToast("New rotated weekly plan generated! 🔄");
+        if (isFamilyMode) generateFamilyMenu();
+        else generateIndividualMenu(true);
+        if (typeof showToast === "function") showToast("New weekly plan generated! 🔄");
     };
 
-    // --- GENERAR MENÚ INDIVIDUAL AUTOMÀTIC ---
     function generateIndividualMenu(isRotation = false) {
         isFamilyMode = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -285,30 +228,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                let availableRecipes = recipes.filter(r => 
+                let available = recipes.filter(r => 
                     r.mealType === type && 
                     getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
                     isRecipeSafeForRestrictions(r, selectedRestrictions)
                 );
                 
-                if (availableRecipes.length === 0) {
-                    availableRecipes = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, selectedRestrictions));
-                }
-                if (availableRecipes.length === 0) {
-                    availableRecipes = recipes.filter(r => r.mealType === type);
-                }
+                if (available.length === 0) available = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, selectedRestrictions));
+                if (available.length === 0) available = recipes.filter(r => r.mealType === type);
 
-                if (isRotation && availableRecipes.length > 1) {
-                    const filteredNew = availableRecipes.filter(r => !oldTitles.includes(r.title));
-                    if (filteredNew.length > 0) availableRecipes = filteredNew;
+                if (isRotation && available.length > 1) {
+                    const filtered = available.filter(r => !oldTitles.includes(r.title));
+                    if (filtered.length > 0) available = filtered;
                 }
 
-                const recipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
-
+                const recipe = available[Math.floor(Math.random() * available.length)];
                 currentWeekPlan.push({
-                    day: day,
-                    type: type,
-                    recipe: recipe,
+                    day, type, recipe,
                     familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan"
                 });
             });
@@ -318,7 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList();
     }
 
-    // --- GENERAR MENÚ FAMILIAR ---
     function generateFamilyMenu() {
         isFamilyMode = true;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -326,38 +261,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxTimePerMeal = getMaxTimePerMeal();
         
         currentWeekPlan = [];
-
         const memberCards = document.querySelectorAll(".member-card");
         const familyData = [];
 
         memberCards.forEach((card, idx) => {
             const nameInput = card.querySelector(".member-name");
-            const name = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : `Person ${idx + 1}`;
-            const checkboxes = card.querySelectorAll("input.member-restriction:checked");
-            const restrictions = Array.from(checkboxes).map(cb => cb.value);
+            const name = nameInput?.value.trim() || `Person ${idx + 1}`;
+            const restrictions = Array.from(card.querySelectorAll("input.member-restriction:checked")).map(cb => cb.value);
             familyData.push({ name, restrictions });
         });
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                let validRecipes = recipes.filter(r => 
+                let valid = recipes.filter(r => 
                     r.mealType === type && 
                     getPrepTimeInt(r.prepTime) <= maxTimePerMeal && 
                     isRecipeSafeForFamily(r, familyData)
                 );
 
-                if (validRecipes.length === 0) {
-                    validRecipes = recipes.filter(r => r.mealType === type && isRecipeSafeForFamily(r, familyData));
-                }
-                if (validRecipes.length === 0) {
-                    validRecipes = recipes.filter(r => r.mealType === type);
-                }
+                if (valid.length === 0) valid = recipes.filter(r => r.mealType === type && isRecipeSafeForFamily(r, familyData));
+                if (valid.length === 0) valid = recipes.filter(r => r.mealType === type);
 
-                const recipe = validRecipes[Math.floor(Math.random() * validRecipes.length)];
+                const recipe = valid[Math.floor(Math.random() * valid.length)];
                 currentWeekPlan.push({
-                    day: day,
-                    type: type,
-                    recipe: recipe,
+                    day, type, recipe,
                     familyTag: `Adapted for ${familyData.length} members`
                 });
             });
@@ -365,12 +292,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderCalendarFromPlan();
         updateShoppingList();
-        showToast("Smart Family Plan generated successfully! 👨‍👩‍👧‍👦");
+        if (typeof showToast === "function") showToast("Smart Family Plan generated successfully! 👨‍👩‍👧‍👦");
     }
 
     function renderCalendarFromPlan() {
-        if (!calendarGrid) return;
-        calendarGrid.innerHTML = "";
+        const grid = document.getElementById("calendar-grid");
+        if (!grid) return;
+        grid.innerHTML = "";
 
         currentWeekPlan.forEach((item, index) => {
             const card = document.createElement("div");
@@ -386,16 +314,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="event.stopPropagation(); openSwapModal(${index})">🔄 Change</button>
                 </div>
             `;
-            card.addEventListener("click", () => {
-                currentSelectedMealId = index;
-                openRecipeModal(index);
-            });
-            calendarGrid.appendChild(card);
+            card.addEventListener("click", () => openRecipeModal(index));
+            grid.appendChild(card);
         });
     }
 
     function openRecipeModal(index) {
-        currentSelectedMealId = index;
+        if (typeof currentSelectedMealId !== 'undefined') currentSelectedMealId = index;
         const meal = currentWeekPlan[index];
         if (!meal) return;
 
@@ -415,63 +340,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         document.getElementById("recipe-instructions").innerText = meal.recipe.instructions;
-        openModal("recipe-modal");
+        if (typeof openModal === 'function') openModal("recipe-modal");
     }
 
     window.openSwapModal = function(index) {
-        currentSelectedMealId = index;
+        if (typeof currentSelectedMealId !== 'undefined') currentSelectedMealId = index;
         const meal = currentWeekPlan[index];
         const modalList = document.getElementById("swap-alternatives-list");
+        if (!modalList) return;
         modalList.innerHTML = "";
 
         const maxTime = getMaxTimePerMeal();
         const activeRestrictions = isFamilyMode ? [] : selectedRestrictions;
         const alternatives = recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title && getPrepTimeInt(r.prepTime) <= maxTime && isRecipeSafeForRestrictions(r, activeRestrictions));
 
-        if (alternatives.length === 0) {
-            modalList.innerHTML = `<p style="font-size: 13px; color: #888;">No safe recipes found under current limits. Showing all:</p>`;
-            recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title).forEach(alt => {
-                appendAlternativeCard(alt, modalList, index);
+        (alternatives.length > 0 ? alternatives : recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title)).forEach(alt => {
+            const div = document.createElement("div");
+            div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #e9ecef;";
+            div.innerHTML = `
+                <div>
+                    <strong>${alt.title}</strong>
+                    <p style="font-size: 11px; color: #666; margin: 2px 0 0 0;">⏱️ ${alt.prepTime} | 🔥 ${alt.calories} kcal</p>
+                </div>
+                <button class="btn-primary" style="padding: 5px 10px; font-size: 12px;">Select</button>
+            `;
+            div.querySelector("button").addEventListener("click", () => {
+                currentWeekPlan[index].recipe = alt;
+                renderCalendarFromPlan();
+                updateShoppingList();
+                if (typeof closeModal === 'function') closeModal("swap-modal");
+                if (typeof showToast === 'function') showToast(`Meal updated to ${alt.title}! ✨`);
             });
-        } else {
-            alternatives.forEach(alt => {
-                appendAlternativeCard(alt, modalList, index);
-            });
-        }
-
-        openModal("swap-modal");
-    };
-
-    function appendAlternativeCard(alt, container, index) {
-        const div = document.createElement("div");
-        div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #e9ecef;";
-        div.innerHTML = `
-            <div>
-                <strong>${alt.title}</strong>
-                <p style="font-size: 11px; color: #666; margin: 2px 0 0 0;">⏱️ ${alt.prepTime} | 🔥 ${alt.calories} kcal</p>
-            </div>
-            <button class="btn-primary" style="padding: 5px 10px; font-size: 12px;">Select</button>
-        `;
-        div.querySelector("button").addEventListener("click", () => {
-            currentWeekPlan[index].recipe = alt;
-            renderCalendarFromPlan();
-            updateShoppingList();
-            closeModal("swap-modal");
-            showToast(`Meal updated to ${alt.title}! ✨`);
+            modalList.appendChild(div);
         });
-        container.appendChild(div);
-    }
+
+        if (typeof openModal === 'function') openModal("swap-modal");
+    };
 
     function updateShoppingList() {
         const groceryList = document.getElementById("main-grocery-list");
         if (!groceryList) return;
         groceryList.innerHTML = "";
 
-        const aggregatedIngredients = {};
-
+        const aggregated = {};
         currentWeekPlan.forEach(item => {
             item.recipe.ingredients.forEach(ing => {
-                aggregatedIngredients[ing] = (aggregatedIngredients[ing] || 0) + 1;
+                aggregated[ing] = (aggregated[ing] || 0) + 1;
             });
         });
 
@@ -479,19 +393,17 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.keys(supermarketSections).forEach(sec => grouped[sec] = []);
         grouped["📦 Other Ingredients"] = [];
 
-        Object.keys(aggregatedIngredients).forEach(ing => {
+        Object.keys(aggregated).forEach(ing => {
             let placed = false;
-            const lowerIng = ing.toLowerCase();
+            const lower = ing.toLowerCase();
             for (const [sec, keywords] of Object.entries(supermarketSections)) {
-                if (keywords.some(kw => lowerIng.includes(kw))) {
+                if (keywords.some(kw => lower.includes(kw))) {
                     grouped[sec].push(ing);
                     placed = true;
                     break;
                 }
             }
-            if (!placed) {
-                grouped["📦 Other Ingredients"].push(ing);
-            }
+            if (!placed) grouped["📦 Other Ingredients"].push(ing);
         });
 
         Object.keys(grouped).forEach(sectionName => {
@@ -514,25 +426,24 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        if (typeof restoreShoppingListState === "function") {
-            restoreShoppingListState();
-        }
+        if (typeof restoreShoppingListState === "function") restoreShoppingListState();
     }
 
     function setupEventListeners() {
+        const updateFamilyBtn = document.getElementById("update-family-count-btn");
         if (updateFamilyBtn) {
             updateFamilyBtn.addEventListener("click", () => {
                 const count = parseInt(document.getElementById("family-count-input").value) || 4;
                 setupFamilyMembersUI(count);
-                setupClearCheckedButton();
-                showToast(`Family updated to ${count} members! 👥`);
+                if (typeof showToast === "function") showToast(`Family updated to ${count} members! 👥`);
             });
         }
 
+        const generateFamilyBtn = document.getElementById("generate-family-btn");
         if (generateFamilyBtn) {
             generateFamilyBtn.addEventListener("click", () => {
-                closeModal('premium-modal');
-                switchTab('planner-tab');
+                if (typeof closeModal === 'function') closeModal('premium-modal');
+                if (typeof switchTab === 'function') switchTab('planner-tab');
                 generateFamilyMenu();
             });
         }
@@ -542,7 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
             timeSelect.addEventListener("change", () => {
                 if (isFamilyMode) generateFamilyMenu();
                 else generateIndividualMenu();
-                showToast("Menu updated based on cooking time! ⏱️");
+                if (typeof showToast === "function") showToast("Menu updated based on cooking time! ⏱️");
             });
         }
     }
