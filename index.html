@@ -147,7 +147,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELECCIÓ D'ALTERNATIVES (Canvi individual de plat) -->
     <div id="swap-modal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('swap-modal')">&times;</span>
@@ -192,124 +191,6 @@
 
     <div id="toast-container"></div>
 
-    <script>
-        let currentSelectedMealId = null;
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-            const targetTab = document.getElementById(tabId);
-            if (targetTab) targetTab.style.display = 'block';
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.currentTarget) { event.currentTarget.classList.add('active'); } 
-            else {
-                if (tabId === 'planner-tab') document.getElementById('nav-btn-individual').classList.add('active');
-                if (tabId === 'family-tab') document.getElementById('nav-btn-family').classList.add('active');
-                if (tabId === 'settings-tab') document.getElementById('nav-btn-settings').classList.add('active');
-            }
-        }
-
-        function finishOnboarding(target) {
-            document.getElementById('onboarding-modal').style.display = 'none';
-            document.getElementById('settings-cooking-time').value = document.getElementById('onboarding-time').value;
-            if (target === 'family') {
-                document.getElementById('nav-text-individual').innerText = 'Recipes';
-                document.getElementById('planner-tab-title').innerText = 'Family Recipes';
-                const restrCard = document.getElementById('settings-restrictions-card');
-                if (restrCard) restrCard.style.display = 'none';
-                document.getElementById('premium-modal').style.display = 'flex';
-                switchTab('family-tab');
-            } else {
-                document.getElementById('nav-text-individual').innerText = 'Individual Plan';
-                document.getElementById('planner-tab-title').innerText = 'Your Weekly Plan';
-                const restrCard = document.getElementById('settings-restrictions-card');
-                if (restrCard) restrCard.style.display = 'block';
-                switchTab('settings-tab');
-                showToast('Please set your diet restrictions to personalize your plan! ⚙️');
-            }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function closeRecipe() { document.getElementById('recipe-modal').style.display = 'none'; }
-
-        function swapCurrentMeal() {
-            closeRecipe();
-            if (typeof window.openSwapModal === 'function') {
-                window.openSwapModal(currentSelectedMealId);
-            } else {
-                showToast('Swap modal function ready! 🔄');
-            }
-        }
-
-        function toggleShoppingItem(checkbox, key) {
-            const parentLi = checkbox.closest('li');
-            if (checkbox.checked) { parentLi.classList.add('checked'); } 
-            else { parentLi.classList.remove('checked'); }
-            saveShoppingListState();
-        }
-
-        function saveShoppingListState() {
-            const checkedStates = {};
-            document.querySelectorAll('.shopping-list-item').forEach((li) => {
-                const cb = li.querySelector('input[type="checkbox"]');
-                const text = li.querySelector('span').innerText;
-                if (cb) checkedStates[text] = cb.checked;
-            });
-            localStorage.setItem('nutrisafe_shopping_checks', JSON.stringify(checkedStates));
-        }
-
-        function restoreShoppingListState() {
-            const saved = localStorage.getItem('nutrisafe_shopping_checks');
-            if (!saved) return;
-            try {
-                const checkedStates = JSON.parse(saved);
-                document.querySelectorAll('.shopping-list-item').forEach(li => {
-                    const cb = li.querySelector('input[type="checkbox"]');
-                    const text = li.querySelector('span') ? li.querySelector('span').innerText : '';
-                    if (cb && checkedStates[text] !== undefined) {
-                        cb.checked = checkedStates[text];
-                        if (cb.checked) li.classList.add('checked');
-                    }
-                });
-            } catch(e) { console.error(e); }
-        }
-
-        function clearCheckedShoppingItems() {
-            const listContainer = document.getElementById('main-grocery-list');
-            if (!listContainer) return;
-            const items = listContainer.querySelectorAll('.shopping-list-item');
-            items.forEach(li => {
-                const cb = li.querySelector('input[type="checkbox"]');
-                if (cb && cb.checked) {
-                    li.remove();
-                }
-            });
-            saveShoppingListState();
-            showToast('Checked items cleared! 🧹');
-        }
-
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerText = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function copyShoppingList() {
-            const listText = document.getElementById('printable-shopping-list').innerText;
-            navigator.clipboard.writeText("🛒 NutriSafe Shopping List\n\n" + listText).then(() => {
-                showToast('List copied to clipboard! 📋');
-            });
-        }
-
-        function shareWhatsApp() {
-            const listText = document.getElementById('printable-shopping-list').innerText;
-            const textToShare = encodeURIComponent("🛒 *NutriSafe Shopping List*\n\n" + listText);
-            window.open(`https://wa.me/?text=${textToShare}`, '_blank');
-        }
-    </script>
-    <script src="app.js?v=12" defer></script>
+    <script src="app.js?v=13" defer></script>
 </body>
 </html>
