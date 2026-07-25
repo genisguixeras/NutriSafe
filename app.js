@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- VALIDACIÓ ESTRICTA DE RESTRICCIONS FAMILIARS ---
+    // --- VALIDACIÓ ESTRICTA DE RESTRICCIONS FAMILIARS (Evita carn/peix/ous per a vegans/vegetarians) ---
     function isRecipeSafeForFamily(recipe, familyData) {
         if (!familyData || familyData.length === 0) return true;
 
@@ -149,23 +149,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const safeList = recipe.safeFor || [];
 
             for (const rest of restrictions) {
-                // Comprovació estricta per a VEGAN
                 if (rest === "vegan") {
                     const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
                     const hasAnimalByproducts = /egg|eggs|milk|cheese|butter/.test(ingText);
                     if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) {
                         return false;
                     }
-                }
-                // Comprovació estricta per a VEGETARIAN
-                else if (rest === "vegetarian") {
+                } else if (rest === "vegetarian") {
                     const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
                     if (hasMeat || !safeList.includes("vegetarian")) {
                         return false;
                     }
-                }
-                // Resta de restriccions basades en la propietat safeFor de la recepta
-                else {
+                } else {
                     if (!safeList.includes(rest)) {
                         return false;
                     }
@@ -175,25 +170,63 @@ document.addEventListener("DOMContentLoaded", () => {
         return true;
     }
 
-    // --- CORRECCIÓ: CLEAR CHECKED (Només desmarca, no esborra ingredients) ---
+    // --- CORRECCIÓ CLARÍSSIMA: CLEAR CHECKED (Només desmarca, mai esborra) ---
+    window.clearCheckedShoppingItems = function() {
+        const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            const itemLi = cb.closest("li");
+            if (itemLi) {
+                itemLi.classList.remove("completed", "checked");
+                itemLi.style.textDecoration = "none";
+                itemLi.style.opacity = "1";
+            }
+        });
+        if (typeof showToast === "function") {
+            showToast("Checked items unchecked! 🛒");
+        }
+    };
+
     function setupClearCheckedButton() {
-        const clearBtn = document.getElementById("clear-checked-btn") || document.querySelector(".clear-checked-btn");
-        if (clearBtn) {
-            clearBtn.addEventListener("click", () => {
-                const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
-                checkboxes.forEach(cb => {
-                    cb.checked = false;
-                    const itemLi = cb.closest("li");
-                    if (itemLi) {
-                        itemLi.classList.remove("completed", "checked");
-                    }
-                });
-                if (typeof showToast === "function") {
-                    showToast("Checked items unchecked! 🛒");
+        // Cerca el botó per ID, per classe o per text del botó
+        const buttons = document.querySelectorAll("button");
+        let clearBtn = document.getElementById("clear-checked-btn") || document.querySelector(".clear-checked-btn");
+        
+        if (!clearBtn) {
+            buttons.forEach(btn => {
+                if (btn.innerText.toLowerCase().includes("clear checked") || btn.innerText.toLowerCase().includes("esborrar marcats")) {
+                    clearBtn = btn;
                 }
             });
         }
+
+        if (clearBtn) {
+            // Elimina qualsevol esdeveniment anterior clonant-lo o simplement afegint l'listener
+            const newBtn = clearBtn.cloneNode(true);
+            clearBtn.parentNode.replaceChild(newBtn, clearBtn);
+            
+            newBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.clearCheckedShoppingItems();
+            });
+        }
     }
+
+    // --- GLOBAL TOGGLE PER ALS ITEMS DE LA COMPRA (Afegit per seguretat d'estils) ---
+    window.toggleShoppingItem = function(checkbox) {
+        const li = checkbox.closest("li");
+        if (li) {
+            if (checkbox.checked) {
+                li.classList.add("completed");
+                li.style.textDecoration = "line-through";
+                li.style.opacity = "0.6";
+            } else {
+                li.classList.remove("completed");
+                li.style.textDecoration = "none";
+                li.style.opacity = "1";
+            }
+        }
+    };
 
     // --- GENERACIÓ AMB ROTACIÓ INTEL·LIGENT ---
     window.regenerateWeekWithRotation = function() {
@@ -449,6 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateFamilyBtn.addEventListener("click", () => {
                 const count = parseInt(document.getElementById("family-count-input").value) || 4;
                 setupFamilyMembersUI(count);
+                setupClearCheckedButton();
                 showToast(`Family updated to ${count} members! 👥`);
             });
         }
