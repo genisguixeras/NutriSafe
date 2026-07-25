@@ -1,5 +1,5 @@
 /* ==========================================================================
-   NutriSafe - Complete App Engine with Rotation, Smart List & Swap Modals
+   NutriSafe - Complete App Engine with Strict Family/Individual Filters
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -72,10 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isDark) document.body.classList.add("dark-mode");
     }
 
+    // --- RENDERITZAR LES RESTRICCIONS A LA CONFIGURACIÓ (Per a tu mateix) ---
     function renderSettingsCheckboxes() {
         const container = document.getElementById("settings-checkboxes");
         if (!container) return;
         container.innerHTML = "";
+        
         dietaryOptions.forEach(opt => {
             const label = document.createElement("label");
             label.className = "checkbox-item";
@@ -83,9 +85,19 @@ document.addEventListener("DOMContentLoaded", () => {
             label.innerHTML = `<input type="checkbox" value="${opt.id}" ${checked}> ${opt.label}`;
             
             label.querySelector("input").addEventListener("change", (e) => {
-                if (e.target.checked) selectedRestrictions.push(opt.id);
-                else selectedRestrictions = selectedRestrictions.filter(r => r !== opt.id);
+                if (e.target.checked) {
+                    if (opt.id === "none") {
+                        selectedRestrictions = ["none"];
+                    } else {
+                        selectedRestrictions = selectedRestrictions.filter(r => r !== "none");
+                        selectedRestrictions.push(opt.id);
+                    }
+                } else {
+                    selectedRestrictions = selectedRestrictions.filter(r => r !== opt.id);
+                }
                 localStorage.setItem("nutrisafe_restrictions", JSON.stringify(selectedRestrictions));
+                renderSettingsCheckboxes(); // Actualitza visualment si s'escau
+                generateIndividualMenu(); // Genera automàticament el menú individual segons els canvis
             });
             container.appendChild(label);
         });
@@ -104,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
             dietaryOptions.forEach(opt => {
                 optionsHTML += `
                     <label style="display: inline-block; margin: 3px 6px; font-size: 12px;">
-                        <input type="checkbox" class="member-${i}-restriction" value="${opt.id}">
+                        <input type="checkbox" class="member-restriction" value="${opt.id}">
                         ${opt.label}
                     </label>
                 `;
@@ -136,41 +148,48 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
-    // --- VALIDACIÓ ESTRICTA DE RESTRICCIONS FAMILIARS (Evita carn/peix/ous per a vegans/vegetarians) ---
-    function isRecipeSafeForFamily(recipe, familyData) {
-        if (!familyData || familyData.length === 0) return true;
+    // --- VALIDACIÓ ESTRICTA PER A UN CONJUNT DE RESTRICCIONS ---
+    function isRecipeSafeForRestrictions(recipe, restrictions) {
+        if (!restrictions || restrictions.length === 0 || restrictions.includes("none")) return true;
 
-        for (const member of familyData) {
-            const restrictions = member.restrictions;
-            if (restrictions.length === 0 || restrictions.includes("none")) continue;
+        const ingText = recipe.ingredients.join(" ").toLowerCase();
+        const titleText = recipe.title.toLowerCase();
+        const safeList = recipe.safeFor || [];
 
-            const ingText = recipe.ingredients.join(" ").toLowerCase();
-            const titleText = recipe.title.toLowerCase();
-            const safeList = recipe.safeFor || [];
-
-            for (const rest of restrictions) {
-                if (rest === "vegan") {
-                    const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
-                    const hasAnimalByproducts = /egg|eggs|milk|cheese|butter/.test(ingText);
-                    if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) {
-                        return false;
-                    }
-                } else if (rest === "vegetarian") {
-                    const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
-                    if (hasMeat || !safeList.includes("vegetarian")) {
-                        return false;
-                    }
-                } else {
-                    if (!safeList.includes(rest)) {
-                        return false;
-                    }
+        for (const rest of restrictions) {
+            if (rest === "vegan") {
+                const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
+                const hasAnimalByproducts = /egg|eggs|milk|cheese|butter/.test(ingText);
+                if (hasMeat || hasAnimalByproducts || !safeList.includes("vegan")) {
+                    return false;
+                }
+            } else if (rest === "vegetarian") {
+                const hasMeat = /chicken|beef|salmon|steak/.test(ingText) || /chicken|beef|salmon|steak/.test(titleText);
+                if (hasMeat || !safeList.includes("vegetarian")) {
+                    return false;
+                }
+            } else {
+                if (!safeList.includes(rest)) {
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    // --- CORRECCIÓ CLARÍSSIMA: CLEAR CHECKED (Només desmarca, mai esborra) ---
+    // --- VALIDACIÓ ESTRICTA FAMILIAR ---
+    function isRecipeSafeForFamily(recipe, familyData) {
+        if (!familyData || familyData.length === 0) return true;
+
+        for (const member of familyData) {
+            if (!isRecipeSafeForRestrictions(recipe, member.restrictions)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // --- CLEAR CHECKED BUTTON ---
     window.clearCheckedShoppingItems = function() {
         const checkboxes = document.querySelectorAll("#main-grocery-list input[type='checkbox']");
         checkboxes.forEach(cb => {
@@ -188,7 +207,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function setupClearCheckedButton() {
-        // Cerca el botó per ID, per classe o per text del botó
         const buttons = document.querySelectorAll("button");
         let clearBtn = document.getElementById("clear-checked-btn") || document.querySelector(".clear-checked-btn");
         
@@ -201,7 +219,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (clearBtn) {
-            // Elimina qualsevol esdeveniment anterior clonant-lo o simplement afegint l'listener
             const newBtn = clearBtn.cloneNode(true);
             clearBtn.parentNode.replaceChild(newBtn, clearBtn);
             
@@ -212,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // --- GLOBAL TOGGLE PER ALS ITEMS DE LA COMPRA (Afegit per seguretat d'estils) ---
     window.toggleShoppingItem = function(checkbox) {
         const li = checkbox.closest("li");
         if (li) {
@@ -228,7 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // --- GENERACIÓ AMB ROTACIÓ INTEL·LIGENT ---
     window.regenerateWeekWithRotation = function() {
         if (isFamilyMode) {
             generateFamilyMenu();
@@ -238,6 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("New rotated weekly plan generated! 🔄");
     };
 
+    // --- GENERACIÓ DE MENÚ INDIVIDUAL (Segons les teves al·lèrgies/dietes) ---
     function generateIndividualMenu(isRotation = false) {
         isFamilyMode = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -250,9 +266,14 @@ document.addEventListener("DOMContentLoaded", () => {
         days.forEach(day => {
             mealTypes.forEach(type => {
                 let availableRecipes = recipes.filter(r => 
-                    r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal
+                    r.mealType === type && 
+                    getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
+                    isRecipeSafeForRestrictions(r, selectedRestrictions)
                 );
                 
+                if (availableRecipes.length === 0) {
+                    availableRecipes = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, selectedRestrictions));
+                }
                 if (availableRecipes.length === 0) {
                     availableRecipes = recipes.filter(r => r.mealType === type);
                 }
@@ -268,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     day: day,
                     type: type,
                     recipe: recipe,
-                    familyTag: "Personal Plan"
+                    familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan"
                 });
             });
         });
@@ -277,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateShoppingList();
     }
 
+    // --- GENERACIÓ DE MENÚ FAMILIAR ---
     function generateFamilyMenu() {
         isFamilyMode = true;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -291,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
         memberCards.forEach((card, idx) => {
             const nameInput = card.querySelector(".member-name");
             const name = nameInput && nameInput.value.trim() !== "" ? nameInput.value.trim() : `Person ${idx + 1}`;
-            const checkboxes = card.querySelectorAll("input[type='checkbox']:checked");
+            const checkboxes = card.querySelectorAll("input.member-restriction:checked");
             const restrictions = Array.from(checkboxes).map(cb => cb.value);
             familyData.push({ name, restrictions });
         });
@@ -326,7 +348,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Smart Family Plan generated successfully! 👨‍👩‍👧‍👦");
     }
 
-    // --- RENDERITZAR CALENDARI ---
     function renderCalendarFromPlan() {
         if (!calendarGrid) return;
         calendarGrid.innerHTML = "";
@@ -350,7 +371,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- MODAL DE DETALL DE RECEPTA ---
     function openRecipeModal(index) {
         currentSelectedMealId = index;
         const meal = currentWeekPlan[index];
@@ -375,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
         openModal("recipe-modal");
     }
 
-    // --- SELECTOR D'ALTERNATIVES ---
     window.openSwapModal = function(index) {
         currentSelectedMealId = index;
         const meal = currentWeekPlan[index];
@@ -383,10 +402,11 @@ document.addEventListener("DOMContentLoaded", () => {
         modalList.innerHTML = "";
 
         const maxTime = getMaxTimePerMeal();
-        const alternatives = recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title && getPrepTimeInt(r.prepTime) <= maxTime);
+        const activeRestrictions = isFamilyMode ? [] : selectedRestrictions; // Opcional per alternatives
+        const alternatives = recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title && getPrepTimeInt(r.prepTime) <= maxTime && isRecipeSafeForRestrictions(r, activeRestrictions));
 
         if (alternatives.length === 0) {
-            modalList.innerHTML = `<p style="font-size: 13px; color: #888;">No other recipes found under current time limit. Showing all:</p>`;
+            modalList.innerHTML = `<p style="font-size: 13px; color: #888;">No safe recipes found under current limits. Showing all:</p>`;
             recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title).forEach(alt => {
                 appendAlternativeCard(alt, modalList, index);
             });
@@ -419,7 +439,6 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(div);
     }
 
-    // --- ACTUALITZAR LLISTA DE LA COMPRA ---
     function updateShoppingList() {
         const groceryList = document.getElementById("main-grocery-list");
         if (!groceryList) return;
