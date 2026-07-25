@@ -290,9 +290,10 @@ document.addEventListener("DOMContentLoaded", () => {
         let altMealHTML = "";
         if (altMealData) {
             altMealHTML = `
-                <div class="alt-meal-box" style="background:#fff3e0; padding:8px; border-radius:6px; margin-top:8px; font-size:12px;">
+                <div class="alt-meal-box" onclick="window.openAltRecipe(event, ${planIndex})" style="background:#fff3e0; padding:8px; border-radius:6px; margin-top:8px; font-size:12px; cursor:pointer; border: 1px solid #ffe0b2;">
                     <strong>⚠️ Alt for ${altMealData.forNames}:</strong><br>
                     <span>${altMealData.recipe.title}</span>
+                    <div style="font-size: 10px; color: #e65100; margin-top: 4px;">👆 Click to view recipe</div>
                 </div>
             `;
         }
@@ -334,6 +335,16 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("recipe-modal").style.display = "flex";
     }
 
+    // Aquesta funció permet obrir només la recepta alternativa quan fem clic al requadre groc
+    window.openAltRecipe = function(event, index) {
+        event.stopPropagation(); 
+        const planItem = currentWeekPlan[index];
+        if (planItem && planItem.altMealData) {
+            currentSelectedMealIndex = index; 
+            showRecipeModal(planItem.altMealData.recipe, `⚠️ Alternative for ${planItem.altMealData.forNames}`, null);
+        }
+    };
+
     // --- SWAP SINGLE MEAL LOGIC ---
     window.changeSingleMeal = function() {
         if (currentSelectedMealIndex === null) return;
@@ -357,7 +368,8 @@ document.addEventListener("DOMContentLoaded", () => {
             currentWeekPlan[currentSelectedMealIndex].recipe = newRecipe;
             
             if (isFamilyMode) {
-                currentWeekPlan[currentSelectedMealIndex].familyTag = "Swapped Meal (Check ingredients manually)";
+                // Hem canviat l'etiqueta per forçar el sistema a multiplicar per tota la família automàticament
+                currentWeekPlan[currentSelectedMealIndex].familyTag = "All family members (Swapped)";
                 currentWeekPlan[currentSelectedMealIndex].altMealData = null; 
             }
 
