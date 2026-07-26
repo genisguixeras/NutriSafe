@@ -36,112 +36,112 @@ document.addEventListener("DOMContentLoaded", () => {
     const recipes = [
         {
             id: 1, title: "Fluffy Gluten-Free Pancakes", mealType: "Breakfast", prepTime: "20 min", calories: 380,
-            macros: { protein: "14g", carbs: "52g", fat: "10g" },
+            macros: { protein: "14 g", carbs: "52 g", fat: "10 g" },
             safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"],
             ingredients: ["150g Gluten-free flour", "200ml Almond milk", "2 Eggs", "1 tsp Baking powder", "2 tbsp Maple syrup", "1 tbsp Melted butter"],
             instructions: "1. In a bowl, whisk the eggs with the almond milk and melted butter until combined.\n2. In a separate bowl, mix the gluten-free flour with the baking powder, then fold it into the wet mixture until you get a smooth batter (a few small lumps are fine).\n3. Let the batter rest for 5 minutes so the flour hydrates properly.\n4. Heat a non-stick pan over medium heat, pour small ladles of batter and cook 2-3 minutes per side until golden and bubbles form on the surface.\n5. Stack the pancakes and serve warm, drizzled with maple syrup."
         },
         {
             id: 2, title: "Creamy Overnight Oats Bowl", mealType: "Breakfast", prepTime: "10 min", calories: 320,
-            macros: { protein: "12g", carbs: "50g", fat: "7g" },
+            macros: { protein: "12 g", carbs: "50 g", fat: "7 g" },
             safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["80g Oats", "250ml Oat milk", "1 Banana", "1 tbsp Chia seeds", "1 tsp Cinnamon", "1 tsp Honey"],
             instructions: "1. In a jar or bowl, combine the oats, oat milk, chia seeds and cinnamon, stirring well.\n2. Cover and refrigerate for at least 2 hours, or ideally overnight, so the oats soften completely.\n3. In the morning, slice the banana.\n4. Top the oatmeal with the sliced banana and a drizzle of honey before serving cold, or warm it up for 1 minute in the microwave if you prefer it hot."
         },
         {
             id: 3, title: "Avocado & Poached Egg Toast", mealType: "Breakfast", prepTime: "12 min", calories: 340,
-            macros: { protein: "15g", carbs: "28g", fat: "18g" },
+            macros: { protein: "15 g", carbs: "28 g", fat: "18 g" },
             safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
             ingredients: ["2 slices Whole-grain bread", "1 Ripe avocado", "2 Eggs", "1/2 Lemon", "1 pinch Chili flakes", "1 pinch Salt & black pepper"],
             instructions: "1. Bring a small pot of water to a gentle simmer and add a splash of vinegar for poaching.\n2. Toast the bread slices until golden and crisp.\n3. Mash the avocado in a bowl with a squeeze of lemon juice, salt and pepper, then spread it evenly over the toast.\n4. Crack each egg into a cup and slide gently into the simmering water; poach for 3 minutes for a runny yolk.\n5. Lift the eggs out with a slotted spoon, place on top of the avocado toast, and finish with chili flakes."
         },
         {
             id: 4, title: "Vanilla Chia Seed Pudding", mealType: "Breakfast", prepTime: "10 min", calories: 280,
-            macros: { protein: "8g", carbs: "22g", fat: "14g" },
+            macros: { protein: "8 g", carbs: "22 g", fat: "14 g" },
             safeFor: ["vegan", "vegetarian", "keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["40g Chia seeds", "200ml Coconut milk", "1 tsp Vanilla extract", "100g Fresh strawberries", "1 tsp Honey"],
             instructions: "1. In a glass jar, whisk together the chia seeds, coconut milk, vanilla extract and honey until no lumps remain.\n2. Cover and let it rest in the fridge for at least 2 hours, stirring once after 30 minutes to avoid clumping.\n3. Once it has thickened to a pudding-like texture, chop the fresh strawberries.\n4. Garnish with the strawberries just before serving."
         },
         {
             id: 5, title: "Spinach & Feta Egg Muffins", mealType: "Breakfast", prepTime: "25 min", calories: 260,
-            macros: { protein: "18g", carbs: "4g", fat: "18g" },
+            macros: { protein: "18 g", carbs: "4 g", fat: "18 g" },
             safeFor: ["vegetarian", "keto", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy"],
             ingredients: ["6 Eggs", "60g Fresh spinach", "50g Feta cheese", "1/4 Onion", "1 pinch Salt & black pepper", "1 tbsp Olive oil"],
             instructions: "1. Preheat the oven to 180°C and grease a muffin tin lightly with olive oil.\n2. Finely chop the onion and sauté it for 2 minutes until soft, then wilt the spinach in the same pan.\n3. Whisk the eggs in a bowl with salt and pepper, then stir in the spinach, onion and crumbled feta.\n4. Divide the mixture evenly among the muffin cups.\n5. Bake for 16-18 minutes until set and lightly golden on top, then let cool for 5 minutes before removing."
         },
         {
             id: 6, title: "Honey Soy Chicken & Rice Stir-fry", mealType: "Lunch", prepTime: "25 min", calories: 520,
-            macros: { protein: "42g", carbs: "58g", fat: "12g" },
+            macros: { protein: "42 g", carbs: "58 g", fat: "12 g" },
             safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
             ingredients: ["200g Chicken breast", "150g Jasmine rice", "2 tbsp Soy sauce", "1 tbsp Honey", "1 Red bell pepper", "2 cloves Garlic", "1 tbsp Vegetable oil"],
             instructions: "1. Rinse the jasmine rice and cook it according to package instructions.\n2. While the rice cooks, slice the chicken breast and bell pepper into thin strips, and mince the garlic.\n3. Heat the oil in a wok over high heat, add the garlic and stir-fry for 30 seconds until fragrant.\n4. Add the chicken and cook for 4-5 minutes until browned, then add the bell pepper and stir-fry for 2 more minutes.\n5. Pour in the soy sauce and honey, toss everything together for 1 minute, and serve hot over the rice."
         },
         {
             id: 7, title: "Mediterranean Quinoa Salad", mealType: "Lunch", prepTime: "20 min", calories: 410,
-            macros: { protein: "12g", carbs: "54g", fat: "16g" },
+            macros: { protein: "12 g", carbs: "54 g", fat: "16 g" },
             safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["100g Quinoa", "1 Cucumber", "100g Cherry tomatoes", "1/4 Red onion", "2 tbsp Extra virgin olive oil", "1 Lemon", "1 tsp Oregano"],
             instructions: "1. Rinse the quinoa well, then boil in salted water for 12 minutes until the grains turn translucent; drain and let it cool.\n2. Dice the cucumber, halve the cherry tomatoes, and finely chop the red onion.\n3. In a large bowl, whisk together the olive oil, juice of the lemon and oregano to make a dressing.\n4. Combine the cooled quinoa with the chopped vegetables and toss everything with the dressing.\n5. Let it sit for 10 minutes before serving so the flavors meld together."
         },
         {
             id: 8, title: "Garlic Beef & Broccoli Bowl", mealType: "Lunch", prepTime: "22 min", calories: 580,
-            macros: { protein: "45g", carbs: "20g", fat: "28g" },
+            macros: { protein: "45 g", carbs: "20 g", fat: "28 g" },
             safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
             ingredients: ["200g Beef steak", "150g Broccoli florets", "3 cloves Garlic", "2 tbsp Soy sauce", "1 tbsp Sesame oil", "1 tsp Ginger, grated"],
             instructions: "1. Slice the beef thinly against the grain and mince the garlic and ginger.\n2. Steam the broccoli florets for 4 minutes until just tender, then set aside.\n3. Heat the sesame oil in a hot skillet, sear the beef strips for 2 minutes per side until browned.\n4. Add the garlic and ginger to the pan and cook for 30 seconds until fragrant.\n5. Toss in the steamed broccoli and soy sauce, stir everything together for 1-2 minutes, and serve immediately."
         },
         {
             id: 9, title: "Turkey & Veggie Wrap", mealType: "Lunch", prepTime: "12 min", calories: 450,
-            macros: { protein: "35g", carbs: "40g", fat: "14g" },
+            macros: { protein: "35 g", carbs: "40 g", fat: "14 g" },
             safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "lactose"],
             ingredients: ["1 Large tortilla", "120g Turkey slices", "1/2 cup Lettuce", "1 Tomato", "2 tbsp Hummus", "1/4 Avocado"],
             instructions: "1. Lay the tortilla flat and spread the hummus evenly over the surface.\n2. Slice the tomato and avocado, and shred the lettuce.\n3. Layer the turkey slices, lettuce, tomato and avocado down the center of the tortilla.\n4. Fold in the sides and roll the tortilla up tightly into a wrap.\n5. Cut in half diagonally and serve, or wrap in foil to take on the go."
         },
         {
             id: 10, title: "Chickpea & Spinach Curry", mealType: "Lunch", prepTime: "25 min", calories: 430,
-            macros: { protein: "16g", carbs: "48g", fat: "16g" },
+            macros: { protein: "16 g", carbs: "48 g", fat: "16 g" },
             safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
             ingredients: ["1 can Chickpeas", "200ml Coconut milk", "80g Fresh spinach", "1 Onion", "2 cloves Garlic", "1 tbsp Curry powder", "1 tbsp Olive oil"],
             instructions: "1. Finely chop the onion and mince the garlic.\n2. Heat the olive oil in a pot and sauté the onion for 4 minutes until translucent, then add the garlic and curry powder and cook for 1 minute until fragrant.\n3. Drain the chickpeas and add them to the pot along with the coconut milk.\n4. Simmer gently for 12 minutes, stirring occasionally, until the sauce thickens slightly.\n5. Stir in the fresh spinach and cook for 2 more minutes until wilted, then serve with rice or flatbread."
         },
         {
             id: 11, title: "Grilled Salmon & Asparagus", mealType: "Dinner", prepTime: "25 min", calories: 610,
-            macros: { protein: "46g", carbs: "8g", fat: "38g" },
+            macros: { protein: "46 g", carbs: "8 g", fat: "38 g" },
             safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["200g Salmon fillet", "150g Asparagus", "2 tbsp Olive oil", "1/2 Fresh lemon", "2 sprigs Fresh thyme", "1 pinch Salt & pepper"],
             instructions: "1. Preheat a grill pan or skillet over medium-high heat with 1 tbsp of olive oil.\n2. Season the salmon fillet with salt, pepper and fresh thyme.\n3. Grill the salmon skin-side down for 4 minutes, then flip and cook for 3 more minutes until it flakes easily.\n4. Meanwhile, toss the asparagus with the remaining olive oil and sauté in a separate pan for 4-5 minutes until tender-crisp.\n5. Plate the salmon with the asparagus and finish with a squeeze of fresh lemon."
         },
         {
             id: 12, title: "Herb-Crusted Steak with Sweet Potato Wedges", mealType: "Dinner", prepTime: "35 min", calories: 680,
-            macros: { protein: "50g", carbs: "42g", fat: "24g" },
+            macros: { protein: "50 g", carbs: "42 g", fat: "24 g" },
             safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["220g Beef steak", "200g Sweet potato", "2 tbsp Olive oil", "1 tsp Rosemary", "1 tsp Paprika", "1 pinch Salt & pepper"],
             instructions: "1. Preheat the oven to 200°C. Cut the sweet potato into wedges and toss with 1 tbsp olive oil, paprika, salt and pepper.\n2. Spread the wedges on a baking tray and roast for 25 minutes, flipping halfway, until golden and tender.\n3. Meanwhile, season the steak with rosemary, salt and pepper.\n4. Heat the remaining oil in a hot pan and sear the steak for 3-4 minutes per side for medium-rare.\n5. Let the steak rest for 5 minutes before slicing, then serve alongside the sweet potato wedges."
         },
         {
             id: 13, title: "Tofu & Vegetable Coconut Curry", mealType: "Dinner", prepTime: "25 min", calories: 430,
-            macros: { protein: "18g", carbs: "26g", fat: "22g" },
+            macros: { protein: "18 g", carbs: "26 g", fat: "22 g" },
             safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
             ingredients: ["180g Firm tofu", "200ml Coconut milk", "1 Bell pepper", "50g Fresh spinach", "1 tbsp Curry paste", "1 tbsp Vegetable oil"],
             instructions: "1. Press the tofu to remove excess water, then cube it.\n2. Heat the oil in a pot and sear the tofu cubes for 4-5 minutes until lightly golden on all sides; set aside.\n3. In the same pot, sauté the sliced bell pepper for 2 minutes, then stir in the curry paste and cook for 1 minute until fragrant.\n4. Pour in the coconut milk, return the tofu to the pot, and let it simmer gently for 10 minutes.\n5. Stir in the fresh spinach right before serving until wilted, and serve with rice."
         },
         {
             id: 14, title: "Baked Cod with Roasted Vegetables", mealType: "Dinner", prepTime: "30 min", calories: 470,
-            macros: { protein: "38g", carbs: "24g", fat: "20g" },
+            macros: { protein: "38 g", carbs: "24 g", fat: "20 g" },
             safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["220g Cod fillet", "1 Zucchini", "1 Red bell pepper", "1 Carrot", "2 tbsp Olive oil", "1 tsp Paprika", "1/2 Lemon"],
             instructions: "1. Preheat the oven to 200°C. Chop the zucchini, bell pepper and carrot into bite-sized pieces.\n2. Toss the vegetables with 1 tbsp olive oil, paprika, salt and pepper, and spread on a baking tray.\n3. Roast the vegetables for 10 minutes, then push them to one side and add the cod fillet, drizzled with the remaining olive oil.\n4. Bake for another 12-15 minutes until the cod flakes easily and the vegetables are tender.\n5. Squeeze fresh lemon juice over everything before serving."
         },
         {
             id: 15, title: "Lentil & Vegetable Stew", mealType: "Dinner", prepTime: "35 min", calories: 400,
-            macros: { protein: "20g", carbs: "50g", fat: "10g" },
+            macros: { protein: "20 g", carbs: "50 g", fat: "10 g" },
             safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
             ingredients: ["150g Red lentils", "1 Carrot", "1 Onion", "2 cloves Garlic", "400ml Vegetable stock", "1 tsp Cumin", "1 tbsp Olive oil"],
             instructions: "1. Finely dice the carrot and onion, and mince the garlic.\n2. Heat the olive oil in a pot and sauté the onion and carrot for 5 minutes until softened.\n3. Add the garlic and cumin, stirring for 1 minute until fragrant.\n4. Rinse the lentils and add them to the pot along with the vegetable stock.\n5. Bring to a boil, then reduce heat and simmer for 20 minutes, stirring occasionally, until the lentils are soft and the stew has thickened."
         },
         {
             id: 16, title: "Shrimp & Zucchini Noodles", mealType: "Dinner", prepTime: "20 min", calories: 380,
-            macros: { protein: "32g", carbs: "14g", fat: "22g" },
+            macros: { protein: "32 g", carbs: "14 g", fat: "22 g" },
             safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "wheat", "lactose"],
             ingredients: ["200g Shrimp, peeled", "2 Zucchini, spiralized", "3 cloves Garlic", "2 tbsp Olive oil", "1 pinch Chili flakes", "1/2 Lemon"],
             instructions: "1. Spiralize the zucchini into noodle shapes, or use a peeler to create thin ribbons.\n2. Pat the shrimp dry and season lightly with salt and pepper.\n3. Heat the olive oil in a large pan over medium-high heat, add the minced garlic and chili flakes and cook for 30 seconds.\n4. Add the shrimp and cook for 2 minutes per side until pink and opaque, then remove and set aside.\n5. Add the zucchini noodles to the same pan, toss for 1-2 minutes until just softened, return the shrimp to the pan, squeeze over the lemon juice, and serve immediately."
@@ -170,10 +170,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function applyStoredDarkMode() {
+        injectDarkModeOverrides();
         const stored = JSON.parse(localStorage.getItem("nutrisafe_darkmode")) || false;
         document.body.classList.toggle("dark-mode", stored);
         const toggle = document.getElementById("dark-mode-toggle");
         if (toggle) toggle.checked = stored;
+    }
+
+    // Molts elements generats per JS (targetes de menú, alternatives, macros...) porten
+    // color inline i el body.dark-mode del style.css no els pot afectar sense tocar aquell
+    // fitxer. Per això injectem aquí un <style> addicional (no modifiquem style.css).
+    function injectDarkModeOverrides() {
+        if (document.getElementById("nutrisafe-dark-overrides")) return;
+        const style = document.createElement("style");
+        style.id = "nutrisafe-dark-overrides";
+        style.textContent = `
+            body.dark-mode .meal-card h3 { color: #66bb6a !important; }
+            body.dark-mode .meal-card p,
+            body.dark-mode .meal-card span:not(.family-tag):not(.alt-for-box) { color: #bbbbbb !important; }
+            body.dark-mode .family-tag { background: #2a3d2a !important; color: #8bc34a !important; }
+            body.dark-mode #swap-alternatives-list > div { background: #2a2a2a !important; border-color: #444 !important; }
+            body.dark-mode #swap-alternatives-list strong { color: #e0e0e0 !important; }
+            body.dark-mode #swap-alternatives-list p { color: #bbbbbb !important; }
+            body.dark-mode .macros-grid { background: #2a2a2a !important; }
+            body.dark-mode .macro-item { color: #bbbbbb !important; }
+            body.dark-mode .macro-value { color: #66bb6a !important; }
+            body.dark-mode #recipe-ingredients,
+            body.dark-mode #recipe-instructions { color: #dddddd !important; }
+            body.dark-mode #recipe-title,
+            body.dark-mode #planner-tab-title,
+            body.dark-mode section h2,
+            body.dark-mode section h3 { color: #66bb6a !important; }
+            body.dark-mode .shopping-list-item span { color: #e0e0e0 !important; }
+            body.dark-mode #main-grocery-list li[style*="color: #2e7d32"] { color: #66bb6a !important; }
+            body.dark-mode .close-btn { color: #e0e0e0 !important; }
+            body.dark-mode #toast-container .toast { background: #444444 !important; }
+            body.dark-mode .subtitle,
+            body.dark-mode p { color: #bbbbbb; }
+        `;
+        document.head.appendChild(style);
     }
 
     /* --------------------------------------------------------------------
@@ -537,9 +572,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const recipe = valid[Math.floor(Math.random() * valid.length)];
 
+                // Si, malgrat la cascada, el plat triat no és apte per a algú en concret,
+                // li busquem una alternativa personal que SÍ pugui menjar.
+                const personalAlternatives = [];
+                familyData.forEach(m => {
+                    if (!isRecipeSafeForRestrictions(recipe, m.restrictions)) {
+                        let altPool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal && isRecipeSafeForRestrictions(r, m.restrictions));
+                        if (altPool.length === 0) altPool = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, m.restrictions));
+                        if (altPool.length === 0) altPool = recipes.filter(r => isRecipeSafeForRestrictions(r, m.restrictions));
+                        if (altPool.length > 0) {
+                            const altRecipe = altPool[Math.floor(Math.random() * altPool.length)];
+                            personalAlternatives.push({ name: m.name, recipe: altRecipe });
+                        }
+                    }
+                });
+
                 currentWeekPlan.push({
                     day, type, recipe,
-                    familyTag: familyTagText
+                    familyTag: familyTagText,
+                    personalAlternatives
                 });
             });
         });
@@ -562,6 +613,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const card = document.createElement("div");
             card.className = "card meal-card";
 
+            const altHtml = (item.personalAlternatives || []).map((pa, i) =>
+                `<div class="alt-for-box" data-alt-i="${i}" style="background:#fff3e0;color:#e65100;font-size:11px;padding:6px 8px;border-radius:6px;margin-top:6px;cursor:pointer;font-weight:bold;">🍽️ Alternative for: ${pa.name} — tap to view</div>`
+            ).join("");
+
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div>
@@ -569,10 +624,20 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h3 style="margin: 4px 0; color: #2e7d32;">${item.recipe.title}</h3>
                         <p style="font-size: 12px; color: #555;">⏱️ ${item.recipe.prepTime} &nbsp;|&nbsp; 🔥 ${item.recipe.calories} kcal</p>
                         <span class="family-tag">${item.familyTag}</span>
+                        ${altHtml}
                     </div>
                     <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="event.stopPropagation(); openSwapModal(${index})">🔄 Change</button>
                 </div>
             `;
+
+            card.querySelectorAll(".alt-for-box").forEach(box => {
+                const i = parseInt(box.getAttribute("data-alt-i"));
+                box.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const pa = (item.personalAlternatives || [])[i];
+                    if (pa) openPersonalAlternativeModal(pa);
+                });
+            });
             card.addEventListener("click", () => openRecipeModal(index));
             grid.appendChild(card);
         });
@@ -624,6 +689,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const useBtn = document.getElementById("recipe-use-btn");
         if (useBtn) useBtn.style.display = "block";
+
+        openModal("recipe-modal");
+    }
+
+    function openPersonalAlternativeModal(personalAlt) {
+        populateRecipeModal(personalAlt.recipe, `Alternative for ${personalAlt.name}`);
+
+        const useBtn = document.getElementById("recipe-use-btn");
+        if (useBtn) useBtn.style.display = "none";
+        pendingSwapIndex = null;
+        pendingSwapRecipe = null;
 
         openModal("recipe-modal");
     }
