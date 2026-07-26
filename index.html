@@ -15,9 +15,9 @@
 </head>
 <body>
 
-    <header>
+    <header style="display:flex; justify-content:space-between; align-items:center;">
         <h1>🥑 NutriSafe</h1>
-        <button class="btn-try-pro" onclick="openModal('premium-modal')">Try PRO</button>
+        <button class="btn-try-pro" onclick="openModal('premium-modal')" style="background: linear-gradient(135deg, #ff9800, #f57c00); color:#fff; font-weight:800; padding:10px 20px; border-radius:24px; box-shadow:0 3px 10px rgba(255,152,0,0.45); font-size:14px; letter-spacing:0.3px;">✨ Try PRO</button>
     </header>
 
     <main>
@@ -34,10 +34,10 @@
         <section id="shopping-tab" class="tab-content">
             <div class="tab-header">
                 <h2 style="font-size: 18px;">🛒 Shopping List</h2>
-                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                    <button class="btn-whatsapp" onclick="shareWhatsApp()">💬 WhatsApp</button>
-                    <button class="btn-secondary" style="background:#3498db; color:white;" onclick="copyShoppingList()">📋 Copy</button>
-                    <button class="btn-secondary" style="background:#e74c3c; color:white;" onclick="clearCheckedShoppingItems()">🧹 Clear Checked</button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+                    <button class="btn-whatsapp" style="padding: 9px 16px; color: white; font-size: 13px;" onclick="shareWhatsApp()">💬 WhatsApp</button>
+                    <button class="btn-secondary" style="background:#3498db; color:white; padding: 9px 16px; font-size: 13px;" onclick="copyShoppingList()">📋 Copy</button>
+                    <button class="btn-secondary" style="background:#e74c3c; color:white; padding: 9px 16px; font-size: 13px;" onclick="clearCheckedShoppingItems()">🧹 Clear Checked</button>
                 </div>
             </div>
             <div class="card" id="printable-shopping-list">
@@ -72,6 +72,13 @@
                     <option value="120">More than 1 hour</option>
                 </select>
             </div>
+            <div class="card">
+                <h3 style="font-size: 14px; margin-bottom: 6px;">🌙 Dark Mode</h3>
+                <label style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size: 13px;">
+                    <span>Enable dark mode</span>
+                    <input type="checkbox" id="dark-mode-toggle" style="width:20px; height:20px; accent-color:#2e7d32; cursor:pointer;">
+                </label>
+            </div>
             <div class="card" id="settings-restrictions-card">
                 <h3 style="font-size: 14px; margin-bottom: 6px;">🥗 Your Allergies & Restrictions</h3>
                 <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Select your needs. The menu updates instantly.</p>
@@ -91,7 +98,7 @@
     <!-- RECIPE MODAL -->
     <div id="recipe-modal" class="modal" style="display:none;">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('recipe-modal')">&times;</span>
+            <span class="close-btn" onclick="closeModal('recipe-modal')" style="font-size: 34px; font-weight: bold; line-height: 1; top: 10px; right: 16px;">&times;</span>
             <h2 id="recipe-title" style="font-size: 18px; color: #2e7d32;"></h2>
             <p id="recipe-family-info" class="family-tag"></p>
             <div><button class="btn-swap" onclick="openSwapFromModal()">🔄 Change meal</button></div>
@@ -133,8 +140,8 @@
                 </select>
             </div>
             <label style="font-size: 12px; font-weight: bold; display: block; text-align: left; margin-bottom: 8px;">Who are you cooking for?</label>
-            <button class="btn-primary" style="margin-bottom: 8px;" onclick="finishOnboarding('me')">Just Me</button>
-            <button class="btn-secondary" style="width: 100%; padding: 10px; background: #ff9800; color: white; font-weight: bold;" onclick="finishOnboarding('family')">My Family (PRO)</button>
+            <button class="btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; font-weight: bold; margin-bottom: 10px;" onclick="finishOnboarding('me')">Just Me</button>
+            <button class="btn-secondary" style="width: 100%; padding: 12px; font-size: 1rem; background: #ff9800; color: white; font-weight: bold;" onclick="finishOnboarding('family')">My Family (PRO)</button>
         </div>
     </div>
 
