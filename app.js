@@ -162,10 +162,18 @@ document.addEventListener("DOMContentLoaded", () => {
     let pendingSwapRecipe = null;
 
     function init() {
+        applyStoredDarkMode();
         renderSettingsCheckboxes();
         setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
         generateIndividualMenu();
+    }
+
+    function applyStoredDarkMode() {
+        const stored = JSON.parse(localStorage.getItem("nutrisafe_darkmode")) || false;
+        document.body.classList.toggle("dark-mode", stored);
+        const toggle = document.getElementById("dark-mode-toggle");
+        if (toggle) toggle.checked = stored;
     }
 
     /* --------------------------------------------------------------------
@@ -460,19 +468,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         days.forEach(day => {
             mealTypes.forEach(type => {
+                // Cascada: intentem sempre trobar una recepta segura per a les teves restriccions,
+                // relaxant primer el temps de cocció i, com a últim recurs, el tipus d'àpat.
                 let available = recipes.filter(r =>
                     r.mealType === type &&
                     getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
                     isRecipeSafeForRestrictions(r, selectedRestrictions)
                 );
-
-                let hasConflict = false;
-
                 if (available.length === 0) available = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, selectedRestrictions));
-                if (available.length === 0) {
-                    available = recipes.filter(r => r.mealType === type);
-                    hasConflict = true;
-                }
+                if (available.length === 0) available = recipes.filter(r => isRecipeSafeForRestrictions(r, selectedRestrictions));
+                if (available.length === 0) available = recipes.filter(r => r.mealType === type);
 
                 if (isRotation && available.length > 1) {
                     const filtered = available.filter(r => !oldTitles.includes(r.title));
@@ -482,9 +487,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const recipe = available[Math.floor(Math.random() * available.length)];
                 currentWeekPlan.push({
                     day, type, recipe,
-                    familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan",
-                    hasConflict,
-                    conflictNames: hasConflict ? ["your restrictions"] : []
+                    familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan"
                 });
             });
         });
@@ -512,37 +515,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentFamilyData = familyData;
 
+        // Només diem "Adapted" si algú de la família té una restricció de veritat.
+        const anyRealRestrictions = familyData.some(m => m.restrictions && m.restrictions.length > 0 && !m.restrictions.includes("none"));
+        const familyTagText = anyRealRestrictions
+            ? `Adapted for ${familyData.length} members`
+            : `Family Plan (${familyData.length} members)`;
+
         days.forEach(day => {
             mealTypes.forEach(type => {
+                // Cascada: si no trobem cap recepta segura per a tothom dins del tipus d'àpat
+                // i el temps disponible, anem relaxant les condicions però MAI la seguretat,
+                // fins trobar una recepta que sigui apta per a tots els membres de la família.
                 let valid = recipes.filter(r =>
                     r.mealType === type &&
                     getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
                     isRecipeSafeForFamily(r, familyData)
                 );
-
-                let hasConflict = false;
-
                 if (valid.length === 0) valid = recipes.filter(r => r.mealType === type && isRecipeSafeForFamily(r, familyData));
-                if (valid.length === 0) {
-                    valid = recipes.filter(r => r.mealType === type);
-                    hasConflict = true;
-                }
+                if (valid.length === 0) valid = recipes.filter(r => isRecipeSafeForFamily(r, familyData));
+                if (valid.length === 0) valid = recipes.filter(r => r.mealType === type);
 
                 const recipe = valid[Math.floor(Math.random() * valid.length)];
 
-                const conflictNames = [];
-                familyData.forEach(m => {
-                    if (!isRecipeSafeForRestrictions(recipe, m.restrictions)) {
-                        conflictNames.push(m.name);
-                    }
-                });
-                if (conflictNames.length > 0) hasConflict = true;
-
                 currentWeekPlan.push({
                     day, type, recipe,
-                    familyTag: `Adapted for ${familyData.length} members`,
-                    hasConflict,
-                    conflictNames
+                    familyTag: familyTagText
                 });
             });
         });
@@ -564,11 +561,6 @@ document.addEventListener("DOMContentLoaded", () => {
         currentWeekPlan.forEach((item, index) => {
             const card = document.createElement("div");
             card.className = "card meal-card";
-            if (item.hasConflict) card.style.borderLeftColor = "#e67e22";
-
-            const conflictBanner = item.hasConflict
-                ? `<div style="background:#fff3e0;color:#e65100;font-size:11px;padding:6px 8px;border-radius:6px;margin-top:6px;">⚠️ Not suitable for: ${(item.conflictNames || []).join(", ") || "some restrictions"}. Tap 🔄 Change to pick a safe alternative.</div>`
-                : "";
 
             card.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -577,7 +569,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         <h3 style="margin: 4px 0; color: #2e7d32;">${item.recipe.title}</h3>
                         <p style="font-size: 12px; color: #555;">⏱️ ${item.recipe.prepTime} &nbsp;|&nbsp; 🔥 ${item.recipe.calories} kcal</p>
                         <span class="family-tag">${item.familyTag}</span>
-                        ${conflictBanner}
                     </div>
                     <button class="btn-secondary" style="font-size: 11px; padding: 4px 8px;" onclick="event.stopPropagation(); openSwapModal(${index})">🔄 Change</button>
                 </div>
@@ -648,18 +639,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentWeekPlan[pendingSwapIndex].recipe = pendingSwapRecipe;
 
-        if (isFamilyMode) {
-            const conflictNames = [];
-            currentFamilyData.forEach(m => {
-                if (!isRecipeSafeForRestrictions(pendingSwapRecipe, m.restrictions)) conflictNames.push(m.name);
-            });
-            currentWeekPlan[pendingSwapIndex].hasConflict = conflictNames.length > 0;
-            currentWeekPlan[pendingSwapIndex].conflictNames = conflictNames;
-        } else {
-            currentWeekPlan[pendingSwapIndex].hasConflict = !isRecipeSafeForRestrictions(pendingSwapRecipe, selectedRestrictions);
-            currentWeekPlan[pendingSwapIndex].conflictNames = currentWeekPlan[pendingSwapIndex].hasConflict ? ["your restrictions"] : [];
-        }
-
         renderCalendarFromPlan();
         updateShoppingList();
 
@@ -719,19 +698,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 div.querySelector(".select-alt-btn").addEventListener("click", () => {
                     currentWeekPlan[index].recipe = alt;
-
-                    if (isFamilyMode) {
-                        const conflictNames = [];
-                        currentFamilyData.forEach(m => {
-                            if (!isRecipeSafeForRestrictions(alt, m.restrictions)) conflictNames.push(m.name);
-                        });
-                        currentWeekPlan[index].hasConflict = conflictNames.length > 0;
-                        currentWeekPlan[index].conflictNames = conflictNames;
-                    } else {
-                        currentWeekPlan[index].hasConflict = !isSafe;
-                        currentWeekPlan[index].conflictNames = !isSafe ? ["your restrictions"] : [];
-                    }
-
                     renderCalendarFromPlan();
                     updateShoppingList();
                     closeModal("swap-modal");
@@ -828,6 +794,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isFamilyMode) generateFamilyMenu();
                 else generateIndividualMenu();
                 showToast("Menu updated based on cooking time! ⏱️");
+            });
+        }
+
+        const darkModeToggle = document.getElementById("dark-mode-toggle");
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener("change", () => {
+                const enabled = darkModeToggle.checked;
+                document.body.classList.toggle("dark-mode", enabled);
+                localStorage.setItem("nutrisafe_darkmode", JSON.stringify(enabled));
+                showToast(enabled ? "Dark mode enabled 🌙" : "Dark mode disabled ☀️");
             });
         }
     }
