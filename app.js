@@ -145,8 +145,100 @@ document.addEventListener("DOMContentLoaded", () => {
             safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "wheat", "lactose"],
             ingredients: ["200g Shrimp, peeled", "2 Zucchini, spiralized", "3 cloves Garlic", "2 tbsp Olive oil", "1 pinch Chili flakes", "1/2 Lemon"],
             instructions: "1. Spiralize the zucchini into noodle shapes, or use a peeler to create thin ribbons.\n2. Pat the shrimp dry and season lightly with salt and pepper.\n3. Heat the olive oil in a large pan over medium-high heat, add the minced garlic and chili flakes and cook for 30 seconds.\n4. Add the shrimp and cook for 2 minutes per side until pink and opaque, then remove and set aside.\n5. Add the zucchini noodles to the same pan, toss for 1-2 minutes until just softened, return the shrimp to the pan, squeeze over the lemon juice, and serve immediately."
+        },
+        {
+            id: 17, title: "Greek Yogurt & Berry Parfait", mealType: "Breakfast", prepTime: "8 min", calories: 300,
+            macros: { protein: "18 g", carbs: "34 g", fat: "8 g" },
+            safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy"],
+            ingredients: ["250g Greek yogurt", "80g Mixed berries", "2 tbsp Granola", "1 tsp Honey"],
+            instructions: "1. Spoon half of the Greek yogurt into a glass or bowl.\n2. Add a layer of mixed berries and a sprinkle of granola.\n3. Repeat with the remaining yogurt, berries and granola to build a second layer.\n4. Drizzle with honey just before serving."
+        },
+        {
+            id: 18, title: "Banana Peanut Butter Smoothie Bowl", mealType: "Breakfast", prepTime: "10 min", calories: 350,
+            macros: { protein: "12 g", carbs: "44 g", fat: "14 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["2 Frozen bananas", "2 tbsp Peanut butter", "150ml Oat milk", "1 tbsp Chia seeds", "1 tbsp Granola"],
+            instructions: "1. Blend the frozen bananas, peanut butter and oat milk together until thick and creamy.\n2. Pour the mixture into a bowl.\n3. Top with chia seeds and granola.\n4. Serve immediately while still cold and thick."
+        },
+        {
+            id: 19, title: "Veggie & Egg Breakfast Burrito", mealType: "Breakfast", prepTime: "15 min", calories: 400,
+            macros: { protein: "20 g", carbs: "38 g", fat: "18 g" },
+            safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["1 Large tortilla", "3 Eggs", "1/4 Bell pepper", "1/4 Onion", "30g Cheese, shredded", "1 tbsp Olive oil"],
+            instructions: "1. Finely dice the bell pepper and onion, then sauté in olive oil for 3 minutes until softened.\n2. Whisk the eggs and pour them into the pan, scrambling gently for 2-3 minutes until just set.\n3. Sprinkle the shredded cheese over the eggs and let it melt slightly.\n4. Warm the tortilla, spoon the egg mixture down the center, and roll it up tightly.\n5. Slice in half and serve warm."
+        },
+        {
+            id: 20, title: "Buckwheat Berry Crepes", mealType: "Breakfast", prepTime: "20 min", calories: 320,
+            macros: { protein: "9 g", carbs: "46 g", fat: "10 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["120g Buckwheat flour", "250ml Almond milk", "1 tbsp Maple syrup", "100g Mixed berries", "1 tsp Vanilla extract"],
+            instructions: "1. Whisk the buckwheat flour, almond milk, maple syrup and vanilla together until smooth.\n2. Let the batter rest for 10 minutes.\n3. Heat a lightly oiled non-stick pan and pour a thin layer of batter, swirling to coat the base.\n4. Cook for 1-2 minutes per side until lightly golden.\n5. Fold or roll the crepes and top with fresh mixed berries."
+        },
+        {
+            id: 21, title: "Smoked Turkey & Egg Breakfast Cups", mealType: "Breakfast", prepTime: "25 min", calories: 270,
+            macros: { protein: "22 g", carbs: "3 g", fat: "17 g" },
+            safeFor: ["keto", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy"],
+            ingredients: ["6 Eggs", "80g Smoked turkey slices", "30g Cheese, shredded", "1/4 Onion, diced", "1 pinch Salt & pepper"],
+            instructions: "1. Preheat the oven to 180°C and line a muffin tin with the turkey slices to form little cups.\n2. Whisk the eggs with the diced onion, salt and pepper.\n3. Pour the egg mixture into each turkey cup, filling about three-quarters full.\n4. Sprinkle shredded cheese on top.\n5. Bake for 15-18 minutes until the eggs are set and lightly golden."
+        },
+        {
+            id: 22, title: "Grilled Chicken Caesar Salad", mealType: "Lunch", prepTime: "20 min", calories: 480,
+            macros: { protein: "40 g", carbs: "16 g", fat: "28 g" },
+            safeFor: ["cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["200g Chicken breast", "1 Romaine lettuce", "30g Parmesan, shaved", "2 tbsp Caesar dressing", "1 Egg"],
+            instructions: "1. Season the chicken breast and grill for 5-6 minutes per side until cooked through, then let it rest and slice.\n2. Boil the egg for 8 minutes, cool, peel and quarter it.\n3. Wash and chop the romaine lettuce, and place in a large bowl.\n4. Toss the lettuce with the Caesar dressing.\n5. Top with the sliced chicken, boiled egg and shaved Parmesan."
+        },
+        {
+            id: 23, title: "Black Bean & Corn Salad", mealType: "Lunch", prepTime: "15 min", calories: 390,
+            macros: { protein: "14 g", carbs: "56 g", fat: "12 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["1 can Black beans", "150g Sweet corn", "1 Red bell pepper", "1 Lime", "2 tbsp Olive oil", "1 tsp Cumin"],
+            instructions: "1. Drain and rinse the black beans and corn.\n2. Dice the red bell pepper into small pieces.\n3. In a large bowl, combine the beans, corn and bell pepper.\n4. Whisk together the lime juice, olive oil and cumin to make a dressing.\n5. Toss everything together and let it sit for 10 minutes before serving to let the flavors combine."
+        },
+        {
+            id: 24, title: "Tuna Salad Lettuce Wraps", mealType: "Lunch", prepTime: "12 min", calories: 340,
+            macros: { protein: "30 g", carbs: "8 g", fat: "20 g" },
+            safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["1 can Tuna, drained", "2 tbsp Mayonnaise", "1/4 Red onion, diced", "1 stalk Celery, diced", "1 Iceberg lettuce"],
+            instructions: "1. Flake the tuna into a bowl and mix with the mayonnaise.\n2. Stir in the diced red onion and celery.\n3. Separate the lettuce into individual leaves to use as wraps.\n4. Spoon the tuna mixture into each lettuce leaf.\n5. Fold and serve immediately, or chill for 10 minutes for extra crunch."
+        },
+        {
+            id: 25, title: "Falafel Pita with Tahini", mealType: "Lunch", prepTime: "25 min", calories: 460,
+            macros: { protein: "16 g", carbs: "58 g", fat: "18 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["8 Falafel balls", "1 Pita bread", "2 tbsp Tahini sauce", "1/2 Cucumber", "1 Tomato", "2 tbsp Fresh parsley, chopped"],
+            instructions: "1. Warm or fry the falafel balls according to package instructions until golden and heated through.\n2. Dice the cucumber and tomato.\n3. Warm the pita bread lightly in a dry pan or toaster.\n4. Fill the pita with falafel, cucumber, tomato and chopped parsley.\n5. Drizzle generously with tahini sauce before serving."
+        },
+        {
+            id: 26, title: "Vegan Black Bean Tacos", mealType: "Dinner", prepTime: "20 min", calories: 420,
+            macros: { protein: "16 g", carbs: "56 g", fat: "14 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
+            ingredients: ["1 can Black beans", "4 Corn tortillas", "1 Avocado", "1/4 Red cabbage, shredded", "1 Lime", "1 tsp Smoked paprika"],
+            instructions: "1. Warm the black beans in a pan with smoked paprika for 5 minutes, mashing slightly.\n2. Warm the corn tortillas in a dry skillet for 30 seconds per side.\n3. Slice the avocado and shred the red cabbage.\n4. Fill each tortilla with the black beans, avocado and cabbage.\n5. Squeeze fresh lime juice over the tacos before serving."
+        },
+        {
+            id: 27, title: "Chicken Fajita Bowl", mealType: "Dinner", prepTime: "25 min", calories: 500,
+            macros: { protein: "42 g", carbs: "30 g", fat: "22 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["200g Chicken breast", "1 Bell pepper", "1/2 Onion", "150g Cooked rice", "1 tbsp Olive oil", "1 tsp Chili powder"],
+            instructions: "1. Slice the chicken, bell pepper and onion into thin strips.\n2. Heat the olive oil in a large skillet and cook the chicken with the chili powder for 5-6 minutes until browned.\n3. Add the peppers and onion, and sauté for another 4-5 minutes until softened.\n4. Serve the fajita mixture over the cooked rice.\n5. Finish with a squeeze of lime if desired."
+        },
+        {
+            id: 28, title: "Turkey Meatballs with Zucchini Noodles", mealType: "Dinner", prepTime: "30 min", calories: 440,
+            macros: { protein: "38 g", carbs: "16 g", fat: "24 g" },
+            safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["250g Ground turkey", "1 Egg", "2 Zucchini, spiralized", "1/2 Onion, grated", "2 tbsp Tomato sauce", "1 tsp Italian herbs"],
+            instructions: "1. Mix the ground turkey with the egg, grated onion and Italian herbs, then shape into small meatballs.\n2. Heat a pan and cook the meatballs for 8-10 minutes, turning occasionally, until browned and cooked through.\n3. Spiralize the zucchini into noodles.\n4. Warm the tomato sauce in a separate pan and toss in the zucchini noodles for 2 minutes to soften slightly.\n5. Serve the meatballs over the zucchini noodles, topped with extra sauce."
+        },
+        {
+            id: 29, title: "Eggplant Parmesan Bake", mealType: "Dinner", prepTime: "40 min", calories: 480,
+            macros: { protein: "20 g", carbs: "38 g", fat: "26 g" },
+            safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy"],
+            ingredients: ["1 Large eggplant", "200g Tomato sauce", "100g Mozzarella, shredded", "30g Parmesan, grated", "2 tbsp Olive oil", "1 tsp Oregano"],
+            instructions: "1. Preheat the oven to 200°C. Slice the eggplant into rounds and brush lightly with olive oil.\n2. Roast the eggplant slices for 15 minutes until softened and lightly browned.\n3. In a baking dish, layer the eggplant with tomato sauce, mozzarella and a sprinkle of oregano, repeating the layers.\n4. Top with the grated Parmesan.\n5. Bake for 15-18 minutes until the cheese is bubbly and golden, then let rest for 5 minutes before serving."
         }
     ];
+
 
     /* --------------------------------------------------------------------
        ESTAT DE L'APLICACIÓ
@@ -162,53 +254,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let pendingSwapRecipe = null;
 
     function init() {
-        applyStoredDarkMode();
         renderSettingsCheckboxes();
         setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
         generateIndividualMenu();
-    }
-
-    function applyStoredDarkMode() {
-        injectDarkModeOverrides();
-        const stored = JSON.parse(localStorage.getItem("nutrisafe_darkmode")) || false;
-        document.body.classList.toggle("dark-mode", stored);
-        const toggle = document.getElementById("dark-mode-toggle");
-        if (toggle) toggle.checked = stored;
-    }
-
-    // Molts elements generats per JS (targetes de menú, alternatives, macros...) porten
-    // color inline i el body.dark-mode del style.css no els pot afectar sense tocar aquell
-    // fitxer. Per això injectem aquí un <style> addicional (no modifiquem style.css).
-    function injectDarkModeOverrides() {
-        if (document.getElementById("nutrisafe-dark-overrides")) return;
-        const style = document.createElement("style");
-        style.id = "nutrisafe-dark-overrides";
-        style.textContent = `
-            body.dark-mode .meal-card h3 { color: #66bb6a !important; }
-            body.dark-mode .meal-card p,
-            body.dark-mode .meal-card span:not(.family-tag):not(.alt-for-box) { color: #bbbbbb !important; }
-            body.dark-mode .family-tag { background: #2a3d2a !important; color: #8bc34a !important; }
-            body.dark-mode #swap-alternatives-list > div { background: #2a2a2a !important; border-color: #444 !important; }
-            body.dark-mode #swap-alternatives-list strong { color: #e0e0e0 !important; }
-            body.dark-mode #swap-alternatives-list p { color: #bbbbbb !important; }
-            body.dark-mode .macros-grid { background: #2a2a2a !important; }
-            body.dark-mode .macro-item { color: #bbbbbb !important; }
-            body.dark-mode .macro-value { color: #66bb6a !important; }
-            body.dark-mode #recipe-ingredients,
-            body.dark-mode #recipe-instructions { color: #dddddd !important; }
-            body.dark-mode #recipe-title,
-            body.dark-mode #planner-tab-title,
-            body.dark-mode section h2,
-            body.dark-mode section h3 { color: #66bb6a !important; }
-            body.dark-mode .shopping-list-item span { color: #e0e0e0 !important; }
-            body.dark-mode #main-grocery-list li[style*="color: #2e7d32"] { color: #66bb6a !important; }
-            body.dark-mode .close-btn { color: #e0e0e0 !important; }
-            body.dark-mode #toast-container .toast { background: #444444 !important; }
-            body.dark-mode .subtitle,
-            body.dark-mode p { color: #bbbbbb; }
-        `;
-        document.head.appendChild(style);
     }
 
     /* --------------------------------------------------------------------
@@ -501,6 +550,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const oldTitles = currentWeekPlan.map(item => item.recipe.title);
         currentWeekPlan = [];
 
+        // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
+        // el mateix plat dins d'una finestra de 3 dies.
+        const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
+
         days.forEach(day => {
             mealTypes.forEach(type => {
                 // Cascada: intentem sempre trobar una recepta segura per a les teves restriccions,
@@ -514,12 +567,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (available.length === 0) available = recipes.filter(r => isRecipeSafeForRestrictions(r, selectedRestrictions));
                 if (available.length === 0) available = recipes.filter(r => r.mealType === type);
 
+                // Evitem repetir un plat que ja hem menjat en els 2 dies anteriors (finestra de 3 dies)
+                const notRecent = available.filter(r => !recentByType[type].includes(r.title));
+                if (notRecent.length > 0) available = notRecent;
+
                 if (isRotation && available.length > 1) {
                     const filtered = available.filter(r => !oldTitles.includes(r.title));
                     if (filtered.length > 0) available = filtered;
                 }
 
                 const recipe = available[Math.floor(Math.random() * available.length)];
+                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 2);
+
                 currentWeekPlan.push({
                     day, type, recipe,
                     familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan"
@@ -556,6 +615,10 @@ document.addEventListener("DOMContentLoaded", () => {
             ? `Adapted for ${familyData.length} members`
             : `Family Plan (${familyData.length} members)`;
 
+        // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
+        // el mateix plat dins d'una finestra de 3 dies.
+        const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
+
         days.forEach(day => {
             mealTypes.forEach(type => {
                 // Cascada: si no trobem cap recepta segura per a tothom dins del tipus d'àpat
@@ -570,7 +633,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (valid.length === 0) valid = recipes.filter(r => isRecipeSafeForFamily(r, familyData));
                 if (valid.length === 0) valid = recipes.filter(r => r.mealType === type);
 
+                // Evitem repetir un plat que ja hem menjat en els 2 dies anteriors (finestra de 3 dies)
+                const notRecent = valid.filter(r => !recentByType[type].includes(r.title));
+                if (notRecent.length > 0) valid = notRecent;
+
                 const recipe = valid[Math.floor(Math.random() * valid.length)];
+                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 2);
 
                 // Si, malgrat la cascada, el plat triat no és apte per a algú en concret,
                 // li busquem una alternativa personal que SÍ pugui menjar.
@@ -650,10 +718,20 @@ document.addEventListener("DOMContentLoaded", () => {
     function populateRecipeModal(recipe, tagText) {
         document.getElementById("recipe-title").innerText = recipe.title;
         document.getElementById("recipe-family-info").innerText = tagText;
-        document.getElementById("macro-calories").innerText = recipe.calories + " kcal";
-        document.getElementById("macro-protein").innerText = recipe.macros.protein;
-        document.getElementById("macro-carbs").innerText = recipe.macros.carbs;
-        document.getElementById("macro-fat").innerText = recipe.macros.fat;
+
+        const macrosList = document.getElementById("recipe-macros");
+        macrosList.innerHTML = "";
+        const macroEntries = [
+            ["Calories", recipe.calories + " kcal"],
+            ["Protein", recipe.macros.protein],
+            ["Carbs", recipe.macros.carbs],
+            ["Fat", recipe.macros.fat]
+        ];
+        macroEntries.forEach(([label, value]) => {
+            const li = document.createElement("li");
+            li.innerText = `${label}: ${value}`;
+            macrosList.appendChild(li);
+        });
 
         const ingList = document.getElementById("recipe-ingredients");
         ingList.innerHTML = "";
@@ -870,16 +948,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isFamilyMode) generateFamilyMenu();
                 else generateIndividualMenu();
                 showToast("Menu updated based on cooking time! ⏱️");
-            });
-        }
-
-        const darkModeToggle = document.getElementById("dark-mode-toggle");
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener("change", () => {
-                const enabled = darkModeToggle.checked;
-                document.body.classList.toggle("dark-mode", enabled);
-                localStorage.setItem("nutrisafe_darkmode", JSON.stringify(enabled));
-                showToast(enabled ? "Dark mode enabled 🌙" : "Dark mode disabled ☀️");
             });
         }
     }
