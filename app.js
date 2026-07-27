@@ -609,39 +609,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentFamilyData = familyData;
 
-        // Només diem "Adapted" si algú de la família té una restricció de veritat.
-        const anyRealRestrictions = familyData.some(m => m.restrictions && m.restrictions.length > 0 && !m.restrictions.includes("none"));
-        const familyTagText = anyRealRestrictions
-            ? `Adapted for ${familyData.length} members`
-            : `Family Plan (${familyData.length} members)`;
-
         // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
         // el mateix plat dins d'una finestra de 3 dies.
         const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
 
         days.forEach(day => {
             mealTypes.forEach(type => {
-                // Cascada: si no trobem cap recepta segura per a tothom dins del tipus d'àpat
-                // i el temps disponible, anem relaxant les condicions però MAI la seguretat,
-                // fins trobar una recepta que sigui apta per a tots els membres de la família.
-                let valid = recipes.filter(r =>
-                    r.mealType === type &&
-                    getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
-                    isRecipeSafeForFamily(r, familyData)
-                );
-                if (valid.length === 0) valid = recipes.filter(r => r.mealType === type && isRecipeSafeForFamily(r, familyData));
-                if (valid.length === 0) valid = recipes.filter(r => isRecipeSafeForFamily(r, familyData));
-                if (valid.length === 0) valid = recipes.filter(r => r.mealType === type);
+                // El plat principal es tria pensant en la MAJORIA de la família (varietat real:
+                // carn, peix, vegetarià, vegà...), sense forçar que sigui apte per a tothom.
+                // Si algú no el pot menjar, li donem una alternativa personal a sota.
+                let pool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal);
+                if (pool.length === 0) pool = recipes.filter(r => r.mealType === type);
 
                 // Evitem repetir un plat que ja hem menjat en els 2 dies anteriors (finestra de 3 dies)
-                const notRecent = valid.filter(r => !recentByType[type].includes(r.title));
-                if (notRecent.length > 0) valid = notRecent;
+                const notRecent = pool.filter(r => !recentByType[type].includes(r.title));
+                if (notRecent.length > 0) pool = notRecent;
 
-                const recipe = valid[Math.floor(Math.random() * valid.length)];
+                const recipe = pool[Math.floor(Math.random() * pool.length)];
                 recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 2);
 
-                // Si, malgrat la cascada, el plat triat no és apte per a algú en concret,
-                // li busquem una alternativa personal que SÍ pugui menjar.
+                // Per a qui no pugui menjar aquest plat, li busquem una alternativa personal que SÍ pugui menjar.
                 const personalAlternatives = [];
                 familyData.forEach(m => {
                     if (!isRecipeSafeForRestrictions(recipe, m.restrictions)) {
@@ -654,6 +641,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                     }
                 });
+
+                const familyTagText = personalAlternatives.length > 0
+                    ? `Family Plan • adapted for ${personalAlternatives.length} member${personalAlternatives.length > 1 ? "s" : ""}`
+                    : `Family Plan (${familyData.length} members)`;
 
                 currentWeekPlan.push({
                     day, type, recipe,
