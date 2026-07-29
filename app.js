@@ -432,6 +432,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return parseInt(prepTimeStr) || 0;
     }
 
+    // Escala la quantitat d'un ingredient (p.ex. "150g Quinoa" x2 -> "300g Quinoa").
+    // S'utilitza per a les alternatives personals, que poden ser per a 1 o més persones.
+    function scaleIngredientQuantity(ingredientStr, multiplier) {
+        if (!multiplier || multiplier === 1) return ingredientStr;
+
+        const match = ingredientStr.match(/^(\d+\/\d+|\d+(?:\.\d+)?)(g|ml|kg|l)?(\s.*)?$/i);
+        if (!match) return ingredientStr;
+
+        const [, qtyStr, unit, rest] = match;
+        let qty;
+        if (qtyStr.includes("/")) {
+            const [num, den] = qtyStr.split("/").map(Number);
+            qty = den ? num / den : num;
+        } else {
+            qty = parseFloat(qtyStr);
+        }
+
+        let scaled = Math.round(qty * multiplier * 10) / 10;
+        const scaledStr = Number.isInteger(scaled) ? String(scaled) : String(scaled);
+
+        return `${scaledStr}${unit || ""}${rest || ""}`;
+    }
+
     /* --------------------------------------------------------------------
        FILTRATGE DE RESTRICCIONS
        -------------------------------------------------------------------- */
@@ -551,7 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentWeekPlan = [];
 
         // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
-        // el mateix plat dins d'una finestra de 3 dies.
+        // el mateix plat en dies consecutius (finestra mínima de 2 dies).
         const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
 
         days.forEach(day => {
@@ -567,7 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (available.length === 0) available = recipes.filter(r => isRecipeSafeForRestrictions(r, selectedRestrictions));
                 if (available.length === 0) available = recipes.filter(r => r.mealType === type);
 
-                // Evitem repetir un plat que ja hem menjat en els 2 dies anteriors (finestra de 3 dies)
+                // Evitem repetir un plat que ja hem menjat el dia anterior (mínim 2 dies entre repeticions)
                 const notRecent = available.filter(r => !recentByType[type].includes(r.title));
                 if (notRecent.length > 0) available = notRecent;
 
@@ -577,7 +600,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const recipe = available[Math.floor(Math.random() * available.length)];
-                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 2);
+                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 1);
 
                 currentWeekPlan.push({
                     day, type, recipe,
@@ -610,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentFamilyData = familyData;
 
         // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
-        // el mateix plat dins d'una finestra de 3 dies.
+        // el mateix plat en dies consecutius (finestra mínima de 2 dies).
         const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
 
         days.forEach(day => {
@@ -621,29 +644,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 let pool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal);
                 if (pool.length === 0) pool = recipes.filter(r => r.mealType === type);
 
-                // Evitem repetir un plat que ja hem menjat en els 2 dies anteriors (finestra de 3 dies)
+                // Evitem repetir un plat que ja hem menjat el dia anterior (mínim 2 dies entre repeticions)
                 const notRecent = pool.filter(r => !recentByType[type].includes(r.title));
                 if (notRecent.length > 0) pool = notRecent;
 
                 const recipe = pool[Math.floor(Math.random() * pool.length)];
-                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 2);
+                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 1);
 
-                // Per a qui no pugui menjar aquest plat, li busquem una alternativa personal que SÍ pugui menjar.
+                // Agrupem els membres que no poden menjar aquest plat segons les seves restriccions
+                // exactes, perquè comparteixin la mateixa alternativa i les quantitats es puguin
+                // escalar segons per a quantes persones és (1, 2, 3...).
+                const conflictingMembers = familyData.filter(m => !isRecipeSafeForRestrictions(recipe, m.restrictions));
+                const groupsByKey = {};
+                conflictingMembers.forEach(m => {
+                    const key = [...m.restrictions].sort().join(",");
+                    if (!groupsByKey[key]) groupsByKey[key] = { restrictions: m.restrictions, names: [] };
+                    groupsByKey[key].names.push(m.name);
+                });
+
                 const personalAlternatives = [];
-                familyData.forEach(m => {
-                    if (!isRecipeSafeForRestrictions(recipe, m.restrictions)) {
-                        let altPool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal && isRecipeSafeForRestrictions(r, m.restrictions));
-                        if (altPool.length === 0) altPool = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, m.restrictions));
-                        if (altPool.length === 0) altPool = recipes.filter(r => isRecipeSafeForRestrictions(r, m.restrictions));
-                        if (altPool.length > 0) {
-                            const altRecipe = altPool[Math.floor(Math.random() * altPool.length)];
-                            personalAlternatives.push({ name: m.name, recipe: altRecipe });
-                        }
+                Object.values(groupsByKey).forEach(group => {
+                    let altPool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal && isRecipeSafeForRestrictions(r, group.restrictions));
+                    if (altPool.length === 0) altPool = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, group.restrictions));
+                    if (altPool.length === 0) altPool = recipes.filter(r => isRecipeSafeForRestrictions(r, group.restrictions));
+                    if (altPool.length > 0) {
+                        const altRecipe = altPool[Math.floor(Math.random() * altPool.length)];
+                        personalAlternatives.push({ names: group.names, recipe: altRecipe, servings: group.names.length });
                     }
                 });
 
                 const familyTagText = personalAlternatives.length > 0
-                    ? `Family Plan • adapted for ${personalAlternatives.length} member${personalAlternatives.length > 1 ? "s" : ""}`
+                    ? `Family Plan • adapted for ${conflictingMembers.length} member${conflictingMembers.length > 1 ? "s" : ""}`
                     : `Family Plan (${familyData.length} members)`;
 
                 currentWeekPlan.push({
@@ -673,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
             card.className = "card meal-card";
 
             const altHtml = (item.personalAlternatives || []).map((pa, i) =>
-                `<div class="alt-for-box" data-alt-i="${i}" style="background:#fff3e0;color:#e65100;font-size:11px;padding:6px 8px;border-radius:6px;margin-top:6px;cursor:pointer;font-weight:bold;">🍽️ Alternative for: ${pa.name} — tap to view</div>`
+                `<div class="alt-for-box" data-alt-i="${i}" style="background:#fff3e0;color:#e65100;font-size:11px;padding:6px 8px;border-radius:6px;margin-top:6px;cursor:pointer;font-weight:bold;">🍽️ Alternative for: ${pa.names.join(", ")}${pa.servings > 1 ? ` (${pa.servings} people)` : ""} — tap to view</div>`
             ).join("");
 
             card.innerHTML = `
@@ -706,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
        MODAL DE RECEPTA (normal + previsualització d'alternatives)
        -------------------------------------------------------------------- */
 
-    function populateRecipeModal(recipe, tagText) {
+    function populateRecipeModal(recipe, tagText, servings = 1) {
         document.getElementById("recipe-title").innerText = recipe.title;
         document.getElementById("recipe-family-info").innerText = tagText;
 
@@ -728,7 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ingList.innerHTML = "";
         recipe.ingredients.forEach(ing => {
             const li = document.createElement("li");
-            li.innerText = ing;
+            li.innerText = scaleIngredientQuantity(ing, servings);
             ingList.appendChild(li);
         });
 
@@ -763,7 +794,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openPersonalAlternativeModal(personalAlt) {
-        populateRecipeModal(personalAlt.recipe, `Alternative for ${personalAlt.name}`);
+        const peopleLabel = personalAlt.names.join(", ");
+        const tagText = personalAlt.servings > 1
+            ? `Alternative for ${peopleLabel} (${personalAlt.servings} people)`
+            : `Alternative for ${peopleLabel}`;
+
+        populateRecipeModal(personalAlt.recipe, tagText, personalAlt.servings);
 
         const useBtn = document.getElementById("recipe-use-btn");
         if (useBtn) useBtn.style.display = "none";
@@ -869,6 +905,12 @@ document.addEventListener("DOMContentLoaded", () => {
         currentWeekPlan.forEach(item => {
             item.recipe.ingredients.forEach(ing => {
                 aggregated[ing] = (aggregated[ing] || 0) + 1;
+            });
+            (item.personalAlternatives || []).forEach(pa => {
+                pa.recipe.ingredients.forEach(ing => {
+                    const scaledIng = scaleIngredientQuantity(ing, pa.servings || 1);
+                    aggregated[scaledIng] = (aggregated[scaledIng] || 0) + 1;
+                });
             });
         });
 
