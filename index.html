@@ -10,6 +10,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NutriSafe">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="logo.png">
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -157,5 +159,15 @@
     <div id="toast-container"></div>
 
     <script src="app.js"></script>
+    <script>
+        // Registrem el Service Worker perquè l'app funcioni offline i sigui instal·lable.
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./sw.js").catch(err => {
+                    console.error("No s'ha pogut registrar el Service Worker:", err);
+                });
+            });
+        }
+    </script>
 </body>
 </html>
