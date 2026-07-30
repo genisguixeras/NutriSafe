@@ -236,6 +236,90 @@ document.addEventListener("DOMContentLoaded", () => {
             safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy"],
             ingredients: ["1 Large eggplant", "200g Tomato sauce", "100g Mozzarella, shredded", "30g Parmesan, grated", "2 tbsp Olive oil", "1 tsp Oregano"],
             instructions: "1. Preheat the oven to 200°C. Slice the eggplant into rounds and brush lightly with olive oil.\n2. Roast the eggplant slices for 15 minutes until softened and lightly browned.\n3. In a baking dish, layer the eggplant with tomato sauce, mozzarella and a sprinkle of oregano, repeating the layers.\n4. Top with the grated Parmesan.\n5. Bake for 15-18 minutes until the cheese is bubbly and golden, then let rest for 5 minutes before serving."
+        },
+        {
+            id: 30, title: "Protein Pancakes with Almond Butter", mealType: "Breakfast", prepTime: "18 min", calories: 420,
+            macros: { protein: "16 g", carbs: "48 g", fat: "18 g" },
+            safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["100g Oat flour", "2 Eggs", "1 Banana", "2 tbsp Almond butter", "1 tsp Cinnamon", "1 tsp Baking powder"],
+            instructions: "1. Mash the banana in a bowl and whisk in the eggs until combined.\n2. Stir in the oat flour, cinnamon and baking powder until you get a smooth batter.\n3. Heat a lightly oiled non-stick pan over medium heat and pour small portions of batter.\n4. Cook for 2 minutes per side until golden and cooked through.\n5. Stack the pancakes and drizzle with warmed almond butter before serving."
+        },
+        {
+            id: 31, title: "Shakshuka (Eggs in Tomato Sauce)", mealType: "Breakfast", prepTime: "25 min", calories: 320,
+            macros: { protein: "18 g", carbs: "18 g", fat: "20 g" },
+            safeFor: ["vegetarian", "cows_milk", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["4 Eggs", "400g Crushed tomatoes", "1 Bell pepper", "1 Onion", "2 cloves Garlic", "1 tsp Cumin", "1 tsp Paprika"],
+            instructions: "1. Finely chop the onion and bell pepper, and mince the garlic.\n2. Sauté the onion and pepper in a pan for 5 minutes until softened, then add the garlic, cumin and paprika and cook for 1 minute.\n3. Pour in the crushed tomatoes and simmer for 10 minutes until slightly thickened.\n4. Make small wells in the sauce and crack an egg into each one.\n5. Cover the pan and cook for 6-8 minutes until the egg whites are set but yolks are still soft, then serve straight from the pan."
+        },
+        {
+            id: 32, title: "Vegan Tofu Scramble", mealType: "Breakfast", prepTime: "15 min", calories: 310,
+            macros: { protein: "20 g", carbs: "14 g", fat: "18 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
+            ingredients: ["250g Firm tofu", "1/2 tsp Turmeric", "60g Fresh spinach", "1/2 Bell pepper", "2 tbsp Nutritional yeast", "1 tbsp Olive oil"],
+            instructions: "1. Crumble the tofu with your hands or a fork into a bowl and mix with the turmeric.\n2. Dice the bell pepper finely.\n3. Heat the olive oil in a pan and sauté the bell pepper for 3 minutes until softened.\n4. Add the crumbled tofu and cook for 5-6 minutes, stirring occasionally, until lightly golden.\n5. Stir in the spinach and nutritional yeast, cooking for 1-2 more minutes until the spinach wilts, then serve."
+        },
+        {
+            id: 33, title: "Apple Cinnamon Baked Oatmeal", mealType: "Breakfast", prepTime: "35 min", calories: 300,
+            macros: { protein: "8 g", carbs: "54 g", fat: "7 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["150g Oats", "1 Apple, diced", "250ml Oat milk", "2 tbsp Maple syrup", "1 tsp Cinnamon", "1 tbsp Chia seeds"],
+            instructions: "1. Preheat the oven to 180°C and lightly grease a small baking dish.\n2. In a bowl, mix the oats, diced apple, oat milk, maple syrup, cinnamon and chia seeds.\n3. Pour the mixture into the baking dish, spreading it evenly.\n4. Bake for 25 minutes until set and golden on top.\n5. Let it cool for 5 minutes before slicing into portions and serving."
+        },
+        {
+            id: 34, title: "Shrimp & Avocado Salad", mealType: "Lunch", prepTime: "15 min", calories: 380,
+            macros: { protein: "30 g", carbs: "12 g", fat: "24 g" },
+            safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "wheat", "soy", "lactose"],
+            ingredients: ["200g Shrimp, cooked", "1 Avocado", "80g Mixed greens", "100g Cherry tomatoes", "1 Lime", "2 tbsp Olive oil"],
+            instructions: "1. Halve the cherry tomatoes and dice the avocado.\n2. Arrange the mixed greens on a plate or in a bowl.\n3. Top with the cooked shrimp, avocado and cherry tomatoes.\n4. Whisk together the lime juice and olive oil to make a simple dressing.\n5. Drizzle the dressing over the salad just before serving."
+        },
+        {
+            id: 35, title: "Vegan Buddha Bowl", mealType: "Lunch", prepTime: "30 min", calories: 450,
+            macros: { protein: "15 g", carbs: "62 g", fat: "16 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["100g Quinoa", "1 can Chickpeas", "1 Sweet potato", "60g Kale", "2 tbsp Tahini", "1 Lemon"],
+            instructions: "1. Preheat the oven to 200°C. Cube the sweet potato, toss with a little oil, and roast for 20 minutes until tender.\n2. Meanwhile, cook the quinoa according to package instructions.\n3. Drain the chickpeas and massage the kale with a little lemon juice to soften it.\n4. Whisk the tahini with lemon juice and a splash of water to make a creamy dressing.\n5. Assemble the bowl with quinoa, roasted sweet potato, chickpeas and kale, and drizzle with the tahini dressing."
+        },
+        {
+            id: 36, title: "Caprese Sandwich", mealType: "Lunch", prepTime: "10 min", calories: 420,
+            macros: { protein: "18 g", carbs: "42 g", fat: "20 g" },
+            safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy"],
+            ingredients: ["1 Ciabatta roll", "100g Fresh mozzarella", "1 Tomato", "8 Fresh basil leaves", "1 tbsp Balsamic glaze", "1 tbsp Olive oil"],
+            instructions: "1. Slice the ciabatta roll in half and drizzle the inside with olive oil.\n2. Slice the mozzarella and tomato into rounds.\n3. Layer the mozzarella, tomato and basil leaves onto the bottom half of the bread.\n4. Drizzle with balsamic glaze.\n5. Close the sandwich, press gently, and slice in half to serve."
+        },
+        {
+            id: 37, title: "Thai Peanut Chicken Noodle Salad", mealType: "Lunch", prepTime: "25 min", calories: 520,
+            macros: { protein: "36 g", carbs: "48 g", fat: "22 g" },
+            safeFor: ["cows_milk", "eggs", "tree_nuts", "fish", "shellfish", "wheat", "lactose"],
+            ingredients: ["200g Chicken breast", "150g Rice noodles", "3 tbsp Peanut sauce", "1 Carrot, julienned", "1/2 Cucumber", "2 tbsp Fresh cilantro"],
+            instructions: "1. Cook the chicken breast in a hot pan for 5-6 minutes per side until fully cooked, then slice thinly.\n2. Cook the rice noodles according to package instructions, then rinse under cold water and drain.\n3. Julienne the carrot and cucumber into thin strips.\n4. Toss the noodles with the peanut sauce until well coated.\n5. Top with the sliced chicken, carrot, cucumber and fresh cilantro before serving."
+        },
+        {
+            id: 38, title: "Baked Ziti with Marinara", mealType: "Dinner", prepTime: "45 min", calories: 560,
+            macros: { protein: "24 g", carbs: "62 g", fat: "22 g" },
+            safeFor: ["vegetarian", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy"],
+            ingredients: ["250g Ziti pasta", "400g Marinara sauce", "150g Ricotta cheese", "100g Mozzarella, shredded", "1 tsp Italian herbs", "2 tbsp Fresh basil"],
+            instructions: "1. Preheat the oven to 190°C and cook the ziti in salted boiling water until just al dente, then drain.\n2. In a bowl, mix the cooked pasta with the marinara sauce, ricotta and Italian herbs.\n3. Transfer to a baking dish and top with the shredded mozzarella.\n4. Bake for 20-25 minutes until the cheese is melted and golden.\n5. Garnish with fresh basil before serving."
+        },
+        {
+            id: 39, title: "Pork Tenderloin with Roasted Brussels Sprouts", mealType: "Dinner", prepTime: "35 min", calories: 460,
+            macros: { protein: "40 g", carbs: "22 g", fat: "22 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["300g Pork tenderloin", "250g Brussels sprouts", "3 cloves Garlic", "2 tbsp Olive oil", "1 tsp Fresh thyme", "1 tbsp Honey"],
+            instructions: "1. Preheat the oven to 200°C. Halve the Brussels sprouts and toss with 1 tbsp olive oil, salt and pepper.\n2. Roast the Brussels sprouts for 20 minutes, shaking the tray halfway through.\n3. Season the pork tenderloin with thyme, salt and pepper, then sear in the remaining olive oil for 2-3 minutes per side.\n4. Transfer the pork to the oven and roast for 12-15 minutes until cooked through, brushing with honey in the last 5 minutes.\n5. Let the pork rest for 5 minutes, slice, and serve alongside the roasted Brussels sprouts."
+        },
+        {
+            id: 40, title: "Vegan Lentil Bolognese", mealType: "Dinner", prepTime: "35 min", calories: 430,
+            macros: { protein: "18 g", carbs: "68 g", fat: "8 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["150g Green lentils", "250g Spaghetti", "400g Crushed tomatoes", "1 Carrot", "1 Celery stalk", "1 Onion", "1 tsp Italian herbs"],
+            instructions: "1. Finely dice the carrot, celery and onion.\n2. Sauté the vegetables in a pot for 5 minutes until softened.\n3. Add the lentils, crushed tomatoes and Italian herbs, then simmer for 20 minutes, stirring occasionally, until the lentils are tender and the sauce has thickened.\n4. Meanwhile, cook the spaghetti according to package instructions.\n5. Serve the lentil bolognese sauce over the spaghetti."
+        },
+        {
+            id: 41, title: "Miso Glazed Salmon with Bok Choy", mealType: "Dinner", prepTime: "25 min", calories: 520,
+            macros: { protein: "40 g", carbs: "24 g", fat: "28 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "lactose"],
+            ingredients: ["220g Salmon fillet", "2 tbsp Miso paste", "1 tbsp Honey", "2 Bok choy", "150g Cooked rice", "1 tsp Sesame oil"],
+            instructions: "1. Whisk together the miso paste and honey to make a glaze.\n2. Brush the salmon fillet generously with the glaze and let it marinate for 10 minutes.\n3. Heat a pan over medium-high heat and cook the salmon for 4 minutes per side until caramelized and cooked through.\n4. Meanwhile, halve the bok choy and sauté in sesame oil for 3-4 minutes until just tender.\n5. Serve the glazed salmon and bok choy over the cooked rice."
         }
     ];
 
