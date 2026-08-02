@@ -69,8 +69,8 @@
             <div class="card">
                 <h3 style="font-size: 14px; margin-bottom: 6px;">⏱️ Cooking Time</h3>
                 <select id="settings-cooking-time" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
-                    <option value="30">Between 10 and 30 mins</option>
-                    <option value="60" selected>Between 30 mins and 1 hour</option>
+                    <option value="40">Between 20 and 40 mins</option>
+                    <option value="60" selected>Between 40 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
             </div>
@@ -95,8 +95,8 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('recipe-modal')" style="font-size: 34px; font-weight: bold; line-height: 1; top: 10px; right: 16px;">&times;</span>
             <h2 id="recipe-title" style="font-size: 18px; color: #2e7d32;"></h2>
-            <p id="recipe-family-info" class="family-tag"></p>
-            <div><button class="btn-swap" style="padding: 10px 18px; font-size: 0.95rem; font-weight: 800; box-shadow: 0 3px 8px rgba(230,126,34,0.4); border-radius: 8px;" onclick="openSwapFromModal()">🔄 Change meal</button></div>
+            <p id="recipe-family-info" class="family-tag" style="margin-bottom: 14px; display: inline-block;"></p>
+            <div style="margin-bottom: 6px;"><button class="btn-swap" style="padding: 10px 18px; font-size: 0.95rem; font-weight: 800; box-shadow: 0 3px 8px rgba(230,126,34,0.4); border-radius: 8px;" onclick="openSwapFromModal()">🔄 Change meal</button></div>
             <h3 style="font-size: 14px; color: #2e7d32; margin-top: 14px;">Macros</h3>
             <ul id="recipe-macros" style="font-size: 13px; padding-left: 15px; margin-top: 4px; line-height: 1.6;"></ul>
             <h3 style="font-size: 14px; color: #2e7d32; margin-top: 12px;">Ingredients</h3>
@@ -125,8 +125,8 @@
             <div style="text-align: left; margin-bottom: 15px;">
                 <label style="font-size: 12px; font-weight: bold;">Cooking time per day:</label>
                 <select id="onboarding-time" style="width: 100%; padding: 8px; margin-top: 5px; border-radius: 6px; border: 1px solid #ccc;">
-                    <option value="30">Between 10 and 30 mins</option>
-                    <option value="60" selected>Between 30 mins and 1 hour</option>
+                    <option value="40">Between 20 and 40 mins</option>
+                    <option value="60" selected>Between 40 mins and 1 hour</option>
                     <option value="120">More than 1 hour</option>
                 </select>
             </div>
