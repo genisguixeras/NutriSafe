@@ -757,8 +757,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
+                const safeMembers = familyData.filter(m => isRecipeSafeForRestrictions(recipe, m.restrictions));
+
                 const familyTagText = personalAlternatives.length > 0
-                    ? `Family Plan • adapted for ${conflictingMembers.length} member${conflictingMembers.length > 1 ? "s" : ""}`
+                    ? `Adapted for: ${safeMembers.map(m => m.name).join(", ")}`
                     : `Family Plan (${familyData.length} members)`;
 
                 currentWeekPlan.push({
