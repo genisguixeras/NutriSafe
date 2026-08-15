@@ -338,11 +338,77 @@ document.addEventListener("DOMContentLoaded", () => {
     let pendingSwapRecipe = null;
 
     function init() {
+        loadCustomRecipes();
         renderSettingsCheckboxes();
+        renderNewRecipeSafeForCheckboxes();
         setupFamilyMembersUI(parseInt(document.getElementById("family-count-input")?.value) || 4);
         setupEventListeners();
         generateIndividualMenu();
     }
+
+    // Carrega les receptes que l'usuari ha afegit ell mateix (desades localment)
+    // i les incorpora al conjunt de receptes disponibles per generar menús.
+    function loadCustomRecipes() {
+        const stored = JSON.parse(localStorage.getItem("nutrisafe_custom_recipes")) || [];
+        stored.forEach(r => recipes.push(r));
+    }
+
+    function renderNewRecipeSafeForCheckboxes() {
+        const container = document.getElementById("new-recipe-safefor");
+        if (!container) return;
+        container.innerHTML = "";
+
+        dietaryOptions.filter(opt => opt.id !== "none").forEach(opt => {
+            const label = document.createElement("label");
+            label.className = "checkbox-item";
+            label.innerHTML = `<input type="checkbox" class="new-recipe-safefor-cb" value="${opt.id}"> ${opt.label}`;
+            container.appendChild(label);
+        });
+    }
+
+    window.submitNewRecipe = function() {
+        const title = document.getElementById("new-recipe-title").value.trim();
+        const mealType = document.getElementById("new-recipe-mealtype").value;
+        const prepTime = parseInt(document.getElementById("new-recipe-preptime").value) || 20;
+        const calories = parseInt(document.getElementById("new-recipe-calories").value) || 0;
+        const protein = parseInt(document.getElementById("new-recipe-protein").value) || 0;
+        const carbs = parseInt(document.getElementById("new-recipe-carbs").value) || 0;
+        const fat = parseInt(document.getElementById("new-recipe-fat").value) || 0;
+        const ingredientsRaw = document.getElementById("new-recipe-ingredients").value.trim();
+        const instructions = document.getElementById("new-recipe-instructions").value.trim();
+        const safeFor = Array.from(document.querySelectorAll(".new-recipe-safefor-cb:checked")).map(cb => cb.value);
+
+        if (!title || !ingredientsRaw || !instructions) {
+            showToast("Please fill in the title, ingredients and instructions ⚠️");
+            return;
+        }
+
+        const ingredients = ingredientsRaw.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+
+        const newRecipe = {
+            id: Date.now(),
+            title, mealType, prepTime: `${prepTime} min`, calories,
+            macros: { protein: `${protein} g`, carbs: `${carbs} g`, fat: `${fat} g` },
+            safeFor,
+            ingredients,
+            instructions
+        };
+
+        recipes.push(newRecipe);
+
+        const stored = JSON.parse(localStorage.getItem("nutrisafe_custom_recipes")) || [];
+        stored.push(newRecipe);
+        localStorage.setItem("nutrisafe_custom_recipes", JSON.stringify(stored));
+
+        // Netegem el formulari per si l'usuari en vol afegir una altra
+        document.getElementById("new-recipe-title").value = "";
+        document.getElementById("new-recipe-ingredients").value = "";
+        document.getElementById("new-recipe-instructions").value = "";
+        document.querySelectorAll(".new-recipe-safefor-cb").forEach(cb => cb.checked = false);
+
+        closeModal("add-recipe-modal");
+        showToast(`"${title}" added to your recipes! 🎉`);
+    };
 
     /* --------------------------------------------------------------------
        FUNCIONS D'INTERFÍCIE GENERALS (abans vivien a l'HTML, ara centralitzades aquí)
