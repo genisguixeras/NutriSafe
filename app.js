@@ -320,6 +320,62 @@ document.addEventListener("DOMContentLoaded", () => {
             safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "shellfish", "wheat", "lactose"],
             ingredients: ["220g Salmon fillet", "2 tbsp Miso paste", "1 tbsp Honey", "2 Bok choy", "150g Cooked rice", "1 tsp Sesame oil"],
             instructions: "1. Whisk together the miso paste and honey to make a glaze.\n2. Brush the salmon fillet generously with the glaze and let it marinate for 10 minutes.\n3. Heat a pan over medium-high heat and cook the salmon for 4 minutes per side until caramelized and cooked through.\n4. Meanwhile, halve the bok choy and sauté in sesame oil for 3-4 minutes until just tender.\n5. Serve the glazed salmon and bok choy over the cooked rice."
+                },
+        {
+            id: 42, title: "Banana Walnut Breakfast Bread", mealType: "Breakfast", prepTime: "50 min", calories: 340,
+            macros: { protein: "9 g", carbs: "46 g", fat: "14 g" },
+            safeFor: ["vegetarian", "cows_milk", "peanuts", "fish", "shellfish", "soy", "lactose"],
+            ingredients: ["250g Wheat flour", "3 Ripe bananas", "2 Eggs", "60g Walnuts, chopped", "80ml Olive oil", "1 tsp Baking powder", "1 tsp Cinnamon"],
+            instructions: "1. Preheat the oven to 180°C and line a loaf tin with baking paper.\n2. Mash the bananas, then whisk in the eggs and olive oil.\n3. Fold in the flour, baking powder, cinnamon and walnuts until just combined.\n4. Pour into the tin and bake for 40 minutes, until a skewer comes out clean. Cool 10 minutes and slice."
+        },
+        {
+            id: 43, title: "Apple Cinnamon Quinoa Porridge", mealType: "Breakfast", prepTime: "40 min", calories: 330,
+            macros: { protein: "9 g", carbs: "62 g", fat: "8 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["100g Quinoa", "350ml Water", "2 Apples, diced", "1 tsp Cinnamon", "2 tbsp Maple syrup", "2 tbsp Pumpkin seeds"],
+            instructions: "1. Rinse the quinoa and place it in a pot with the water and cinnamon.\n2. Bring to a boil, then simmer for 20 minutes until soft and creamy.\n3. Add the diced apples and cook for 10 more minutes.\n4. Serve topped with maple syrup and pumpkin seeds."
+        },
+        {
+            id: 44, title: "Slow-Cooked Chicken & Vegetable Soup", mealType: "Lunch", prepTime: "55 min", calories: 390,
+            macros: { protein: "34 g", carbs: "32 g", fat: "14 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["300g Chicken thighs", "2 Carrots", "2 Celery stalks", "1 Onion", "2 Potatoes", "800ml Chicken stock", "2 cloves Garlic", "1 tsp Thyme"],
+            instructions: "1. Dice the carrots, celery, onion and potatoes, and mince the garlic.\n2. Place everything in a large pot with the chicken thighs, stock and thyme.\n3. Bring to a boil, then simmer gently for 40 minutes.\n4. Remove the chicken, shred it, return it to the pot and serve hot."
+        },
+        {
+            id: 45, title: "Stuffed Bell Peppers with Rice & Beans", mealType: "Lunch", prepTime: "50 min", calories: 430,
+            macros: { protein: "14 g", carbs: "74 g", fat: "8 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["2 Bell peppers", "150g Rice", "1 can Kidney beans", "1 Onion", "200g Tomato sauce", "1 tsp Cumin", "1 tbsp Olive oil"],
+            instructions: "1. Cook the rice according to package instructions and preheat the oven to 190°C.\n2. Sauté the chopped onion in olive oil for 5 minutes, then stir in the beans, cumin, half of the tomato sauce and the rice.\n3. Halve the peppers, remove the seeds and fill them with the mixture.\n4. Place in a baking dish, top with the remaining sauce and bake for 30 minutes."
+        },
+        {
+            id: 46, title: "Lemon Herb Chicken with Roasted Potatoes", mealType: "Lunch", prepTime: "45 min", calories: 540,
+            macros: { protein: "38 g", carbs: "40 g", fat: "24 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["300g Chicken thighs", "300g Potatoes", "1 Lemon", "2 tbsp Olive oil", "1 tsp Oregano", "3 cloves Garlic"],
+            instructions: "1. Preheat the oven to 200°C. Cut the potatoes into wedges.\n2. Toss the chicken and potatoes with olive oil, lemon juice, oregano, garlic, salt and pepper.\n3. Spread on a baking tray and roast for 35-40 minutes, turning once, until golden and cooked through."
+        },
+        {
+            id: 47, title: "Hearty Beef & Potato Stew", mealType: "Dinner", prepTime: "65 min", calories: 560,
+            macros: { protein: "42 g", carbs: "40 g", fat: "22 g" },
+            safeFor: ["cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["300g Beef stew meat", "2 Potatoes", "2 Carrots", "1 Onion", "2 cloves Garlic", "500ml Beef stock", "2 tbsp Tomato paste", "1 tsp Paprika", "1 tbsp Olive oil"],
+            instructions: "1. Brown the beef in olive oil in a large pot, then set aside.\n2. Sauté the chopped onion and garlic for 3 minutes, then stir in the tomato paste and paprika.\n3. Return the beef, add the stock and simmer covered for 35 minutes.\n4. Add the chopped potatoes and carrots and cook for 20 more minutes until everything is tender."
+        },
+        {
+            id: 48, title: "Vegan Mushroom & Spinach Risotto", mealType: "Dinner", prepTime: "45 min", calories: 450,
+            macros: { protein: "12 g", carbs: "74 g", fat: "12 g" },
+            safeFor: ["vegan", "vegetarian", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["200g Arborio rice", "250g Mushrooms", "60g Fresh spinach", "1 Onion", "800ml Vegetable stock", "2 tbsp Nutritional yeast", "2 tbsp Olive oil", "2 cloves Garlic"],
+            instructions: "1. Sauté the chopped onion, garlic and sliced mushrooms in olive oil for 8 minutes.\n2. Add the rice and stir for 1 minute.\n3. Add the hot stock one ladle at a time, stirring often, for about 25 minutes until the rice is creamy and tender.\n4. Stir in the spinach and nutritional yeast, cook until wilted and serve."
+        },
+        {
+            id: 49, title: "Roasted Chicken Thighs with Garlic Cauliflower", mealType: "Dinner", prepTime: "50 min", calories: 560,
+            macros: { protein: "42 g", carbs: "12 g", fat: "38 g" },
+            safeFor: ["keto", "cows_milk", "eggs", "peanuts", "tree_nuts", "fish", "shellfish", "wheat", "soy", "lactose"],
+            ingredients: ["4 Chicken thighs, bone-in", "1 Cauliflower", "4 cloves Garlic", "3 tbsp Olive oil", "1 tsp Smoked paprika", "1 Lemon"],
+            instructions: "1. Preheat the oven to 210°C. Cut the cauliflower into florets and slice the garlic.\n2. Toss the chicken with 1 tbsp olive oil, paprika, salt and pepper.\n3. Toss the cauliflower and garlic with the remaining oil and spread on a tray; place the chicken on top.\n4. Roast for 40-45 minutes until the skin is crisp and the chicken is cooked through, then finish with lemon juice."
         }
     ];
 
@@ -572,10 +628,72 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function getMaxTimePerMeal() {
+      /* TEMPS DE CUINA: la SUMA del dia (esmorzar + dinar + sopar) ha d'entrar al rang triat */
+    const MEAL_ORDER = ["Breakfast", "Lunch", "Dinner"];
+    let planHasTimeMisses = false;
+
+    function getTimeRange() {
         const timeSelect = document.getElementById("settings-cooking-time");
-        const totalMinutes = timeSelect ? parseInt(timeSelect.value) : 60;
-        return (totalMinutes / 3) + 5;
+        const value = timeSelect ? timeSelect.value : "60";
+        if (value === "90") return { min: 60, max: 90 };
+        if (value === "120") return { min: 91, max: Infinity };
+        return { min: 40, max: 60 };
+    }
+
+    function getSafePool(type, restrictions) {
+        let pool = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, restrictions));
+        if (pool.length === 0) pool = recipes.filter(r => isRecipeSafeForRestrictions(r, restrictions));
+        if (pool.length === 0) pool = recipes.filter(r => r.mealType === type);
+        return pool;
+    }
+
+    // Prova totes les combinacions (una recepta per pool) i retorna les que queden més a prop
+    // del rang. dist = 0 vol dir que el total hi encaixa del tot.
+    function bestCombos(pools, range, fixedTime = 0) {
+        let best = Infinity;
+        let list = [];
+        const picked = [];
+        const walk = (i, total) => {
+            if (i === pools.length) {
+                const dist = total < range.min ? range.min - total : (total > range.max ? total - range.max : 0);
+                if (dist < best) { best = dist; list = [picked.slice()]; }
+                else if (dist === best) list.push(picked.slice());
+                return;
+            }
+            pools[i].forEach(r => {
+                picked.push(r);
+                walk(i + 1, total + getPrepTimeInt(r.prepTime));
+                picked.pop();
+            });
+        };
+        walk(0, fixedTime);
+        return { dist: best, list };
+    }
+
+    // Tria les 3 receptes d'un dia perquè la suma de temps entri al rang. Si és impossible
+    // (p. ex. per moltes restriccions), tria la combinació que hi quedi més a prop.
+    function pickDayMeals(pools, range, recentByType, isRotation, oldTitles) {
+        const softPools = pools.map((pool, i) => {
+            let p = pool;
+            const notRecent = p.filter(r => !recentByType[MEAL_ORDER[i]].includes(r.title));
+            if (notRecent.length > 0) p = notRecent;
+            if (isRotation && p.length > 1) {
+                const fresh = p.filter(r => !oldTitles.includes(r.title));
+                if (fresh.length > 0) p = fresh;
+            }
+            return p;
+        });
+
+        let result = bestCombos(softPools, range);
+        if (result.dist > 0) {
+            const full = bestCombos(pools, range);
+            if (full.dist < result.dist) result = full;
+        }
+        if (result.dist > 0) planHasTimeMisses = true;
+
+        const chosen = result.list[Math.floor(Math.random() * result.list.length)];
+        chosen.forEach((r, i) => { recentByType[MEAL_ORDER[i]] = [r.title]; });
+        return chosen;
     }
 
     function getPrepTimeInt(prepTimeStr) {
@@ -714,60 +832,36 @@ document.addEventListener("DOMContentLoaded", () => {
        GENERACIÓ DE MENÚS
        -------------------------------------------------------------------- */
 
-    function generateIndividualMenu(isRotation = false) {
+       function generateIndividualMenu(isRotation = false) {
         isFamilyMode = false;
+        planHasTimeMisses = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const mealTypes = ["Breakfast", "Lunch", "Dinner"];
-        const maxTimePerMeal = getMaxTimePerMeal();
+        const range = getTimeRange();
 
         const oldTitles = currentWeekPlan.map(item => item.recipe.title);
         currentWeekPlan = [];
 
-        // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
-        // el mateix plat en dies consecutius (finestra mínima de 2 dies).
         const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
+        const pools = MEAL_ORDER.map(type => getSafePool(type, selectedRestrictions));
+        const familyTag = selectedRestrictions.length && !selectedRestrictions.includes("none") ? "Personal (Adapted)" : "Personal Plan";
 
         days.forEach(day => {
-            mealTypes.forEach(type => {
-                // Cascada: intentem sempre trobar una recepta segura per a les teves restriccions,
-                // relaxant primer el temps de cocció i, com a últim recurs, el tipus d'àpat.
-                let available = recipes.filter(r =>
-                    r.mealType === type &&
-                    getPrepTimeInt(r.prepTime) <= maxTimePerMeal &&
-                    isRecipeSafeForRestrictions(r, selectedRestrictions)
-                );
-                if (available.length === 0) available = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, selectedRestrictions));
-                if (available.length === 0) available = recipes.filter(r => isRecipeSafeForRestrictions(r, selectedRestrictions));
-                if (available.length === 0) available = recipes.filter(r => r.mealType === type);
-
-                // Evitem repetir un plat que ja hem menjat el dia anterior (mínim 2 dies entre repeticions)
-                const notRecent = available.filter(r => !recentByType[type].includes(r.title));
-                if (notRecent.length > 0) available = notRecent;
-
-                if (isRotation && available.length > 1) {
-                    const filtered = available.filter(r => !oldTitles.includes(r.title));
-                    if (filtered.length > 0) available = filtered;
-                }
-
-                const recipe = available[Math.floor(Math.random() * available.length)];
-                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 1);
-
-                currentWeekPlan.push({
-                    day, type, recipe,
-                    familyTag: selectedRestrictions.length && !selectedRestrictions.includes("none") ? `Personal (Adapted)` : "Personal Plan"
-                });
+            const meals = pickDayMeals(pools, range, recentByType, isRotation, oldTitles);
+            meals.forEach((recipe, i) => {
+                currentWeekPlan.push({ day, type: MEAL_ORDER[i], recipe, familyTag });
             });
         });
 
         renderCalendarFromPlan();
         updateShoppingList();
+        if (planHasTimeMisses) showToast("Some days can't match your cooking time with your restrictions ⏱️");
     }
 
     function generateFamilyMenu() {
         isFamilyMode = true;
+        planHasTimeMisses = false;
         const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        const mealTypes = ["Breakfast", "Lunch", "Dinner"];
-        const maxTimePerMeal = getMaxTimePerMeal();
+        const range = getTimeRange();
 
         currentWeekPlan = [];
         const memberCards = document.querySelectorAll(".member-card");
@@ -782,64 +876,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentFamilyData = familyData;
 
-        // Recorda els darrers 2 dies triats per a cada tipus d'àpat, per no repetir
-        // el mateix plat en dies consecutius (finestra mínima de 2 dies).
         const recentByType = { Breakfast: [], Lunch: [], Dinner: [] };
+        // El plat principal es tria entre totes les receptes (sense filtrar per restriccions);
+        // qui no el pugui menjar rep una alternativa personal a sota.
+        const mainPools = MEAL_ORDER.map(type => recipes.filter(r => r.mealType === type));
 
         days.forEach(day => {
-            mealTypes.forEach(type => {
-                // El plat principal es tria pensant en la MAJORIA de la família (varietat real:
-                // carn, peix, vegetarià, vegà...), sense forçar que sigui apte per a tothom.
-                // Si algú no el pot menjar, li donem una alternativa personal a sota.
-                let pool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal);
-                if (pool.length === 0) pool = recipes.filter(r => r.mealType === type);
+            const dayMeals = pickDayMeals(mainPools, range, recentByType, false, []);
 
-                // Evitem repetir un plat que ja hem menjat el dia anterior (mínim 2 dies entre repeticions)
-                const notRecent = pool.filter(r => !recentByType[type].includes(r.title));
-                if (notRecent.length > 0) pool = notRecent;
-
-                const recipe = pool[Math.floor(Math.random() * pool.length)];
-                recentByType[type] = [recipe.title, ...recentByType[type]].slice(0, 1);
-
-                // Agrupem els membres que no poden menjar aquest plat segons les seves restriccions
-                // exactes, perquè comparteixin la mateixa alternativa i les quantitats es puguin
-                // escalar segons per a quantes persones és (1, 2, 3...).
-                const conflictingMembers = familyData.filter(m => !isRecipeSafeForRestrictions(recipe, m.restrictions));
-                const groupsByKey = {};
-                conflictingMembers.forEach(m => {
+            // Agrupem, per restriccions exactes, els membres que no poden menjar cada plat del dia
+            const groups = {};
+            dayMeals.forEach((recipe, mi) => {
+                familyData.filter(m => !isRecipeSafeForRestrictions(recipe, m.restrictions)).forEach(m => {
                     const key = [...m.restrictions].sort().join(",");
-                    if (!groupsByKey[key]) groupsByKey[key] = { restrictions: m.restrictions, names: [] };
-                    groupsByKey[key].names.push(m.name);
+                    if (!groups[key]) groups[key] = { restrictions: m.restrictions, namesByMeal: {} };
+                    (groups[key].namesByMeal[mi] = groups[key].namesByMeal[mi] || []).push(m.name);
                 });
+            });
 
-                const personalAlternatives = [];
-                Object.values(groupsByKey).forEach(group => {
-                    let altPool = recipes.filter(r => r.mealType === type && getPrepTimeInt(r.prepTime) <= maxTimePerMeal && isRecipeSafeForRestrictions(r, group.restrictions));
-                    if (altPool.length === 0) altPool = recipes.filter(r => r.mealType === type && isRecipeSafeForRestrictions(r, group.restrictions));
-                    if (altPool.length === 0) altPool = recipes.filter(r => isRecipeSafeForRestrictions(r, group.restrictions));
-                    if (altPool.length > 0) {
-                        const altRecipe = altPool[Math.floor(Math.random() * altPool.length)];
-                        personalAlternatives.push({ names: group.names, recipe: altRecipe, servings: group.names.length });
-                    }
+            // Cada grup rep alternatives que també fan que el SEU total del dia entri al rang
+            const altsByMeal = [[], [], []];
+            Object.values(groups).forEach(group => {
+                const slots = Object.keys(group.namesByMeal).map(Number);
+                const fixedTime = [0, 1, 2]
+                    .filter(i => !slots.includes(i))
+                    .reduce((sum, i) => sum + getPrepTimeInt(dayMeals[i].prepTime), 0);
+                const altPools = slots.map(mi => {
+                    let pool = recipes.filter(r => r.mealType === MEAL_ORDER[mi] && isRecipeSafeForRestrictions(r, group.restrictions));
+                    if (pool.length === 0) pool = recipes.filter(r => isRecipeSafeForRestrictions(r, group.restrictions));
+                    return pool;
                 });
+                const { dist, list } = bestCombos(altPools, range, fixedTime);
+                if (list.length === 0) return;
+                if (dist > 0) planHasTimeMisses = true;
+                const chosen = list[Math.floor(Math.random() * list.length)];
+                slots.forEach((mi, k) => {
+                    altsByMeal[mi].push({ names: group.namesByMeal[mi], recipe: chosen[k], servings: group.namesByMeal[mi].length });
+                });
+            });
 
+            dayMeals.forEach((recipe, mi) => {
+                const personalAlternatives = altsByMeal[mi];
                 const safeMembers = familyData.filter(m => isRecipeSafeForRestrictions(recipe, m.restrictions));
-
                 const familyTagText = personalAlternatives.length > 0
                     ? `Adapted for: ${safeMembers.map(m => m.name).join(", ")}`
                     : `Family Plan (${familyData.length} members)`;
 
-                currentWeekPlan.push({
-                    day, type, recipe,
-                    familyTag: familyTagText,
-                    personalAlternatives
-                });
+                currentWeekPlan.push({ day, type: MEAL_ORDER[mi], recipe, familyTag: familyTagText, personalAlternatives });
             });
         });
 
         renderCalendarFromPlan();
         updateShoppingList();
         showToast("Smart Family Plan generated successfully! 👨‍👩‍👧‍👦");
+        if (planHasTimeMisses) showToast("Some days can't match your cooking time with your restrictions ⏱️");
     }
 
     /* --------------------------------------------------------------------
@@ -994,16 +1084,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!meal || !modalList) return;
         modalList.innerHTML = "";
 
-        const maxTime = getMaxTimePerMeal();
+                const range = getTimeRange();
+        const dayStart = index - (index % 3);
+        const otherMealsTime = currentWeekPlan
+            .slice(dayStart, dayStart + 3)
+            .filter((m, i) => dayStart + i !== index)
+            .reduce((sum, m) => sum + getPrepTimeInt(m.recipe.prepTime), 0);
         const candidates = recipes.filter(r => r.mealType === meal.type && r.title !== meal.recipe.title);
 
         const safeCandidates = isFamilyMode
             ? candidates.filter(r => isRecipeSafeForFamily(r, currentFamilyData))
             : candidates.filter(r => isRecipeSafeForRestrictions(r, selectedRestrictions));
 
-        const timeFiltered = safeCandidates.filter(r => getPrepTimeInt(r.prepTime) <= maxTime);
+        // Només mostrem opcions amb les quals el total del dia continua dins del rang de temps
+        const timeFiltered = safeCandidates.filter(r => {
+            const total = otherMealsTime + getPrepTimeInt(r.prepTime);
+            return total >= range.min && total <= range.max;
+        });
         const finalList = timeFiltered.length > 0 ? timeFiltered : (safeCandidates.length > 0 ? safeCandidates : candidates);
-
         if (finalList.length === 0) {
             modalList.innerHTML = "<p style='font-size:12px; color:#666;'>No alternatives available.</p>";
         } else {
