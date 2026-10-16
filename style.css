@@ -180,6 +180,10 @@ button {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
+}/* Llista de la compra sense punts */
+.clean-list,
+.clean-list li {
+    list-style: none;
 }
 
 /* BARRA DE NAVEGACIÓ INFERIOR FIXA */
