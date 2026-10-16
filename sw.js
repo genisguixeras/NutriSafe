@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrisafe-v3";
+const CACHE_NAME = "nutrisafe-v4";
 const assets = [
   "./",
   "./index.html",
