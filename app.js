@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
         "🥚 Dairy & Eggs": ["milk", "egg", "eggs", "cheese", "butter", "yogurt", "yoghurt", "feta", "parmesan"],
         "🌾 Grains & Legumes": ["flour", "oats", "rice", "quinoa", "bread", "chia", "tofu", "pasta", "lentil", "chickpea", "beans", "tortilla", "couscous"],
         "🧂 Spices & Pantry": ["syrup", "oil", "salt", "pepper flakes", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "soy sauce", "mustard", "vanilla", "coconut milk", "basil", "thyme", "rosemary", "chili", "ginger", "vinegar", "honey", "stock", "broth", "nutritional yeast", "black pepper"]
-    };
+    };     // Bàsics que segurament ja tens a casa: van en una secció a part, al final de la llista
+    const pantryEssentialsKeywords = ["salt", "black pepper", "pepper flakes", "oil", "vinegar", "paprika", "oregano", "cumin", "cinnamon", "turmeric", "curry powder", "chili", "italian herbs", "baking powder", "soy sauce", "mustard", "vanilla", "honey", "syrup"];
 
     const recipes = [
         {
@@ -776,7 +777,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById("planner-tab-title").innerText = "Family Recipes";
             const restrCard = document.getElementById("settings-restrictions-card");
             if (restrCard) restrCard.style.display = "none";
-            openModal("premium-modal");
             switchTab("family-tab");
         } else {
             // En lloc de tancar l'onboarding directament, preguntem primer per al·lèrgies/dietes
@@ -1167,10 +1167,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const grouped = {};
         Object.keys(supermarketSections).forEach(sec => grouped[sec] = []);
         grouped["📦 Other Ingredients"] = [];
+        grouped["🏠 Pantry Essentials"] = [];
 
         Object.keys(aggregated).forEach(ing => {
             let placed = false;
             const lower = ing.toLowerCase();
+
+            // Primer mirem si és un bàsic que segurament ja tens a casa
+            if (pantryEssentialsKeywords.some(kw => lower.includes(kw))) {
+                grouped["🏠 Pantry Essentials"].push(ing);
+                return;
+            }
+
             for (const [sec, keywords] of Object.entries(supermarketSections)) {
                 if (keywords.some(kw => lower.includes(kw))) {
                     grouped[sec].push(ing);
@@ -1180,17 +1188,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (!placed) grouped["📦 Other Ingredients"].push(ing);
         });
-
-        Object.keys(grouped).forEach(sectionName => {
-            const list = grouped[sectionName];
-            if (list.length === 0) return;
-
-            const secTitle = document.createElement("li");
-            secTitle.style.cssText = "font-weight: bold; color: #2e7d32; margin-top: 12px; margin-bottom: 4px; font-size: 14px; list-style: none;";
-            secTitle.innerText = sectionName;
-            groceryList.appendChild(secTitle);
-
-            list.forEach(ing => {
                 const li = document.createElement("li");
                 li.className = "shopping-list-item";
                 li.innerHTML = `
