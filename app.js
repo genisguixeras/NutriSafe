@@ -1188,6 +1188,17 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (!placed) grouped["📦 Other Ingredients"].push(ing);
         });
+       
+        Object.keys(grouped).forEach(sectionName => {
+            const list = grouped[sectionName];
+            if (list.length === 0) return;
+
+            const secTitle = document.createElement("li");
+            secTitle.style.cssText = "font-weight: bold; color: #2e7d32; margin-top: 12px; margin-bottom: 4px; font-size: 14px; list-style: none;";
+            secTitle.innerText = sectionName;
+            groceryList.appendChild(secTitle);
+
+            list.forEach(ing => {
                 const li = document.createElement("li");
                 li.className = "shopping-list-item";
                 li.innerHTML = `
