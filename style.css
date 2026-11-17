@@ -218,6 +218,10 @@ nav {
     border-top: 3px solid transparent;
 }
 
+.nav-btn[hidden] {
+    display: none;
+}
+
 .nav-btn span:first-child {
     font-size: 1.3rem;
     line-height: 1;

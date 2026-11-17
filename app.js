@@ -764,6 +764,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.finishOnboarding = function(target) {
         const onboardingModal = document.getElementById("onboarding-modal");
+        const familyNavButton = document.querySelector('.nav-btn[data-tab="family-tab"]');
 
         const onboardingTime = document.getElementById("onboarding-time");
         const settingsTime = document.getElementById("settings-cooking-time");
@@ -773,12 +774,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (target === "family") {
             if (onboardingModal) onboardingModal.style.display = "none";
+            if (familyNavButton) familyNavButton.hidden = false;
             document.getElementById("nav-text-individual").innerText = "Recipes";
             document.getElementById("planner-tab-title").innerText = "Family Recipes";
             const restrCard = document.getElementById("settings-restrictions-card");
             if (restrCard) restrCard.style.display = "none";
             switchTab("family-tab");
         } else {
+            if (familyNavButton) familyNavButton.hidden = true;
             // En lloc de tancar l'onboarding directament, preguntem primer per al·lèrgies/dietes
             if (onboardingModal) onboardingModal.style.display = "none";
             renderOnboardingDietCheckboxes();
@@ -793,6 +796,8 @@ document.addEventListener("DOMContentLoaded", () => {
         closeModal("onboarding-diet-modal");
         renderSettingsCheckboxes();
 
+        const familyNavButton = document.querySelector('.nav-btn[data-tab="family-tab"]');
+        if (familyNavButton) familyNavButton.hidden = true;
         document.getElementById("nav-text-individual").innerText = "Individual Plan";
         document.getElementById("planner-tab-title").innerText = "Your Weekly Plan";
         const restrCard = document.getElementById("settings-restrictions-card");
@@ -1188,6 +1193,16 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (!placed) grouped["📦 Other Ingredients"].push(ing);
         });
+        Object.keys(grouped).forEach(sectionName => {
+            const list = grouped[sectionName];
+            if (list.length === 0) return;
+
+            const secTitle = document.createElement("li");
+            secTitle.style.cssText = "font-weight: bold; color: #2e7d32; margin-top: 12px; margin-bottom: 4px; font-size: 14px; list-style: none;";
+            secTitle.innerText = sectionName;
+            groceryList.appendChild(secTitle);
+
+            list.forEach(ing => {
                 const li = document.createElement("li");
                 li.className = "shopping-list-item";
                 li.innerHTML = `
