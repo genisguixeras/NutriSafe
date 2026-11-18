@@ -1193,6 +1193,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (!placed) grouped["📦 Other Ingredients"].push(ing);
         });
+       
         Object.keys(grouped).forEach(sectionName => {
             const list = grouped[sectionName];
             if (list.length === 0) return;
